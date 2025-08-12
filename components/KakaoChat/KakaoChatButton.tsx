@@ -1,40 +1,12 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FaComment } from 'react-icons/fa';
 
-declare global {
-  interface Window {
-    Kakao: any;
-  }
-}
-
 const KakaoChatButton = () => {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://developers.kakao.com/sdk/js/kakao.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    script.onload = () => {
-      if (window.Kakao && !window.Kakao.isInitialized()) {
-        window.Kakao.init('5a0289570935a7da911263629d4000c0');
-      }
-    };
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
   const openKakaoChat = () => {
-    if (window.Kakao && window.Kakao.Channel) {
-      window.Kakao.Channel.chat({
-        channelPublicId: '_RqLxan',
-      });
-    } else {
-      window.open('https://pf.kakao.com/_RqLxan/chat', '_blank');
-    }
+    // 카카오톡 채널 채팅 URL로 직접 연결
+    window.open('http://pf.kakao.com/_RqLxan/chat', '_blank');
   };
 
   return (
