@@ -138,25 +138,25 @@ const ContactSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
-          className="mt-12 bg-gray-50 rounded-2xl p-8 text-center"
+          className="mt-12 bg-gray-50 rounded-2xl p-6 md:p-8 text-center"
         >
-          <h3 className="text-2xl font-bold mb-4">자주 묻는 질문</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left max-w-4xl mx-auto">
+          <h3 className="text-xl md:text-2xl font-bold mb-4">자주 묻는 질문</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-left max-w-4xl mx-auto">
             <div>
-              <h4 className="font-semibold mb-2">Q. 타 학과생도 지원 가능한가요?</h4>
-              <p className="text-gray-600">A. 네, 세종대학교 전체 학과 재학생이 지원 가능합니다.</p>
+              <h4 className="font-semibold text-sm md:text-base mb-2">Q. 타 학과생도 지원 가능한가요?</h4>
+              <p className="text-xs md:text-sm text-gray-600 leading-relaxed">A. 네, 세종대학교 전체 학과 재학생이 지원 가능합니다.</p>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">Q. 신청 시기는 언제인가요?</h4>
-              <p className="text-gray-600">A. 매학기 5월과 11월에 신청 가능하며, 상시 문의는 언제든 가능합니다.</p>
+              <h4 className="font-semibold text-sm md:text-base mb-2">Q. 신청 시기는 언제인가요?</h4>
+              <p className="text-xs md:text-sm text-gray-600 leading-relaxed">A. 매학기 5월과 11월에 신청 가능하며,<br className="md:hidden" /> 상시 문의는 언제든 가능합니다.</p>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">Q. 졸업 요건은 어떻게 되나요?</h4>
-              <p className="text-gray-600">A. 전공 39학점 또는 부전공 21학점을 이수하면 됩니다.</p>
+              <h4 className="font-semibold text-sm md:text-base mb-2">Q. 졸업 요건은 어떻게 되나요?</h4>
+              <p className="text-xs md:text-sm text-gray-600 leading-relaxed">A. 전공 39학점 또는 부전공 21학점을 이수하면 됩니다.</p>
             </div>
             <div>
-              <h4 className="font-semibold mb-2">Q. 창업 경험이 없어도 되나요?</h4>
-              <p className="text-gray-600">A. 네, 창업 기초부터 체계적으로 교육하므로 경험이 없어도 괜찮습니다.</p>
+              <h4 className="font-semibold text-sm md:text-base mb-2">Q. 창업 경험이 없어도 되나요?</h4>
+              <p className="text-xs md:text-sm text-gray-600 leading-relaxed">A. 네, 창업 기초부터 체계적으로 교육하므로<br className="md:hidden" /> 경험이 없어도 괜찮습니다.</p>
             </div>
           </div>
         </motion.div>

@@ -11,6 +11,12 @@ export default function Document() {
         <meta property="og:description" content="융합창업, 아이디어가 현실이 되는 과정" />
         <meta property="og:image" content="/logo.png" />
         <link rel="icon" href="/logo.png" />
+        <link
+          rel="stylesheet"
+          as="style"
+          crossOrigin="anonymous"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+        />
       </Head>
       <body>
         <Main />

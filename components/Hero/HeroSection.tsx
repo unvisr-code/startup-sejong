@@ -28,16 +28,16 @@ const HeroSection = () => {
             </div>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold mb-6">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
             세종대 융합창업연계전공
           </h1>
           
-          <p className="text-xl md:text-2xl mb-8 text-white/90">
+          <p className="text-lg md:text-xl lg:text-2xl mb-8 text-white/90 font-medium">
             융합창업, 아이디어가 현실이 되는 과정
           </p>
 
-          <p className="text-lg md:text-xl mb-12 max-w-3xl mx-auto text-white/80">
-            창업 기초부터 실전까지, 체계적인 교육과정으로<br />
+          <p className="text-base md:text-lg lg:text-xl mb-10 md:mb-12 max-w-3xl mx-auto text-white/80 leading-relaxed">
+            창업 기초부터 실전까지,<br className="md:hidden" /> 체계적인 교육과정으로<br className="hidden md:block" />
             준비된 청년창업인으로 성장하세요
           </p>
 
@@ -67,19 +67,19 @@ const HeroSection = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 1 }}
-          className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto"
+          className="mt-12 grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto"
         >
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-            <div className="text-3xl font-bold mb-2">39학점</div>
-            <div className="text-sm">융합창업학사 학위</div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6">
+            <div className="text-2xl md:text-3xl font-bold mb-1">세종대 유일</div>
+            <div className="text-xs md:text-sm">창업 학위과정</div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-            <div className="text-3xl font-bold mb-2">1+1</div>
-            <div className="text-sm">주전공 + 융합창업 복수학위</div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6">
+            <div className="text-2xl md:text-3xl font-bold mb-1">100% 실전</div>
+            <div className="text-xs md:text-sm">현직 창업가 멘토링</div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-            <div className="text-3xl font-bold mb-2">실전창업</div>
-            <div className="text-sm">IR 기회 & 멘토링 지원</div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6 col-span-2 md:col-span-1">
+            <div className="text-2xl md:text-3xl font-bold mb-1">투자연결</div>
+            <div className="text-xs md:text-sm">VC·엑셀러레이터 IR</div>
           </div>
         </motion.div>
       </div>

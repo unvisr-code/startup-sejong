@@ -54,22 +54,22 @@ const CurriculumSection = () => {
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
-          className="bg-gradient-primary rounded-2xl p-8 text-white mb-12"
+          className="bg-gradient-primary rounded-2xl p-6 md:p-8 text-white mb-8 md:mb-12"
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-center">
             <div>
-              <h3 className="text-2xl font-bold mb-2">학위명</h3>
-              <p className="text-xl">융합창업학사</p>
+              <h3 className="text-xl md:text-2xl font-bold mb-2">학위명</h3>
+              <p className="text-lg md:text-xl">융합창업학사</p>
             </div>
             <div>
-              <h3 className="text-2xl font-bold mb-2">이수 대상</h3>
-              <p className="text-lg">1~4학년 재학생</p>
-              <p className="text-sm opacity-90">창업에 관심있는 전체 학생</p>
+              <h3 className="text-xl md:text-2xl font-bold mb-2">이수 대상</h3>
+              <p className="text-base md:text-lg">1~4학년 재학생</p>
+              <p className="text-xs md:text-sm opacity-90">창업에 관심있는<br className="md:hidden" /> 전체 학생</p>
             </div>
             <div>
-              <h3 className="text-2xl font-bold mb-2">신청 시기</h3>
-              <p className="text-lg">매학기 5월, 11월</p>
-              <p className="text-sm opacity-90">상시 문의 가능</p>
+              <h3 className="text-xl md:text-2xl font-bold mb-2">신청 시기</h3>
+              <p className="text-base md:text-lg">매학기 5월, 11월</p>
+              <p className="text-xs md:text-sm opacity-90">상시 문의 가능</p>
             </div>
           </div>
         </motion.div>

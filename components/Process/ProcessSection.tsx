@@ -77,7 +77,7 @@ const ProcessSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12 md:mb-16">
           {steps.map((step, index) => (
             <motion.div
               key={index}
@@ -87,15 +87,15 @@ const ProcessSection = () => {
               viewport={{ once: true }}
               className="relative"
             >
-              <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 h-full">
-                <div className="text-4xl text-primary mb-4">{step.icon}</div>
-                <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-                <p className="font-semibold text-gray-700 mb-2">{step.description}</p>
-                <p className="text-sm text-gray-500">{step.detail}</p>
+              <div className="bg-white rounded-xl p-4 md:p-6 shadow-lg hover:shadow-xl transition-all duration-300 h-full">
+                <div className="text-3xl md:text-4xl text-primary mb-3">{step.icon}</div>
+                <h3 className="text-base md:text-xl font-bold mb-2">{step.title}</h3>
+                <p className="font-semibold text-sm md:text-base text-gray-700 mb-1">{step.description}</p>
+                <p className="text-xs md:text-sm text-gray-500">{step.detail}</p>
               </div>
               {index < steps.length - 1 && (
                 <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 text-primary">
-                  <FaArrowRight size={24} />
+                  <FaArrowRight size={20} />
                 </div>
               )}
             </motion.div>
