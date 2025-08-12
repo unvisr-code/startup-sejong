@@ -66,11 +66,11 @@ const AboutSection = () => {
           className="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-12"
         >
           <div className="text-center space-y-6">
-            <p className="text-gray-700 text-lg leading-relaxed max-w-2xl mx-auto">
+            <p className="text-gray-700 text-lg leading-8 max-w-2xl mx-auto">
               창업 기초부터 실전까지, 아이디어 발굴에서 성장까지<br />
               창업의 모든 단계를 체계적으로 교육합니다.
             </p>
-            <p className="text-gray-700 text-lg leading-relaxed max-w-2xl mx-auto">
+            <p className="text-gray-700 text-lg leading-8 max-w-2xl mx-auto">
               실제 창업가, 투자자, 엑셀러레이터와 함께하는<br />
               실전 중심의 교육으로 준비된 창업가를 양성합니다.
             </p>
@@ -103,33 +103,33 @@ const AboutSection = () => {
         >
           <div className="bg-gradient-primary rounded-2xl p-8">
             <h3 className="text-2xl font-bold mb-8 text-white text-center">교육 목표</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="flex flex-col items-center">
+                <div className="bg-white/20 backdrop-blur-sm rounded-full w-16 h-16 flex items-center justify-center mb-4">
                   <FaLightbulb className="text-3xl text-white" />
                 </div>
                 <h4 className="text-lg font-bold text-white mb-2">창업가 발굴</h4>
-                <p className="text-sm text-white/90">
+                <p className="text-sm text-white/90 text-center">
                   참신한 아이디어와 열정을 가진<br />
                   예비 창업가를 발굴합니다
                 </p>
               </div>
-              <div className="text-center">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <div className="flex flex-col items-center">
+                <div className="bg-white/20 backdrop-blur-sm rounded-full w-16 h-16 flex items-center justify-center mb-4">
                   <FaGraduationCap className="text-3xl text-white" />
                 </div>
                 <h4 className="text-lg font-bold text-white mb-2">실전 교육</h4>
-                <p className="text-sm text-white/90">
+                <p className="text-sm text-white/90 text-center">
                   현직 투자자와 창업가가<br />
                   직접 멘토링을 제공합니다
                 </p>
               </div>
-              <div className="text-center">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <div className="flex flex-col items-center">
+                <div className="bg-white/20 backdrop-blur-sm rounded-full w-16 h-16 flex items-center justify-center mb-4">
                   <FaRocket className="text-3xl text-white" />
                 </div>
                 <h4 className="text-lg font-bold text-white mb-2">인재 양성</h4>
-                <p className="text-sm text-white/90">
+                <p className="text-sm text-white/90 text-center">
                   기업이 원하는 기업가형<br />
                   인재로 성장시킵니다
                 </p>

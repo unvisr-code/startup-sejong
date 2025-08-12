@@ -44,8 +44,9 @@ const CurriculumSection = () => {
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             교육과정 및 <span className="gradient-text">학위 취득</span>
           </h2>
-          <p className="text-xl text-gray-600">
-            체계적인 커리큘럼으로 창업 전문가로 성장하세요
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            체계적인 커리큘럼으로<br className="sm:hidden" />
+            창업 전문가로 성장하세요
           </p>
         </motion.div>
 
@@ -64,7 +65,7 @@ const CurriculumSection = () => {
             <div>
               <h3 className="text-xl md:text-2xl font-bold mb-2">이수 대상</h3>
               <p className="text-base md:text-lg">1~4학년 재학생</p>
-              <p className="text-xs md:text-sm opacity-90">창업에 관심있는<br className="md:hidden" /> 전체 학생</p>
+              <p className="text-xs md:text-sm opacity-90">창업에 관심있는 전체 학생</p>
             </div>
             <div>
               <h3 className="text-xl md:text-2xl font-bold mb-2">신청 시기</h3>
@@ -118,9 +119,7 @@ const CurriculumSection = () => {
               {requiredCourses.map((course, index) => (
                 <li
                   key={index}
-                  className={`flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors ${
-                    activeTab === 'minor' && index >= 3 ? 'opacity-50' : ''
-                  }`}
+                  className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center">
                     <FaCheckCircle className="text-green-500 mr-3" />
@@ -157,24 +156,6 @@ const CurriculumSection = () => {
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          viewport={{ once: true }}
-          className="bg-gray-50 rounded-2xl p-8"
-        >
-          <h3 className="text-2xl font-bold mb-6">타 학과 전공선택 인정 교과목</h3>
-          <p className="text-gray-600 mb-4">최대 12학점까지 인정 가능</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {otherDepartmentCourses.map((dept, index) => (
-              <div key={index} className="bg-white rounded-lg p-4">
-                <h4 className="font-bold text-primary mb-2">{dept.department}</h4>
-                <p className="text-sm text-gray-600">{dept.courses}</p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
 
         <motion.div
           initial={{ opacity: 0 }}
@@ -183,7 +164,7 @@ const CurriculumSection = () => {
           viewport={{ once: true }}
           className="mt-12 bg-blue-50 rounded-2xl p-8"
         >
-          <h3 className="text-2xl font-bold mb-4 text-center">특별 혜택</h3>
+          <h3 className="text-2xl font-bold mb-4 text-center">융합창업전공 혜택</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex items-start">
               <FaCheckCircle className="text-green-500 text-xl mt-1 mr-3 flex-shrink-0" />
@@ -195,8 +176,8 @@ const CurriculumSection = () => {
             <div className="flex items-start">
               <FaCheckCircle className="text-green-500 text-xl mt-1 mr-3 flex-shrink-0" />
               <div>
-                <h4 className="font-bold mb-1">창업동아리 활동 권장</h4>
-                <p className="text-gray-600">체험형 학습을 통한 창업역량 강화</p>
+                <h4 className="font-bold mb-1">창업 동아리 활동 가능</h4>
+                <p className="text-gray-600">창업 동아리 활동 장려 및 지원 제공</p>
               </div>
             </div>
           </div>

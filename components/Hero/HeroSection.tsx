@@ -23,7 +23,7 @@ const HeroSection = () => {
 
   return (
     <>
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[calc(100vh-80px)] pt-20 pb-12 md:min-h-screen md:pt-0 md:pb-0 flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 bg-gradient-primary opacity-90"></div>
       
       <div className="absolute inset-0">
@@ -54,7 +54,8 @@ const HeroSection = () => {
           </p>
 
           <p className="text-base md:text-lg lg:text-xl mb-10 md:mb-12 max-w-3xl mx-auto text-white/80 leading-relaxed">
-            창업 기초부터 실전까지,<br className="md:hidden" /> 체계적인 교육과정으로<br className="hidden md:block" />
+            창업 기초부터 실전까지,<br className="sm:hidden" />
+            체계적인 교육과정으로<br className="hidden sm:block lg:hidden" />
             준비된 청년창업인으로 성장하세요
           </p>
 
@@ -88,15 +89,15 @@ const HeroSection = () => {
         >
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6">
             <div className="text-2xl md:text-3xl font-bold mb-1">세종대 유일</div>
-            <div className="text-xs md:text-sm">창업 학위과정</div>
+            <div className="text-xs md:text-sm">100% 실전 투자 연결</div>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6">
-            <div className="text-2xl md:text-3xl font-bold mb-1">100% 실전</div>
-            <div className="text-xs md:text-sm">현직 창업가 멘토링</div>
+            <div className="text-2xl md:text-3xl font-bold mb-1">체계적 교육</div>
+            <div className="text-xs md:text-sm">창업 학위과정</div>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 md:p-6 col-span-2 md:col-span-1">
-            <div className="text-2xl md:text-3xl font-bold mb-1">투자연결</div>
-            <div className="text-xs md:text-sm">VC·엑셀러레이터 IR</div>
+            <div className="text-2xl md:text-3xl font-bold mb-1">실전 멘토링</div>
+            <div className="text-xs md:text-sm">현직 창업가·투자자</div>
           </div>
         </motion.div>
       </div>

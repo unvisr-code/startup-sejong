@@ -73,7 +73,7 @@ const ProcessSection = () => {
             지원 절차 및 <span className="gradient-text">성장 과정</span>
           </h2>
           <p className="text-xl text-gray-600">
-            아이디어에서 실전 창업까지 체계적인 단계별 프로세스
+            아이디어, 실전, 창업, 체계적인 단계별 프로세스
           </p>
         </motion.div>
 
@@ -111,34 +111,40 @@ const ProcessSection = () => {
         >
           <h3 className="text-2xl font-bold mb-8 text-center">창업 성장 로드맵</h3>
           
-          <div className="space-y-6">
-            {timeline.map((phase, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="flex items-center"
-              >
-                <div className={`w-20 h-20 ${phase.color} rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0`}>
-                  {phase.phase}
-                </div>
-                <div className="ml-6 flex-grow">
-                  <h4 className="text-xl font-bold mb-2">{phase.title}</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {phase.courses.map((course, courseIndex) => (
-                      <span
-                        key={courseIndex}
-                        className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
-                      >
-                        {course}
-                      </span>
-                    ))}
+          <div className="relative">
+            <div className="absolute left-10 md:left-12 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-purple-500 to-orange-500"></div>
+            <div className="space-y-8">
+              {timeline.map((phase, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="relative flex items-start"
+                >
+                  <div className="relative z-10">
+                    <div className={`w-20 h-20 md:w-24 md:h-24 ${phase.color} rounded-full flex items-center justify-center text-white font-bold text-base md:text-lg shadow-lg transform transition-transform hover:scale-110`}>
+                      {phase.phase}
+                    </div>
+                    <div className={`absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 ${phase.color} rounded-full animate-pulse`}></div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="ml-8 flex-grow bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
+                    <h4 className="text-xl font-bold mb-3 text-gray-800">{phase.title}</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {phase.courses.map((course, courseIndex) => (
+                        <span
+                          key={courseIndex}
+                          className="bg-gradient-to-r from-blue-50 to-purple-50 text-gray-700 px-3 py-1.5 rounded-full text-sm font-medium border border-blue-100"
+                        >
+                          {course}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </motion.div>
 

@@ -16,10 +16,10 @@ const ContactSection = () => {
           className="text-center mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            문의하기 & <span className="gradient-text">소셜 미디어</span>
+            문의하기 & <span className="gradient-text">SNS</span>
           </h2>
-          <p className="text-xl text-gray-600">
-            융합창업연계전공에 대해 궁금한 점이 있으신가요?
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            융합창업연계전공에 대해 궁금한 점 있으신가요?
           </p>
         </motion.div>
 
@@ -40,7 +40,7 @@ const ContactSection = () => {
                   <h4 className="font-semibold mb-1">주소</h4>
                   <p className="text-gray-600">
                     서울특별시 광진구 능동로 209<br />
-                    세종대학교 창업지원단
+                    세종대학교 린스타트업실
                   </p>
                 </div>
               </div>
@@ -63,7 +63,7 @@ const ContactSection = () => {
             </div>
 
             <div className="mt-8 pt-8 border-t">
-              <h4 className="font-semibold mb-4">상담 시간</h4>
+              <h4 className="font-semibold mb-4">문의 가능시간</h4>
               <p className="text-gray-600">
                 평일 09:00 - 18:00<br />
                 점심시간 12:00 - 13:00<br />
@@ -79,7 +79,7 @@ const ContactSection = () => {
             viewport={{ once: true }}
             className="bg-gradient-primary rounded-2xl p-8 text-white"
           >
-            <h3 className="text-2xl font-bold mb-6">소셜 미디어</h3>
+            <h3 className="text-2xl font-bold mb-6">SNS</h3>
             
             <div className="space-y-6">
               <a

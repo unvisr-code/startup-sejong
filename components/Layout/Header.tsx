@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FaBars, FaTimes, FaRocket } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 import ApplicationModal from '../Modal/ApplicationModal';
 
 const Header = () => {
@@ -44,7 +45,7 @@ const Header = () => {
     <>
     <header
       className={`fixed w-full top-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-lg' : 'bg-transparent'
+        isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg' : 'bg-transparent'
       }`}
     >
       <nav className="container-custom">
@@ -79,35 +80,59 @@ const Header = () => {
           </div>
 
           <button
-            className="md:hidden text-2xl"
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? <FaTimes /> : <FaBars />}
+            <motion.div
+              animate={{ rotate: isMenuOpen ? 90 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {isMenuOpen ? <FaTimes className="text-2xl text-gray-700" /> : <FaBars className="text-2xl text-gray-700" />}
+            </motion.div>
           </button>
         </div>
 
-        {isMenuOpen && (
-          <div className="md:hidden bg-white shadow-lg rounded-lg mt-2 py-4">
-            {menuItems.map((item) => (
-              <a
-                key={item.href}
-                href="#"
-                className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors duration-300 cursor-pointer"
-                onClick={(e) => handleMenuClick(e, item.href)}
-              >
-                {item.label}
-              </a>
-            ))}
-            <button
-              className="block w-full mx-4 mt-3 bg-gradient-primary text-white text-center py-3 rounded-lg hover:shadow-lg transition-all duration-300 cursor-pointer"
-              style={{ width: 'calc(100% - 32px)' }}
-              onClick={handleApplyClick}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden absolute left-0 right-0 bg-white/95 backdrop-blur-lg shadow-2xl rounded-b-2xl mt-2 overflow-hidden"
             >
-              지원하기
-            </button>
-          </div>
-        )}
+              <div className="py-2">
+                {menuItems.map((item, index) => (
+                  <motion.a
+                    key={item.href}
+                    href="#"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="block px-6 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent hover:text-primary transition-all duration-200 cursor-pointer font-medium"
+                    onClick={(e) => handleMenuClick(e, item.href)}
+                  >
+                    {item.label}
+                  </motion.a>
+                ))}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="px-4 py-3 border-t border-gray-100"
+                >
+                  <button
+                    className="w-full bg-gradient-primary text-white text-center py-3 rounded-xl hover:shadow-lg transition-all duration-300 cursor-pointer font-medium"
+                    onClick={handleApplyClick}
+                  >
+                    지원하기
+                  </button>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
     </header>
     <ApplicationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
