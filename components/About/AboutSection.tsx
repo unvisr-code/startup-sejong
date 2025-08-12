@@ -52,8 +52,9 @@ const AboutSection = () => {
             <span className="gradient-text">융합창업연계전공</span> 소개
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            세종대학교 유일의 창업교육으로 학생창업자들에게 실전창업을 경험하고 
-            창업역량을 함양하여 "준비된 청년창업인"을 양성합니다.
+            세종대학교 유일의 창업교육으로 학생창업자들에게<br />
+            실전창업을 경험하고 창업역량을 함양하여<br />
+            "준비된 청년창업인"을 양성합니다.
           </p>
         </motion.div>
 
@@ -64,20 +65,28 @@ const AboutSection = () => {
           viewport={{ once: true }}
           className="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-12"
         >
-          <div className="prose prose-lg max-w-none">
-            <p className="text-gray-700 leading-relaxed mb-6">
-              창업 및 신사업 기획에 관심이 있는 학생들에게 단계별 체험형 학습을 통해 
-              기업가정신과 창업에 대한 자신감이 함양될 수 있도록 합니다.
-            </p>
-            <p className="text-gray-700 leading-relaxed mb-6">
-              창업 기초 소양뿐만 아니라 창업의 첫 단계인 아이디어 발굴에서부터 창업의 실행과 
-              성장까지 창업의 모든 단계를 대학 교육 안에서 실행할 수 있는 교육과정을 제공합니다.
+          <div className="prose prose-lg max-w-none space-y-4">
+            <p className="text-gray-700 leading-relaxed">
+              창업 및 신사업 기획에 관심이 있는 학생들에게<br />
+              단계별 체험형 학습을 통해 기업가정신과<br />
+              창업에 대한 자신감이 함양될 수 있도록 합니다.
             </p>
             <p className="text-gray-700 leading-relaxed">
-              기업가정신, 문제해결역량, 글로벌 창업 역량을 갖춘 인재를 양성하여 산업간 융합을 
-              통해 창업에 도전할 수 있도록 지원합니다. 본 과정의 전공자들에게 실제 창업을 
-              준비하거나 모의 창업을 경험할 수 있도록 엔젤투자자·엑설러레이터·벤처캐피탈리스트 
-              등을 대상으로 한 IR(Investor Relations) 기회가 부여됩니다.
+              창업 기초 소양뿐만 아니라 창업의 첫 단계인<br />
+              아이디어 발굴에서부터 창업의 실행과 성장까지<br />
+              창업의 모든 단계를 대학 교육 안에서 실행할 수 있는<br />
+              교육과정을 제공합니다.
+            </p>
+            <p className="text-gray-700 leading-relaxed">
+              기업가정신, 문제해결역량, 글로벌 창업 역량을 갖춘<br />
+              인재를 양성하여 산업간 융합을 통해 창업에<br />
+              도전할 수 있도록 지원합니다.
+            </p>
+            <p className="text-gray-700 leading-relaxed">
+              본 과정의 전공자들에게 실제 창업을 준비하거나<br />
+              모의 창업을 경험할 수 있도록 엔젤투자자·<br />
+              엑설러레이터·벤처캐피탈리스트 등을 대상으로 한<br />
+              IR(Investor Relations) 기회가 부여됩니다.
             </p>
           </div>
         </motion.div>
@@ -109,10 +118,15 @@ const AboutSection = () => {
           <div className="bg-gradient-primary rounded-2xl p-8 text-white">
             <h3 className="text-2xl font-bold mb-4">교육 목표</h3>
             <p className="text-lg leading-relaxed">
-              참신한 아이디어 및 사업에 열정이 넘치는 창업가를 발굴하여 창업에 도전할 수 있도록 한다. 
-              성공적인 창업을 이끌 수 있도록 우수한 창업학 분야의 교수진, 엔젤투자자·엑설러레이터·
-              벤처캐피탈리스트 등 외부 창업전문가들과 함께 실전창업교육을 제공하여 창업 역량을 강화하고, 
-              기업에서 원하는 기업가형 인재 양성을 목표로 한다.
+              참신한 아이디어 및 사업에 열정이 넘치는<br />
+              창업가를 발굴하여 창업에 도전할 수 있도록 한다.
+            </p>
+            <p className="text-lg leading-relaxed mt-4">
+              성공적인 창업을 이끌 수 있도록 우수한 창업학 분야의<br />
+              교수진, 엔젤투자자·엑설러레이터·벤처캐피탈리스트 등<br />
+              외부 창업전문가들과 함께 실전창업교육을 제공하여<br />
+              창업 역량을 강화하고, 기업에서 원하는<br />
+              기업가형 인재 양성을 목표로 한다.
             </p>
           </div>
         </motion.div>
