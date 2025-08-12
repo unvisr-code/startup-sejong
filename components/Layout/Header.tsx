@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FaBars, FaTimes, FaRocket } from 'react-icons/fa';
+import ApplicationModal from '../Modal/ApplicationModal';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,7 +26,13 @@ const Header = () => {
     { href: '#contact', label: '문의하기' },
   ];
 
+  const handleApplyClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setIsModalOpen(true);
+  };
+
   return (
+    <>
     <header
       className={`fixed w-full top-0 z-50 transition-all duration-300 ${
         isScrolled ? 'bg-white shadow-lg' : 'bg-transparent'
@@ -54,7 +62,8 @@ const Header = () => {
             ))}
             <a
               href="#apply"
-              className="bg-gradient-primary text-white px-6 py-2 rounded-full hover:shadow-lg transition-all duration-300"
+              onClick={handleApplyClick}
+              className="bg-gradient-primary text-white px-6 py-2 rounded-full hover:shadow-lg transition-all duration-300 cursor-pointer"
             >
               지원하기
             </a>
@@ -83,8 +92,11 @@ const Header = () => {
             ))}
             <a
               href="#apply"
-              className="block mx-4 mt-3 bg-gradient-primary text-white text-center py-3 rounded-lg hover:shadow-lg transition-all duration-300"
-              onClick={() => setIsMenuOpen(false)}
+              className="block mx-4 mt-3 bg-gradient-primary text-white text-center py-3 rounded-lg hover:shadow-lg transition-all duration-300 cursor-pointer"
+              onClick={(e) => {
+                handleApplyClick(e);
+                setIsMenuOpen(false);
+              }}
             >
               지원하기
             </a>
@@ -92,6 +104,8 @@ const Header = () => {
         )}
       </nav>
     </header>
+    <ApplicationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    </>
   );
 };
 

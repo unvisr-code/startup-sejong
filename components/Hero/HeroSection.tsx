@@ -1,11 +1,20 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaArrowRight, FaRocket } from 'react-icons/fa';
+import ApplicationModal from '../Modal/ApplicationModal';
 
 const HeroSection = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleApplyClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setIsModalOpen(true);
+  };
+
   return (
+    <>
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 bg-gradient-primary opacity-90"></div>
       
@@ -44,9 +53,10 @@ const HeroSection = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <motion.a
               href="#apply"
+              onClick={handleApplyClick}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-white text-primary font-bold py-4 px-8 rounded-full hover:shadow-2xl transition-all duration-300 inline-flex items-center justify-center space-x-2"
+              className="bg-white text-primary font-bold py-4 px-8 rounded-full hover:shadow-2xl transition-all duration-300 inline-flex items-center justify-center space-x-2 cursor-pointer"
             >
               <span>지원하기</span>
               <FaArrowRight />
@@ -84,6 +94,8 @@ const HeroSection = () => {
         </motion.div>
       </div>
     </section>
+    <ApplicationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    </>
   );
 };
 
