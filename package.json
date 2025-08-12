@@ -17,6 +17,7 @@
     "@types/node": "^24.2.1",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
+    "@vercel/og": "^0.8.5",
     "autoprefixer": "^10.4.21",
     "framer-motion": "^12.23.12",
     "next": "^15.4.6",

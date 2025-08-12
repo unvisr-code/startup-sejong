@@ -9,7 +9,7 @@ export default function Document() {
         <meta name="keywords" content="세종대학교, 융합창업, 창업교육, 스타트업, 창업전공" />
         <meta property="og:title" content="세종대 융합창업연계전공" />
         <meta property="og:description" content="융합창업, 아이디어가 현실이 되는 과정" />
-        <meta property="og:image" content="/logo.png" />
+        <meta property="og:image" content="/api/og" />
         <link rel="icon" href="/logo.png" />
         <link
           rel="stylesheet"
