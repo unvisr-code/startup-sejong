@@ -8,9 +8,17 @@ import ApplicationModal from '../Modal/ApplicationModal';
 const HeroSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleApplyClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleApplyClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsModalOpen(true);
+  };
+
+  const scrollToAbout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const element = document.getElementById('about');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -51,8 +59,7 @@ const HeroSection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <motion.a
-              href="#apply"
+            <motion.button
               onClick={handleApplyClick}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -60,16 +67,16 @@ const HeroSection = () => {
             >
               <span>지원하기</span>
               <FaArrowRight />
-            </motion.a>
+            </motion.button>
             
-            <motion.a
-              href="#about"
+            <motion.button
+              onClick={scrollToAbout}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="bg-transparent border-2 border-white text-white font-bold py-4 px-8 rounded-full hover:bg-white hover:text-primary transition-all duration-300"
             >
               더 알아보기
-            </motion.a>
+            </motion.button>
           </div>
         </motion.div>
 

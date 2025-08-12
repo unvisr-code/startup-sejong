@@ -38,24 +38,36 @@ const Footer = () => {
             <h3 className="text-xl font-bold mb-4">바로가기</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#about" className="text-gray-400 hover:text-white transition-colors">
+                <button 
+                  onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="text-gray-400 hover:text-white transition-colors cursor-pointer text-left"
+                >
                   전공소개
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#curriculum" className="text-gray-400 hover:text-white transition-colors">
+                <button 
+                  onClick={() => document.getElementById('curriculum')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="text-gray-400 hover:text-white transition-colors cursor-pointer text-left"
+                >
                   교육과정
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#process" className="text-gray-400 hover:text-white transition-colors">
+                <button 
+                  onClick={() => document.getElementById('process')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="text-gray-400 hover:text-white transition-colors cursor-pointer text-left"
+                >
                   지원절차
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#contact" className="text-gray-400 hover:text-white transition-colors">
+                <button 
+                  onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="text-gray-400 hover:text-white transition-colors cursor-pointer text-left"
+                >
                   문의하기
-                </a>
+                </button>
               </li>
             </ul>
           </div>

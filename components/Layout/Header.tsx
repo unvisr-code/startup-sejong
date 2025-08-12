@@ -20,15 +20,24 @@ const Header = () => {
   }, []);
 
   const menuItems = [
-    { href: '#about', label: '전공소개' },
-    { href: '#curriculum', label: '교육과정' },
-    { href: '#process', label: '지원절차' },
-    { href: '#contact', label: '문의하기' },
+    { href: 'about', label: '전공소개' },
+    { href: 'curriculum', label: '교육과정' },
+    { href: 'process', label: '지원절차' },
+    { href: 'contact', label: '문의하기' },
   ];
 
-  const handleApplyClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleApplyClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsModalOpen(true);
+  };
+
+  const handleMenuClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault();
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsMenuOpen(false);
   };
 
   return (
@@ -54,19 +63,19 @@ const Header = () => {
             {menuItems.map((item) => (
               <a
                 key={item.href}
-                href={item.href}
-                className="text-gray-700 hover:text-primary transition-colors duration-300 font-medium"
+                href="#"
+                onClick={(e) => handleMenuClick(e, item.href)}
+                className="text-gray-700 hover:text-primary transition-colors duration-300 font-medium cursor-pointer"
               >
                 {item.label}
               </a>
             ))}
-            <a
-              href="#apply"
+            <button
               onClick={handleApplyClick}
               className="bg-gradient-primary text-white px-6 py-2 rounded-full hover:shadow-lg transition-all duration-300 cursor-pointer"
             >
               지원하기
-            </a>
+            </button>
           </div>
 
           <button
@@ -83,23 +92,20 @@ const Header = () => {
             {menuItems.map((item) => (
               <a
                 key={item.href}
-                href={item.href}
-                className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors duration-300"
-                onClick={() => setIsMenuOpen(false)}
+                href="#"
+                className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors duration-300 cursor-pointer"
+                onClick={(e) => handleMenuClick(e, item.href)}
               >
                 {item.label}
               </a>
             ))}
-            <a
-              href="#apply"
-              className="block mx-4 mt-3 bg-gradient-primary text-white text-center py-3 rounded-lg hover:shadow-lg transition-all duration-300 cursor-pointer"
-              onClick={(e) => {
-                handleApplyClick(e);
-                setIsMenuOpen(false);
-              }}
+            <button
+              className="block w-full mx-4 mt-3 bg-gradient-primary text-white text-center py-3 rounded-lg hover:shadow-lg transition-all duration-300 cursor-pointer"
+              style={{ width: 'calc(100% - 32px)' }}
+              onClick={handleApplyClick}
             >
               지원하기
-            </a>
+            </button>
           </div>
         )}
       </nav>

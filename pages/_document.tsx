@@ -5,11 +5,11 @@ export default function Document() {
     <Html lang="ko">
       <Head>
         <meta charSet="utf-8" />
-        <meta name="description" content="세종대학교 융합창업연계전공 - 준비된 청년창업인을 양성하는 창업 학위과정" />
+        <meta name="description" content="기획부터 사업화까지, 아이디어를 성장시키는 창업 전공" />
         <meta name="keywords" content="세종대학교, 융합창업, 창업교육, 스타트업, 창업전공" />
         <meta property="og:title" content="세종대 융합창업연계전공" />
-        <meta property="og:description" content="융합창업, 아이디어가 현실이 되는 과정" />
-        <meta property="og:image" content="/api/og" />
+        <meta property="og:description" content="기획부터 사업화까지, 아이디어를 성장시키는 창업 전공" />
+        <meta property="og:image" content="/og.png" />
         <link rel="icon" href="/logo.png" />
         <link
           rel="stylesheet"
