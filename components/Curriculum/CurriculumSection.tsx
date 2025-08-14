@@ -90,6 +90,8 @@ const CurriculumSection = () => {
     setIsPlanning(false);
     setShowResult(true);
     setCurrentDate(new Date().toLocaleDateString('ko-KR'));
+    // 카카오톡 버튼 숨기기 이벤트 발생
+    window.dispatchEvent(new CustomEvent('curriculumResultModal', { detail: { isOpen: true } }));
   };
 
   // 취소 처리
@@ -186,7 +188,7 @@ const CurriculumSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             교육과정 및 <span className="gradient-text">학위 취득</span>
@@ -197,36 +199,12 @@ const CurriculumSection = () => {
           </p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          viewport={{ once: true }}
-          className="bg-gradient-primary rounded-2xl p-6 md:p-8 text-white mb-8 md:mb-12"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-center">
-            <div>
-              <h3 className="text-xl md:text-2xl font-bold mb-2">학위명</h3>
-              <p className="text-lg md:text-xl">융합창업학사</p>
-            </div>
-            <div>
-              <h3 className="text-xl md:text-2xl font-bold mb-2">이수 대상</h3>
-              <p className="text-base md:text-lg">1~4학년 재학생</p>
-              <p className="text-xs md:text-sm opacity-90">창업에 관심있는 전체 학생</p>
-            </div>
-            <div>
-              <h3 className="text-xl md:text-2xl font-bold mb-2">신청 시기</h3>
-              <p className="text-base md:text-lg">매학기 5월, 11월</p>
-              <p className="text-xs md:text-sm opacity-90">상시 문의 가능</p>
-            </div>
-          </div>
-        </motion.div>
 
         <div className="flex flex-col items-center mb-8 space-y-4">
           <div className="bg-gray-100 p-1 rounded-lg inline-flex">
             <button
               onClick={() => setActiveTab('major')}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold transition-all text-sm sm:text-base ${
                 activeTab === 'major'
                   ? 'bg-white text-primary shadow-md'
                   : 'text-gray-600 hover:text-primary'
@@ -236,7 +214,7 @@ const CurriculumSection = () => {
             </button>
             <button
               onClick={() => setActiveTab('minor')}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-semibold transition-all text-sm sm:text-base ${
                 activeTab === 'minor'
                   ? 'bg-white text-primary shadow-md'
                   : 'text-gray-600 hover:text-primary'
@@ -246,10 +224,13 @@ const CurriculumSection = () => {
             </button>
           </div>
           
-          <div className="text-sm text-gray-500 text-center max-w-2xl">
-            <p className="flex items-center justify-center gap-1">
-              전공필수 {credits.core}학점 + 전공선택 {credits.elective}학점 + 
-              <span className="relative inline-flex items-center gap-1">
+          <div className="text-xs sm:text-sm text-gray-500 text-center max-w-2xl px-2 sm:px-0">
+            <p className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-x-1">
+              <span className="whitespace-nowrap">전공필수 {credits.core}학점</span>
+              <span className="hidden sm:inline">+</span>
+              <span className="whitespace-nowrap">전공선택 {credits.elective}학점</span>
+              <span className="hidden sm:inline">+</span>
+              <span className="relative inline-flex items-center gap-1 whitespace-nowrap">
                 자유선택 {credits.free}학점
                 <span 
                   className="relative"
@@ -274,7 +255,7 @@ const CurriculumSection = () => {
                   </AnimatePresence>
                 </span>
               </span>
-              = 총 {credits.total}학점
+              <span className="whitespace-nowrap">= 총 {credits.total}학점</span>
             </p>
           </div>
           
@@ -339,84 +320,92 @@ const CurriculumSection = () => {
           viewport={{ once: true }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12"
         >
-          <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
             <div className="flex items-center mb-4">
-              <FaStar className="text-primary text-2xl mr-3" />
-              <h3 className="text-2xl font-bold">전공필수</h3>
+              <FaStar className="text-primary text-xl sm:text-2xl mr-2 sm:mr-3" />
+              <h3 className="text-xl sm:text-2xl font-bold">전공필수</h3>
               <span className="ml-auto bg-primary text-white px-3 py-1 rounded-full text-sm">
                 {credits.core}학점
               </span>
             </div>
-            <ul className="space-y-3">
+            <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
               {requiredCourses.map((course, index) => {
                 const isSelected = isCourseSelected(course.name, 'core');
                 return (
-                  <li 
+                  <div 
                     key={index} 
                     onClick={() => toggleCourse(course, 'core')}
-                    className={`border rounded-lg p-4 shadow-sm transition-all ${
+                    className={`border rounded-lg p-3 sm:p-4 shadow-sm transition-all ${
                       isPlanning ? 'cursor-pointer hover:shadow-md' : ''
                     } ${
                       isSelected ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200 hover:shadow-md'
                     }`}
                   >
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        {isPlanning && isSelected && <FaCheck className="text-blue-600" />}
-                        <h4 className="font-bold text-lg text-gray-800">{course.name}</h4>
-                        <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
+                    <div className="flex flex-col">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-bold text-sm sm:text-base text-gray-800 flex-1 pr-2">
+                          {isPlanning && isSelected && <FaCheck className="inline-block text-blue-600 mr-1" />}
+                          {course.name}
+                        </h4>
+                      </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs font-medium">
                           {course.grade}-{course.semester}
                         </span>
-                        <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
+                        <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs font-medium">
                           {course.credits}학점
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 ml-6">{course.desc}</p>
+                      <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">{course.desc}</p>
                     </div>
-                  </li>
+                  </div>
                 );
               })}
-            </ul>
+            </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
             <div className="flex items-center mb-4">
-              <FaBook className="text-secondary text-2xl mr-3" />
-              <h3 className="text-2xl font-bold">전공선택</h3>
+              <FaBook className="text-secondary text-xl sm:text-2xl mr-2 sm:mr-3" />
+              <h3 className="text-xl sm:text-2xl font-bold">전공선택</h3>
               <span className="ml-auto bg-secondary text-white px-3 py-1 rounded-full text-sm">
                 {credits.elective}학점
               </span>
             </div>
-            <ul className="space-y-3">
+            <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
               {electiveCourses.map((course, index) => {
                 const isSelected = isCourseSelected(course.name, 'elective');
                 return (
-                  <li 
+                  <div 
                     key={index} 
                     onClick={() => toggleCourse(course, 'elective')}
-                    className={`border rounded-lg p-4 shadow-sm transition-all ${
+                    className={`border rounded-lg p-3 sm:p-4 shadow-sm transition-all ${
                       isPlanning ? 'cursor-pointer hover:shadow-md' : ''
                     } ${
                       isSelected ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200 hover:shadow-md'
                     }`}
                   >
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        {isPlanning && isSelected && <FaCheck className="text-blue-600" />}
-                        <h4 className="font-bold text-lg text-gray-800">{course.name}</h4>
-                        <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
+                    <div className="flex flex-col">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-bold text-sm sm:text-base text-gray-800 flex-1 pr-2">
+                          {isPlanning && isSelected && <FaCheck className="inline-block text-blue-600 mr-1" />}
+                          {course.name}
+                        </h4>
+                      </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs font-medium">
                           {course.grade}-{course.semester}
                         </span>
-                        <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
+                        <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs font-medium">
                           {course.credits}학점
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 ml-6">{course.desc}</p>
+                      <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">{course.desc}</p>
                     </div>
-                  </li>
+                  </div>
                 );
               })}
-            </ul>
+            </div>
           </div>
 
         </motion.div>
@@ -456,7 +445,11 @@ const CurriculumSection = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-              onClick={() => setShowResult(false)}
+              onClick={() => {
+                setShowResult(false);
+                // 카카오톡 버튼 다시 보이기 이벤트 발생
+                window.dispatchEvent(new CustomEvent('curriculumResultModal', { detail: { isOpen: false } }));
+              }}
             >
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
@@ -470,7 +463,7 @@ const CurriculumSection = () => {
                     <div className="text-center border-b border-gray-200 pb-3">
                       <h2 className="text-2xl font-bold text-gray-800 mb-1">세종대학교 융합창업학과</h2>
                       <h3 className="text-lg text-gray-600">{activeTab === 'major' ? '연계전공' : '연계부전공'} 이수체계도</h3>
-                      <div className="mt-2 flex justify-center gap-4">
+                      <div className="mt-2 flex flex-wrap justify-center gap-2 sm:gap-4">
                         <div className="text-sm text-gray-500">
                           <span className="font-medium">선택 학점:</span> {calculateCredits('core') + calculateCredits('elective')}학점 (자유선택 {credits.free}학점 별도)
                         </div>
@@ -535,33 +528,37 @@ const CurriculumSection = () => {
 
                   <div className="bg-gray-50 rounded-lg p-4">
                     <h4 className="text-base font-bold text-gray-800 mb-2">이수 현황 요약</h4>
-                    <div className="grid grid-cols-4 gap-2 text-center">
-                      <div className="bg-white rounded-md p-3">
-                        <div className="text-xl font-bold text-blue-600">{calculateCredits('core')}</div>
-                        <div className="text-xs text-gray-600">전공필수</div>
+                    <div className="grid grid-cols-4 gap-1 sm:gap-2 text-center">
+                      <div className="bg-white rounded-md p-2 sm:p-3">
+                        <div className="text-lg sm:text-xl font-bold text-blue-600">{calculateCredits('core')}</div>
+                        <div className="text-[10px] sm:text-xs text-gray-600">전공필수</div>
                       </div>
-                      <div className="bg-white rounded-md p-3">
-                        <div className="text-xl font-bold text-purple-600">{calculateCredits('elective')}</div>
-                        <div className="text-xs text-gray-600">전공선택</div>
+                      <div className="bg-white rounded-md p-2 sm:p-3">
+                        <div className="text-lg sm:text-xl font-bold text-purple-600">{calculateCredits('elective')}</div>
+                        <div className="text-[10px] sm:text-xs text-gray-600">전공선택</div>
                       </div>
-                      <div className="bg-white rounded-md p-3">
-                        <div className="text-xl font-bold text-green-600">{credits.free}</div>
-                        <div className="text-xs text-gray-600">자유선택</div>
+                      <div className="bg-white rounded-md p-2 sm:p-3">
+                        <div className="text-lg sm:text-xl font-bold text-green-600">{credits.free}</div>
+                        <div className="text-[10px] sm:text-xs text-gray-600">자유선택</div>
                       </div>
-                      <div className="bg-white rounded-md p-3">
-                        <div className="text-xl font-bold text-gray-800">
+                      <div className="bg-white rounded-md p-2 sm:p-3">
+                        <div className="text-lg sm:text-xl font-bold text-gray-800">
                           {calculateCredits('core') + calculateCredits('elective') + credits.free}
                         </div>
-                        <div className="text-xs text-gray-600">총 학점</div>
+                        <div className="text-[10px] sm:text-xs text-gray-600">총 학점</div>
                       </div>
                     </div>
                     <div className="mt-3 text-center space-y-2">
-                      <div className={`inline-block px-4 py-2 rounded-lg text-sm font-medium ${
+                      <div className={`px-4 py-2 rounded-lg text-sm font-medium ${
                         getStatusMessage().includes('완료')
                           ? 'bg-green-100 text-green-800'
                           : 'bg-yellow-100 text-yellow-800'
                       }`}>
-                        {getStatusMessage()}
+                        {getStatusMessage().split(' | ').map((msg, idx) => (
+                          <div key={idx} className={idx > 0 ? 'mt-1' : ''}>
+                            {msg}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -668,7 +665,11 @@ const CurriculumSection = () => {
                     )}
                   </button>
                   <button
-                    onClick={() => setShowResult(false)}
+                    onClick={() => {
+                      setShowResult(false);
+                      // 카카오톡 버튼 다시 보이기 이벤트 발생
+                      window.dispatchEvent(new CustomEvent('curriculumResultModal', { detail: { isOpen: false } }));
+                    }}
                     className="bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
                   >
                     닫기

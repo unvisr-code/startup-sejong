@@ -6,39 +6,39 @@ import { FaInstagram, FaYoutube, FaEnvelope, FaPhone, FaMapMarkerAlt, FaExternal
 
 const ContactSection = () => {
   return (
-    <section id="contact" className="section-padding">
+    <section id="contact" className="py-8 sm:py-12 md:py-16">
       <div className="container-custom">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             문의하기 & <span className="gradient-text">SNS</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-sm sm:text-xl text-gray-600 max-w-3xl mx-auto px-2 sm:px-0">
             융합창업연계전공에 대해 궁금한 점 있으신가요?
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="bg-white rounded-2xl shadow-xl p-8"
+            className="bg-white rounded-2xl shadow-xl p-6 sm:p-8"
           >
             <h3 className="text-2xl font-bold mb-6">연락처 정보</h3>
             
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="flex items-start">
-                <FaMapMarkerAlt className="text-primary text-xl mt-1 mr-4 flex-shrink-0" />
+                <FaMapMarkerAlt className="text-primary text-xl mt-0.5 mr-3 flex-shrink-0" />
                 <div>
-                  <h4 className="font-semibold mb-1">주소</h4>
-                  <p className="text-gray-600">
+                  <h4 className="font-semibold text-sm mb-0.5">주소</h4>
+                  <p className="text-gray-600 text-sm">
                     서울특별시 광진구 능동로 209<br />
                     세종대학교 린스타트업실
                   </p>
@@ -46,28 +46,28 @@ const ContactSection = () => {
               </div>
 
               <div className="flex items-start">
-                <FaPhone className="text-primary text-xl mt-1 mr-4 flex-shrink-0" />
+                <FaPhone className="text-primary text-xl mt-0.5 mr-3 flex-shrink-0" />
                 <div>
-                  <h4 className="font-semibold mb-1">전화</h4>
-                  <p className="text-gray-600">02-3408-3000</p>
+                  <h4 className="font-semibold text-sm mb-0.5">전화</h4>
+                  <p className="text-gray-600 text-sm">02-3408-3000</p>
                 </div>
               </div>
 
               <div className="flex items-start">
-                <FaEnvelope className="text-primary text-xl mt-1 mr-4 flex-shrink-0" />
+                <FaEnvelope className="text-primary text-xl mt-0.5 mr-3 flex-shrink-0" />
                 <div>
-                  <h4 className="font-semibold mb-1">이메일</h4>
-                  <p className="text-gray-600">startup@sejong.ac.kr</p>
+                  <h4 className="font-semibold text-sm mb-0.5">이메일</h4>
+                  <p className="text-gray-600 text-sm">startup@sejong.ac.kr</p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-8 pt-8 border-t">
-              <h4 className="font-semibold mb-4">문의 가능시간</h4>
-              <p className="text-gray-600">
+            <div className="mt-6 pt-6 border-t">
+              <h4 className="font-semibold mb-2 text-sm">문의 가능시간</h4>
+              <p className="text-gray-600 text-sm">
                 평일 09:00 - 18:00<br />
                 점심시간 12:00 - 13:00<br />
-                <span className="text-sm">(주말 및 공휴일 휴무)</span>
+                <span className="text-xs">(주말 및 공휴일 휴무)</span>
               </p>
             </div>
           </motion.div>
@@ -77,47 +77,41 @@ const ContactSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="bg-gradient-primary rounded-2xl p-8 text-white"
+            className="bg-gradient-primary rounded-2xl p-6 sm:p-8 text-white"
           >
             <h3 className="text-2xl font-bold mb-6">SNS</h3>
             
-            <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4">
               <a
                 href="https://www.instagram.com/sejong_startup"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between bg-white/20 backdrop-blur-sm rounded-lg p-4 hover:bg-white/30 transition-all duration-300 group"
+                className="flex flex-col items-center justify-center bg-white/20 backdrop-blur-sm rounded-lg p-4 hover:bg-white/30 transition-all duration-300 group text-center"
               >
-                <div className="flex items-center">
-                  <FaInstagram size={32} className="mr-4" />
-                  <div>
-                    <h4 className="font-semibold">Instagram</h4>
-                    <p className="text-sm opacity-90">@sejong_startup</p>
-                  </div>
+                <FaInstagram size={28} className="mb-2" />
+                <div>
+                  <h4 className="font-semibold text-sm sm:text-base">Instagram</h4>
+                  <p className="text-xs sm:text-sm opacity-90">@sejong_startup</p>
                 </div>
-                <FaExternalLinkAlt className="opacity-50 group-hover:opacity-100 transition-opacity" />
               </a>
 
               <a
                 href="https://youtu.be/DQ23hx55Y7A"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between bg-white/20 backdrop-blur-sm rounded-lg p-4 hover:bg-white/30 transition-all duration-300 group"
+                className="flex flex-col items-center justify-center bg-white/20 backdrop-blur-sm rounded-lg p-4 hover:bg-white/30 transition-all duration-300 group text-center"
               >
-                <div className="flex items-center">
-                  <FaYoutube size={32} className="mr-4" />
-                  <div>
-                    <h4 className="font-semibold">YouTube</h4>
-                    <p className="text-sm opacity-90">홍보 영상 보기</p>
-                  </div>
+                <FaYoutube size={28} className="mb-2" />
+                <div>
+                  <h4 className="font-semibold text-sm sm:text-base">YouTube</h4>
+                  <p className="text-xs sm:text-sm opacity-90">홍보 영상 보기</p>
                 </div>
-                <FaExternalLinkAlt className="opacity-50 group-hover:opacity-100 transition-opacity" />
               </a>
             </div>
 
-            <div className="mt-8 p-6 bg-white/10 backdrop-blur-sm rounded-lg">
-              <h4 className="font-semibold mb-3">💬 카카오톡 상담</h4>
-              <p className="text-sm mb-4">
+            <div className="mt-6 p-4 sm:p-6 bg-white/10 backdrop-blur-sm rounded-lg">
+              <h4 className="font-semibold mb-2 text-sm sm:text-base">💬 카카오톡 상담</h4>
+              <p className="text-xs sm:text-sm mb-3">
                 실시간 상담을 원하시면 우측 하단의 카카오톡 버튼을 클릭해주세요!
               </p>
               <button
@@ -138,10 +132,10 @@ const ContactSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
-          className="mt-12 bg-gray-50 rounded-2xl p-6 md:p-8 text-center"
+          className="mt-6 sm:mt-10 bg-gray-50 rounded-2xl p-4 sm:p-6 md:p-8 text-center"
         >
           <h3 className="text-xl md:text-2xl font-bold mb-4">자주 묻는 질문</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-left max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 gap-4 md:gap-6 text-left max-w-4xl mx-auto">
             <div>
               <h4 className="font-semibold text-sm md:text-base mb-2">Q. 타 학과생도 지원 가능한가요?</h4>
               <p className="text-xs md:text-sm text-gray-600 leading-relaxed">A. 네, 세종대학교 전체 학과 재학생이 지원 가능합니다.</p>

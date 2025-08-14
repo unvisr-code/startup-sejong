@@ -20,6 +20,18 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
+
   const menuItems = [
     { href: 'about', label: '전공소개' },
     { href: 'curriculum', label: '교육과정' },
@@ -82,7 +94,8 @@ const Header = () => {
           <button
             className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label="메뉴 열기/닫기"
+            aria-expanded={isMenuOpen}
           >
             <motion.div
               animate={{ rotate: isMenuOpen ? 90 : 0 }}
@@ -110,7 +123,7 @@ const Header = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="block px-6 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent hover:text-primary transition-all duration-200 cursor-pointer font-medium"
+                    className="block px-6 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent hover:text-primary transition-all duration-200 cursor-pointer font-medium focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                     onClick={(e) => handleMenuClick(e, item.href)}
                   >
                     {item.label}
@@ -123,7 +136,7 @@ const Header = () => {
                   className="px-4 py-3 border-t border-gray-100"
                 >
                   <button
-                    className="w-full bg-gradient-primary text-white text-center py-3 rounded-xl hover:shadow-lg transition-all duration-300 cursor-pointer font-medium"
+                    className="w-full bg-gradient-primary text-white text-center py-3 rounded-xl hover:shadow-lg transition-all duration-300 cursor-pointer font-medium focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                     onClick={handleApplyClick}
                   >
                     지원하기

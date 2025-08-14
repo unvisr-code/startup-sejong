@@ -41,7 +41,7 @@ const ProcessSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             지원 절차 및 <span className="gradient-text">과정</span>
@@ -82,44 +82,44 @@ const ProcessSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
           viewport={{ once: true }}
-          className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6"
+          className="mt-6 sm:mt-8 md:mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6"
         >
-          <div className="bg-gradient-primary text-white rounded-2xl p-8">
-            <h3 className="text-2xl font-bold mb-4">지원 자격</h3>
-            <ul className="space-y-3">
+          <div className="bg-gradient-primary text-white rounded-2xl p-4 sm:p-6 md:p-8">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">지원 자격</h3>
+            <ul className="space-y-2 sm:space-y-3">
               <li className="flex items-start">
-                <span className="text-2xl mr-3">✓</span>
-                <span>세종대학교 1~4학년 재학생</span>
+                <span className="text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3">✓</span>
+                <span className="text-sm sm:text-base break-keep">세종대학교 1~4학년 재학생</span>
               </li>
               <li className="flex items-start">
-                <span className="text-2xl mr-3">✓</span>
-                <span>창업 및 신사업 기획에 관심 있는 학생</span>
+                <span className="text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3">✓</span>
+                <span className="text-sm sm:text-base break-keep">창업 및 신사업 기획에 관심 있는 학생</span>
               </li>
               <li className="flex items-start">
-                <span className="text-2xl mr-3">✓</span>
-                <span>열정과 도전정신을 가진 예비 창업가</span>
+                <span className="text-lg sm:text-xl md:text-2xl mr-2 sm:mr-3">✓</span>
+                <span className="text-sm sm:text-base break-keep">열정과 도전정신을 가진 예비 창업가</span>
               </li>
             </ul>
           </div>
 
-          <div id="apply" className="bg-secondary text-white rounded-2xl p-8">
-            <h3 className="text-2xl font-bold mb-4">지원 방법</h3>
-            <ol className="space-y-3">
+          <div id="apply" className="bg-secondary text-white rounded-2xl p-4 sm:p-6 md:p-8">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">지원 방법</h3>
+            <ol className="space-y-2 sm:space-y-3">
               <li className="flex items-start">
-                <span className="font-bold mr-3">1.</span>
-                <span>학사포털 접속 후 연계전공 신청</span>
+                <span className="font-bold mr-2 sm:mr-3 text-sm sm:text-base">1.</span>
+                <span className="text-sm sm:text-base break-keep">학사포털 접속 후 연계전공 신청</span>
               </li>
               <li className="flex items-start">
-                <span className="font-bold mr-3">2.</span>
-                <span>신청서 작성 및 서류 제출</span>
+                <span className="font-bold mr-2 sm:mr-3 text-sm sm:text-base">2.</span>
+                <span className="text-sm sm:text-base break-keep">신청서 작성 및 서류 제출</span>
               </li>
               <li className="flex items-start">
-                <span className="font-bold mr-3">3.</span>
-                <span>면접 일정 확인 및 참석</span>
+                <span className="font-bold mr-2 sm:mr-3 text-sm sm:text-base">3.</span>
+                <span className="text-sm sm:text-base break-keep">면접 일정 확인 및 참석</span>
               </li>
               <li className="flex items-start">
-                <span className="font-bold mr-3">4.</span>
-                <span>최종 합격 발표 확인</span>
+                <span className="font-bold mr-2 sm:mr-3 text-sm sm:text-base">4.</span>
+                <span className="text-sm sm:text-base break-keep">최종 합격 발표 확인</span>
               </li>
             </ol>
           </div>
