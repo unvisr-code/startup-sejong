@@ -142,7 +142,8 @@ const ContactSection = () => {
             </div>
             <div>
               <h4 className="font-semibold text-sm md:text-base mb-2">Q. 신청 시기는 언제인가요?</h4>
-              <p className="text-xs md:text-sm text-gray-600 leading-relaxed">A. 매학기 5월과 11월에 신청 가능하며,<br className="md:hidden" /> 상시 문의는 언제든 가능합니다.</p>
+              <p className="text-xs md:text-sm text-gray-600 leading-relaxed">A. 매학기 5월과 11월에 신청 가능하며,<br className="md:hidden" /> 상시 문의는 언제든 가능합니다.<br />
+              <span className="text-primary font-medium">카카오톡 채널을 추가하시면 신청 시기 알림을 받을 수 있습니다.</span></p>
             </div>
             <div>
               <h4 className="font-semibold text-sm md:text-base mb-2">Q. 졸업 요건은 어떻게 되나요?</h4>

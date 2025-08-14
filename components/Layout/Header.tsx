@@ -74,8 +74,8 @@ const Header = () => {
               <FaRocket className="text-white text-xl" />
             </div>
             <div>
-              <span className="font-bold text-xl gradient-text">LEAN STARTUP LAB</span>
-              <span className="block text-xs text-gray-600">세종대 융합창업전공</span>
+              <span className={`font-bold text-xl ${isScrolled ? 'gradient-text' : 'text-white'}`}>세종대 융합창업전공</span>
+              <span className={`block text-xs ${isScrolled ? 'text-gray-600' : 'text-white/80'}`}>LEAN STARTUP LAB</span>
             </div>
           </Link>
 
@@ -85,14 +85,18 @@ const Header = () => {
                 key={item.href}
                 href="#"
                 onClick={(e) => handleMenuClick(e, item.href)}
-                className="text-gray-700 hover:text-primary transition-colors duration-300 font-medium cursor-pointer"
+                className={`${isScrolled ? 'text-gray-700 hover:text-primary' : 'text-white hover:text-white/80'} transition-colors duration-300 font-medium cursor-pointer`}
               >
                 {item.label}
               </a>
             ))}
             <button
               onClick={handleApplyClick}
-              className="bg-gradient-primary text-white px-6 py-2 rounded-full hover:shadow-lg transition-all duration-300 cursor-pointer"
+              className={`px-6 py-2 rounded-full transition-all duration-300 cursor-pointer font-bold ${
+                isScrolled 
+                  ? 'bg-gradient-primary text-white hover:shadow-lg' 
+                  : 'border-2 border-white text-white hover:bg-white hover:text-primary'
+              }`}
             >
               지원하기
             </button>

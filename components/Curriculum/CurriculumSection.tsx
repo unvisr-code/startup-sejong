@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaBook, FaStar, FaCheckCircle, FaCheck, FaLink, FaTimes, FaPlay, FaStop, FaQuestionCircle, FaCopy, FaInfoCircle } from 'react-icons/fa';
+import { FaBook, FaStar, FaCheck, FaTimes, FaPlay, FaCopy } from 'react-icons/fa';
 import { HiOutlineInformationCircle } from 'react-icons/hi';
 import curriculumData from '../../curriculum.json';
 
@@ -282,7 +282,7 @@ const CurriculumSection = () => {
                 className="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors flex items-center gap-2"
               >
                 <FaPlay size={14} />
-                이수체계도 만들기
+과목을 선택하여 나만의 이수체계도 만들기
               </button>
             ) : (
               <>
@@ -408,33 +408,6 @@ const CurriculumSection = () => {
             </div>
           </div>
 
-        </motion.div>
-
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          viewport={{ once: true, amount: 0.1 }}
-          className="mt-12 bg-blue-50 rounded-2xl p-8"
-        >
-          <h3 className="text-2xl font-bold mb-4 text-center">융합창업연계전공 혜택</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-start">
-              <FaCheckCircle className="text-green-500 text-xl mt-1 mr-3 flex-shrink-0" />
-              <div>
-                <h4 className="font-bold mb-1">주전공 필수이수학점 완화</h4>
-                <p className="text-gray-600">72학점 → 39학점으로 완화되어 1+1 학위 취득 가능</p>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <FaCheckCircle className="text-green-500 text-xl mt-1 mr-3 flex-shrink-0" />
-              <div>
-                <h4 className="font-bold mb-1">창업 동아리 활동 가능</h4>
-                <p className="text-gray-600">창업 동아리 활동 장려 및 지원 제공</p>
-              </div>
-            </div>
-          </div>
         </motion.div>
 
         {/* 결과 팝업 */}
@@ -643,6 +616,13 @@ const CurriculumSection = () => {
                         </div>
                       </div>
                     </div>
+                  </div>
+                  
+                  {/* 정확성 안내 */}
+                  <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+                    <p className="text-xs text-gray-500 text-center">
+                      ※ 이수체계도가 정확하지 않을 수 있으니 직접 확인하세요
+                    </p>
                   </div>
                   </div>
                 </div>
