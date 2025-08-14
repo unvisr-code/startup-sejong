@@ -51,7 +51,7 @@ const Footer = () => {
                 <ul className="space-y-1 text-gray-400">
                   <li className="text-xs sm:text-sm break-keep">세종대학교</li>
                   <li className="text-xs sm:text-sm">02-6935-2531</li>
-                  <li className="text-xs sm:text-sm break-all">cstartup@sejong.ac.kr</li>
+                  <li className="text-xs sm:text-sm break-all">cscsejongp@sejong.ac.kr</li>
                   <li className="flex space-x-3 mt-2">
                     <a
                       href="https://www.instagram.com/sejong_startup"

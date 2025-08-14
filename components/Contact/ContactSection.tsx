@@ -57,7 +57,7 @@ const ContactSection = () => {
                 <FaEnvelope className="text-primary text-xl mt-0.5 mr-3 flex-shrink-0" />
                 <div>
                   <h4 className="font-semibold text-sm mb-0.5">이메일</h4>
-                  <p className="text-gray-600 text-sm">cstartup@sejong.ac.kr</p>
+                  <p className="text-gray-600 text-sm">cscsejong@sejong.ac.kr</p>
                 </div>
               </div>
             </div>
