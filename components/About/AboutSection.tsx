@@ -65,7 +65,7 @@ const AboutSection = () => {
         >
           <div className="bg-gradient-primary rounded-2xl p-6 sm:p-8">
             <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-white text-center">교육 목표</h3>
-            <div className="text-center mb-4 sm:mb-6">
+            <div className="text-center">
               <blockquote className="text-white text-lg sm:text-xl md:text-2xl leading-relaxed max-w-3xl mx-auto px-4 sm:px-6">
                 <span className="font-bold">"아이디어 발굴→성장"</span>까지<br className="sm:hidden" /> 창업의 모든 단계를 체계적으로 배우고,<br className="hidden sm:block" />
                 <br className="sm:hidden" />
@@ -73,41 +73,6 @@ const AboutSection = () => {
                 <br className="sm:hidden" />
                 <span className="font-bold text-yellow-300">"준비된 창업가를 양성합니다."</span>
               </blockquote>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-4 md:gap-6">
-              <div className="flex flex-row sm:flex-col items-center sm:items-center gap-4 sm:gap-0">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center flex-shrink-0 sm:mb-3 md:mb-4">
-                  <FaGraduationCap className="text-xl sm:text-2xl md:text-3xl text-white" />
-                </div>
-                <div className="flex-1 sm:flex-none text-left sm:text-center">
-                  <h4 className="text-sm sm:text-base md:text-lg font-bold text-white mb-1 sm:mb-2 break-keep">체계적 커리큘럼</h4>
-                  <p className="text-xs sm:text-sm text-white/90 sm:text-center break-keep leading-relaxed">
-                    단계별 창업 교육과정 제공
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-row sm:flex-col items-center sm:items-center gap-4 sm:gap-0">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center flex-shrink-0 sm:mb-3 md:mb-4">
-                  <FaUsers className="text-xl sm:text-2xl md:text-3xl text-white" />
-                </div>
-                <div className="flex-1 sm:flex-none text-left sm:text-center">
-                  <h4 className="text-sm sm:text-base md:text-lg font-bold text-white mb-1 sm:mb-2 break-keep">실무 멘토링</h4>
-                  <p className="text-xs sm:text-sm text-white/90 sm:text-center break-keep leading-relaxed">
-                    현직 전문가 1:1 멘토링
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-row sm:flex-col items-center sm:items-center gap-4 sm:gap-0">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center flex-shrink-0 sm:mb-3 md:mb-4">
-                  <FaHandshake className="text-xl sm:text-2xl md:text-3xl text-white" />
-                </div>
-                <div className="flex-1 sm:flex-none text-left sm:text-center">
-                  <h4 className="text-sm sm:text-base md:text-lg font-bold text-white mb-1 sm:mb-2 break-keep">투자 연결</h4>
-                  <p className="text-xs sm:text-sm text-white/90 sm:text-center break-keep leading-relaxed">
-                    VC 네트워킹 및 IR 기회 제공
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         </motion.div>

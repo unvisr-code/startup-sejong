@@ -112,7 +112,7 @@ const ContactSection = () => {
             <div className="mt-6 p-4 sm:p-6 bg-white/10 backdrop-blur-sm rounded-lg">
               <h4 className="font-semibold mb-2 text-sm sm:text-base">💬 카카오톡 상담</h4>
               <p className="text-xs sm:text-sm mb-3">
-                실시간 상담을 원하시면 우측 하단의 카카오톡 버튼을 클릭해주세요!
+                실시간 상담을 원하시면 하단의 카카오톡 버튼을 클릭해주세요!
               </p>
               <button
                 onClick={() => {

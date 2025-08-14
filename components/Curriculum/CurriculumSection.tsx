@@ -282,7 +282,7 @@ const CurriculumSection = () => {
                 className="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors flex items-center gap-2"
               >
                 <FaPlay size={14} />
-과목을 선택하여 나만의 이수체계도 만들기
+                나만의 이수체계도 만들기
               </button>
             ) : (
               <>
@@ -306,6 +306,7 @@ const CurriculumSection = () => {
           
           {isPlanning && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+              <p className="font-bold text-base mb-2 text-center">📚 하단에서 과목들을 선택하세요!</p>
               <p className="font-medium mb-1">현재 선택 현황:</p>
               <p>전공필수: {calculateCredits('core')}/{credits.core}학점 | 전공선택: {calculateCredits('elective')}/{credits.elective}학점 | 자유선택: 별도 {credits.free}학점 이수 필요</p>
               <p className="mt-1 text-xs">{getStatusMessage()}</p>
