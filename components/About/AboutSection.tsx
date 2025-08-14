@@ -63,13 +63,14 @@ const AboutSection = () => {
           viewport={{ once: true, amount: 0.1 }}
           className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 md:p-12 mb-6 sm:mb-8 md:mb-12"
         >
-          <div className="text-center space-y-6">
-            <p className="text-gray-700 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto mb-4 break-keep">
-              창업 기초부터 실전까지, 아이디어 발굴에서 성장까지 창업의 모든 단계를 체계적으로 교육합니다.
-            </p>
-            <p className="text-gray-700 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto break-keep">
-              실제 창업가, 투자자, 엑셀러레이터와 함께하는 실전 중심의 교육으로 준비된 창업가를 양성합니다.
-            </p>
+          <div className="text-center">
+            <blockquote className="text-gray-800 text-lg sm:text-xl md:text-2xl font-bold leading-relaxed max-w-3xl mx-auto px-4 sm:px-6">
+              "아이디어 발굴→성장"까지<br className="sm:hidden" /> 창업의 모든 단계를 체계적으로 배우고,<br className="hidden sm:block" />
+              <br className="sm:hidden" />
+              실제 창업가·투자자·액셀러레이터와<br className="sm:hidden" /> 함께하는 실전 교육으로<br className="hidden sm:block" />
+              <br className="sm:hidden" />
+              <span className="text-primary">"준비된 창업가를 양성합니다."</span>
+            </blockquote>
           </div>
         </motion.div>
 
