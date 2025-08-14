@@ -40,7 +40,7 @@ const ContactSection = () => {
                   <h4 className="font-semibold text-sm mb-0.5">주소</h4>
                   <p className="text-gray-600 text-sm">
                     서울특별시 광진구 능동로 209<br />
-                    세종대학교 린스타트업실
+                    세종대학교 군자관 103호 린스타트업실
                   </p>
                 </div>
               </div>
@@ -49,7 +49,7 @@ const ContactSection = () => {
                 <FaPhone className="text-primary text-xl mt-0.5 mr-3 flex-shrink-0" />
                 <div>
                   <h4 className="font-semibold text-sm mb-0.5">전화</h4>
-                  <p className="text-gray-600 text-sm">02-3408-3000</p>
+                  <p className="text-gray-600 text-sm">02-6935-2531</p>
                 </div>
               </div>
 
@@ -57,7 +57,7 @@ const ContactSection = () => {
                 <FaEnvelope className="text-primary text-xl mt-0.5 mr-3 flex-shrink-0" />
                 <div>
                   <h4 className="font-semibold text-sm mb-0.5">이메일</h4>
-                  <p className="text-gray-600 text-sm">startup@sejong.ac.kr</p>
+                  <p className="text-gray-600 text-sm">cstartup@sejong.ac.kr</p>
                 </div>
               </div>
             </div>

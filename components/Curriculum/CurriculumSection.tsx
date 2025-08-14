@@ -418,7 +418,7 @@ const CurriculumSection = () => {
           viewport={{ once: true, amount: 0.1 }}
           className="mt-12 bg-blue-50 rounded-2xl p-8"
         >
-          <h3 className="text-2xl font-bold mb-4 text-center">융합창업전공 혜택</h3>
+          <h3 className="text-2xl font-bold mb-4 text-center">융합창업연계전공 혜택</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex items-start">
               <FaCheckCircle className="text-green-500 text-xl mt-1 mr-3 flex-shrink-0" />

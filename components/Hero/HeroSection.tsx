@@ -57,7 +57,7 @@ const HeroSection = () => {
           </h1>
           
           <p className="text-base xs:text-lg sm:text-xl md:text-xl lg:text-2xl mb-4 sm:mb-6 md:mb-8 text-white/90 font-medium break-keep">
-            융합창업, 아이디어가 현실이 되는 과정
+            창업, 아이디어가 현실이 되는 과정
           </p>
 
           <p className="text-xs xs:text-sm sm:text-lg md:text-lg lg:text-xl mb-6 sm:mb-8 md:mb-10 max-w-lg sm:max-w-2xl mx-auto text-white/80 leading-relaxed break-keep px-4 sm:px-0">
@@ -94,11 +94,11 @@ const HeroSection = () => {
         >
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6">
             <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 break-keep">세종대 유일</div>
-            <div className="text-xs sm:text-sm break-keep">100% 실전 투자 연결</div>
+            <div className="text-xs sm:text-sm break-keep">창업 학위 과정</div>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6">
             <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 break-keep">체계적 교육</div>
-            <div className="text-xs sm:text-sm break-keep">창업 학위과정</div>
+            <div className="text-xs sm:text-sm break-keep">100% 실전 투자 연결</div>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 sm:p-4 md:p-6 col-span-2 md:col-span-1">
             <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 break-keep">실전 멘토링</div>

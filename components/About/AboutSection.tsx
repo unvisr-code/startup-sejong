@@ -14,7 +14,7 @@ const AboutSection = () => {
     {
       icon: <FaUsers />,
       title: '실전 멘토링',
-      description: '엔젤투자자, 엑셀러레이터, VC 전문가 직접 멘토링',
+      description: '투자자, 엑셀러레이터, VC 전문가 직접 멘토링',
     },
     {
       icon: <FaGraduationCap />,
@@ -34,7 +34,7 @@ const AboutSection = () => {
     {
       icon: <FaHandshake />,
       title: '네트워킹',
-      description: '창업 생태계 전문가들과의 네트워킹 기회',
+      description: '창업 전문가들과의 네트워킹 기회',
     },
   ];
 
@@ -52,7 +52,7 @@ const AboutSection = () => {
             <span className="gradient-text">융합창업연계전공</span> 소개
           </h2>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto break-keep">
-            세종대학교 유일의 창업교육으로 학생창업자들에게 실전창업을 경험하고 창업역량을 함양하여 "준비된 청년창업인"을 양성합니다.
+            세종대 유일 창업학과로 실전 창업역량을 갖춘 준비된 청년창업인을 양성합니다.
           </p>
         </motion.div>
 
