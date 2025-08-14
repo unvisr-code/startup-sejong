@@ -45,7 +45,7 @@ const AboutSection = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           className="text-center mb-6 sm:mb-8 md:mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -60,7 +60,7 @@ const AboutSection = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 md:p-12 mb-6 sm:mb-8 md:mb-12"
         >
           <div className="text-center space-y-6">
@@ -80,7 +80,7 @@ const AboutSection = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.1 }}
               className="bg-white rounded-xl p-4 md:p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
               <div className="text-3xl md:text-4xl text-primary mb-3">{feature.icon}</div>
@@ -94,7 +94,7 @@ const AboutSection = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           className="mt-8 sm:mt-10 md:mt-12 text-center"
         >
           <div className="bg-gradient-primary rounded-2xl p-6 sm:p-8">

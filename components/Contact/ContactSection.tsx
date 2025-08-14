@@ -12,7 +12,7 @@ const ContactSection = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           className="text-center mb-8 sm:mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -28,7 +28,7 @@ const ContactSection = () => {
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.1 }}
             className="bg-white rounded-2xl shadow-xl p-6 sm:p-8"
           >
             <h3 className="text-2xl font-bold mb-6">연락처 정보</h3>
@@ -73,10 +73,10 @@ const ContactSection = () => {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.1 }}
             className="bg-gradient-primary rounded-2xl p-6 sm:p-8 text-white"
           >
             <h3 className="text-2xl font-bold mb-6">SNS</h3>
@@ -131,7 +131,7 @@ const ContactSection = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           className="mt-6 sm:mt-10 bg-gray-50 rounded-2xl p-4 sm:p-6 md:p-8 text-center"
         >
           <h3 className="text-xl md:text-2xl font-bold mb-4">자주 묻는 질문</h3>

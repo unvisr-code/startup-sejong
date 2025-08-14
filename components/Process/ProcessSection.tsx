@@ -40,7 +40,7 @@ const ProcessSection = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           className="text-center mb-8 sm:mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -58,7 +58,7 @@ const ProcessSection = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, amount: 0.1 }}
               className="relative"
             >
               <div className="bg-white rounded-xl p-4 md:p-6 shadow-lg hover:shadow-xl transition-all duration-300 h-full">
@@ -81,7 +81,7 @@ const ProcessSection = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           className="mt-6 sm:mt-8 md:mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6"
         >
           <div className="bg-gradient-primary text-white rounded-2xl p-4 sm:p-6 md:p-8">

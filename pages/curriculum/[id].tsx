@@ -140,21 +140,21 @@ const CurriculumSharePage = () => {
         <meta name="description" content={`세종대학교 융합창업학과 ${data.type === 'major' ? '연계전공' : '연계부전공'} 이수체계도`} />
       </Head>
 
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
         <div className="container-custom">
-          <div className="bg-white rounded-2xl shadow-lg p-8 max-w-5xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 max-w-5xl mx-auto">
             {/* 헤더 */}
-            <div className="text-center border-b border-gray-200 pb-6 mb-6">
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">세종대학교 융합창업학과</h1>
-              <h2 className="text-xl text-gray-600 mb-4">
+            <div className="text-center border-b border-gray-200 pb-3">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-1">세종대학교 융합창업학과</h1>
+              <h2 className="text-base sm:text-lg text-gray-600">
                 {data.type === 'major' ? '연계전공' : '연계부전공'} 이수체계도
               </h2>
-              <div className="flex justify-center gap-6 text-sm text-gray-500">
-                <div>
-                  <span className="font-medium">선택 학점:</span> {totalCore + totalElective}학점
+              <div className="mt-2 flex flex-wrap sm:flex-nowrap justify-center gap-2 sm:gap-4">
+                <div className="text-xs sm:text-sm text-gray-500">
+                  <span className="font-medium">선택 학점:</span> {totalCore + totalElective}학점 (자유선택 {credits.free}학점 별도)
                 </div>
                 {currentDate && (
-                  <div>
+                  <div className="text-xs sm:text-sm text-gray-500">
                     <span className="font-medium">생성일:</span> {currentDate}
                   </div>
                 )}
@@ -162,103 +162,99 @@ const CurriculumSharePage = () => {
             </div>
 
             {/* 과목 목록 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
               {/* 전공필수 */}
-              <div className="bg-blue-50 rounded-lg p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-bold text-blue-800">전공필수</h3>
-                  <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm">
+              <div className="bg-blue-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-base font-bold text-blue-800">전공필수</h3>
+                  <span className="bg-blue-600 text-white px-2 py-1 rounded-full text-xs">
                     {totalCore}/{credits.core}학점
                   </span>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-1">
                   {selectedCore.length > 0 ? (
                     selectedCore.map((course, index) => (
-                      <div key={index} className="bg-white rounded-lg p-4">
-                        <div className="font-medium text-gray-800 mb-1">{course.name}</div>
-                        <div className="text-gray-500 text-sm mb-2">
+                      <div key={index} className="bg-white rounded-md p-2">
+                        <div className="font-medium text-gray-800 text-sm">{course.name}</div>
+                        <div className="text-gray-500 text-xs">
                           {course.grade}학년 {course.semester}학기 • {course.credits}학점
                         </div>
-                        <div className="text-gray-600 text-sm">{course.desc}</div>
+                        <div className="text-gray-600 text-xs mt-1 truncate">{course.desc}</div>
                       </div>
                     ))
                   ) : (
-                    <div className="text-gray-500 text-center py-4">선택된 과목이 없습니다</div>
+                    <div className="text-gray-500 text-xs text-center py-2">선택된 과목이 없습니다</div>
                   )}
                 </div>
               </div>
 
               {/* 전공선택 */}
-              <div className="bg-purple-50 rounded-lg p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-bold text-purple-800">전공선택</h3>
-                  <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-sm">
+              <div className="bg-purple-50 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-base font-bold text-purple-800">전공선택</h3>
+                  <span className="bg-purple-600 text-white px-2 py-1 rounded-full text-xs">
                     {totalElective}/{credits.elective}학점
                   </span>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-1">
                   {selectedElective.length > 0 ? (
                     selectedElective.map((course, index) => (
-                      <div key={index} className="bg-white rounded-lg p-4">
-                        <div className="font-medium text-gray-800 mb-1">{course.name}</div>
-                        <div className="text-gray-500 text-sm mb-2">
+                      <div key={index} className="bg-white rounded-md p-2">
+                        <div className="font-medium text-gray-800 text-sm">{course.name}</div>
+                        <div className="text-gray-500 text-xs">
                           {course.grade}학년 {course.semester}학기 • {course.credits}학점
                         </div>
-                        <div className="text-gray-600 text-sm">{course.desc}</div>
+                        <div className="text-gray-600 text-xs mt-1 truncate">{course.desc}</div>
                       </div>
                     ))
                   ) : (
-                    <div className="text-gray-500 text-center py-4">선택된 과목이 없습니다</div>
+                    <div className="text-gray-500 text-xs text-center py-2">선택된 과목이 없습니다</div>
                   )}
                 </div>
               </div>
             </div>
 
             {/* 이수 현황 요약 */}
-            <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4">이수 현황 요약</h3>
-              <div className="grid grid-cols-4 gap-4 text-center mb-4">
-                <div className="bg-white rounded-lg p-4">
-                  <div className="text-2xl font-bold text-blue-600">{totalCore}</div>
-                  <div className="text-sm text-gray-600">전공필수</div>
+            <div className="bg-gray-50 rounded-lg p-4 mt-3">
+              <h3 className="text-base font-bold text-gray-800 mb-2">이수 현황 요약</h3>
+              <div className="grid grid-cols-4 gap-1 sm:gap-2 text-center">
+                <div className="bg-white rounded-md p-2 sm:p-3">
+                  <div className="text-lg sm:text-xl font-bold text-blue-600">{totalCore}</div>
+                  <div className="text-[10px] sm:text-xs text-gray-600">전공필수</div>
                 </div>
-                <div className="bg-white rounded-lg p-4">
-                  <div className="text-2xl font-bold text-purple-600">{totalElective}</div>
-                  <div className="text-sm text-gray-600">전공선택</div>
+                <div className="bg-white rounded-md p-2 sm:p-3">
+                  <div className="text-lg sm:text-xl font-bold text-purple-600">{totalElective}</div>
+                  <div className="text-[10px] sm:text-xs text-gray-600">전공선택</div>
                 </div>
-                <div className="bg-white rounded-lg p-4">
-                  <div className="text-2xl font-bold text-green-600">{credits.free}</div>
-                  <div className="text-sm text-gray-600">자유선택</div>
+                <div className="bg-white rounded-md p-2 sm:p-3">
+                  <div className="text-lg sm:text-xl font-bold text-green-600">{credits.free}</div>
+                  <div className="text-[10px] sm:text-xs text-gray-600">자유선택</div>
                 </div>
-                <div className="bg-white rounded-lg p-4">
-                  <div className="text-2xl font-bold text-gray-800">
+                <div className="bg-white rounded-md p-2 sm:p-3">
+                  <div className="text-lg sm:text-xl font-bold text-gray-800">
                     {totalCore + totalElective + credits.free}
                   </div>
-                  <div className="text-sm text-gray-600">총 학점</div>
+                  <div className="text-[10px] sm:text-xs text-gray-600">총 학점</div>
                 </div>
               </div>
               
-              <div className="text-center space-y-3">
-                <div className={`inline-block px-4 py-2 rounded-lg text-sm font-medium ${
+              <div className="mt-3 text-center space-y-2">
+                <div className={`px-4 py-2 rounded-lg text-sm font-medium ${
                   getStatusMessage().includes('완료')
                     ? 'bg-green-100 text-green-800'
                     : 'bg-yellow-100 text-yellow-800'
                 }`}>
-                  {getStatusMessage()}
-                </div>
-                <div className="bg-gray-100 rounded-lg p-4">
-                  <p className="text-gray-700 font-medium text-sm mb-1">
-                    ※ 자유선택 {credits.free}학점 별도 이수 필요
-                  </p>
-                  <p className="text-gray-600 text-xs">
-                    {curriculumData.courses.free.policy}
-                  </p>
+                  {getStatusMessage().split(' | ').map((msg, idx) => (
+                    <div key={idx} className={idx > 0 ? 'mt-1' : ''}>
+                      {msg}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
 
             {/* 학년별 이수 계획 */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6 mt-6">
+            <div className="bg-white border border-gray-200 rounded-lg p-4 mt-3">
               <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <FaBook className="text-gray-600" />
                 학년별 이수 계획
@@ -275,15 +271,15 @@ const CurriculumSharePage = () => {
                     return (
                       <div key={grade} className="border-l-4 border-gray-300 pl-4">
                         <h4 className="font-bold text-gray-700 mb-2">{grade}학년</h4>
-                        <div className="space-y-2 ml-4">
+                        <div className="space-y-2 ml-2">
                           {firstSem.length > 0 && (
                             <div className="flex flex-wrap items-start gap-2">
-                              <span className="text-sm font-medium text-gray-600 mt-1">1학기:</span>
+                              <span className="text-xs font-medium text-gray-600 mt-1">1학기:</span>
                               <div className="flex flex-wrap gap-2">
                                 {firstSem.map((course, idx) => (
                                   <span 
                                     key={idx} 
-                                    className={`px-3 py-1 rounded text-sm font-medium ${
+                                    className={`px-2 py-1 rounded text-xs font-medium ${
                                       course.type === 'core' 
                                         ? 'bg-blue-100 text-blue-700' 
                                         : 'bg-purple-100 text-purple-700'
@@ -297,12 +293,12 @@ const CurriculumSharePage = () => {
                           )}
                           {secondSem.length > 0 && (
                             <div className="flex flex-wrap items-start gap-2">
-                              <span className="text-sm font-medium text-gray-600 mt-1">2학기:</span>
+                              <span className="text-xs font-medium text-gray-600 mt-1">2학기:</span>
                               <div className="flex flex-wrap gap-2">
                                 {secondSem.map((course, idx) => (
                                   <span 
                                     key={idx} 
-                                    className={`px-3 py-1 rounded text-sm font-medium ${
+                                    className={`px-2 py-1 rounded text-xs font-medium ${
                                       course.type === 'core' 
                                         ? 'bg-blue-100 text-blue-700' 
                                         : 'bg-purple-100 text-purple-700'
@@ -320,7 +316,7 @@ const CurriculumSharePage = () => {
                   }).filter(Boolean);
                 })()}
                 {selectedCore.length === 0 && selectedElective.length === 0 && (
-                  <div className="text-center text-gray-500 py-6">
+                  <div className="text-center text-gray-500 text-sm py-4">
                     선택된 과목이 없습니다
                   </div>
                 )}
@@ -340,8 +336,8 @@ const CurriculumSharePage = () => {
             </div>
 
             {/* 하단 버튼 */}
-            <div className="mt-8 flex justify-center">
-              <Link href="/" className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors">
+            <div className="mt-6 flex justify-center">
+              <Link href="/" className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors text-sm">
                 <FaHome />
                 홈으로 돌아가기
               </Link>

@@ -187,7 +187,7 @@ const CurriculumSection = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           className="text-center mb-8 sm:mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -317,7 +317,7 @@ const CurriculumSection = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12"
         >
           <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
@@ -415,7 +415,7 @@ const CurriculumSection = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           className="mt-12 bg-blue-50 rounded-2xl p-8"
         >
           <h3 className="text-2xl font-bold mb-4 text-center">융합창업전공 혜택</h3>
