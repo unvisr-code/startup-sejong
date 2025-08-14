@@ -75,18 +75,14 @@ const AboutSection = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
           {features.map((feature, index) => (
-            <motion.div
+            <div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true, amount: 0.1 }}
               className="bg-white rounded-xl p-4 md:p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
               <div className="text-3xl md:text-4xl text-primary mb-3">{feature.icon}</div>
               <h3 className="text-base md:text-xl font-bold mb-2">{feature.title}</h3>
               <p className="text-sm md:text-base text-gray-600 leading-relaxed">{feature.description}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
 

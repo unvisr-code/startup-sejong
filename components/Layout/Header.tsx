@@ -48,7 +48,14 @@ const Header = () => {
     e.preventDefault();
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      const headerOffset = 80; // 헤더 높이만큼 오프셋 추가
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
     }
     setIsMenuOpen(false);
   };
@@ -117,31 +124,23 @@ const Header = () => {
             >
               <div className="py-2">
                 {menuItems.map((item, index) => (
-                  <motion.a
+                  <a
                     key={item.href}
                     href="#"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
                     className="block px-6 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent hover:text-primary transition-all duration-200 cursor-pointer font-medium focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                     onClick={(e) => handleMenuClick(e, item.href)}
                   >
                     {item.label}
-                  </motion.a>
+                  </a>
                 ))}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="px-4 py-3 border-t border-gray-100"
-                >
+                <div className="px-4 py-3 border-t border-gray-100">
                   <button
                     className="w-full bg-gradient-primary text-white text-center py-3 rounded-xl hover:shadow-lg transition-all duration-300 cursor-pointer font-medium focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                     onClick={handleApplyClick}
                   >
                     지원하기
                   </button>
-                </motion.div>
+                </div>
               </div>
             </motion.div>
           )}
