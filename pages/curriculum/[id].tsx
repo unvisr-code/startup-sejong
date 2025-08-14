@@ -45,13 +45,25 @@ const CurriculumSharePage = () => {
     }
   };
 
-  // 데이터 파싱
-  const data = id ? decodeData(id as string) : null;
-
   // 클라이언트 사이드에서만 날짜 설정
   useEffect(() => {
     setCurrentDate(new Date().toLocaleDateString('ko-KR'));
   }, []);
+
+  // 라우터가 준비되지 않았을 때 로딩 표시
+  if (!router.isReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">이수체계도를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 데이터 파싱
+  const data = id ? decodeData(id as string) : null;
   
   if (!data) {
     return (
