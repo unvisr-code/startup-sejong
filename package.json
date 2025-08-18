@@ -24,6 +24,7 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.12",
     "html2canvas": "^1.4.1",
+    "ics": "^3.8.1",
     "next": "^15.4.6",
     "postcss": "^8.5.6",
     "react": "^19.1.1",

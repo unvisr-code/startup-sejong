@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import AdminLayout from '../../../components/Admin/AdminLayout';
+import FileUpload from '../../../components/Admin/FileUpload';
 import { useForm } from 'react-hook-form';
 import { FaSave, FaTimes } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
+import { uploadMultipleFiles } from '../../../lib/fileUpload';
 
 interface AnnouncementForm {
   title: string;
@@ -16,6 +18,8 @@ interface AnnouncementForm {
 const NewAnnouncementPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const { register, handleSubmit, formState: { errors }, watch } = useForm<AnnouncementForm>({
     defaultValues: {
       category: 'general',
@@ -25,25 +29,46 @@ const NewAnnouncementPage = () => {
 
   const onSubmit = async (data: AnnouncementForm) => {
     setLoading(true);
+    setUploadProgress(0);
     
     try {
-      const { error } = await supabase
+      // 공지사항 먼저 생성
+      const { data: announcement, error: announcementError } = await supabase
         .from('announcements')
         .insert([{
-          ...data,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }]);
+          title: data.title,
+          content: data.content,
+          category: data.category,
+          is_pinned: data.is_pinned,
+          author_email: 'admin@sejong.ac.kr'
+        }])
+        .select()
+        .single();
 
-      if (error) throw error;
-      
-      alert('공지사항이 작성되었습니다.');
+      if (announcementError) throw announcementError;
+
+      // 파일이 있으면 업로드
+      if (selectedFiles.length > 0) {
+        const uploadResult = await uploadMultipleFiles(
+          selectedFiles as any,
+          announcement.id,
+          setUploadProgress
+        );
+
+        if (!uploadResult.success) {
+          console.error('File upload errors:', uploadResult.errors);
+          alert(`공지사항은 생성되었지만 파일 업로드 중 오류가 발생했습니다:\n${uploadResult.errors.join('\n')}`);
+        }
+      }
+
+      alert('공지사항이 성공적으로 작성되었습니다.');
       router.push('/admin/announcements');
     } catch (error) {
       console.error('Error creating announcement:', error);
       alert('공지사항 작성 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -127,6 +152,37 @@ const NewAnnouncementPage = () => {
                 HTML 태그 사용 가능 (예: &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;)
               </p>
             </div>
+
+            {/* File Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                파일 첨부
+              </label>
+              <FileUpload
+                onFilesChange={setSelectedFiles}
+                maxFiles={5}
+                disabled={loading}
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                최대 5개 파일, 각 파일 최대 10MB
+              </p>
+            </div>
+
+            {/* Upload Progress */}
+            {loading && uploadProgress > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  업로드 진행률
+                </label>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-primary h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  ></div>
+                </div>
+                <p className="mt-1 text-sm text-gray-600">{Math.round(uploadProgress)}% 완료</p>
+              </div>
+            )}
 
             {/* Preview */}
             {content && (

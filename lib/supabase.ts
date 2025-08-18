@@ -35,14 +35,27 @@ const createSupabaseClient = () => {
 export const supabase = createSupabaseClient();
 
 // Database Types
+export interface AnnouncementAttachment {
+  id: string;
+  announcement_id: string;
+  file_name: string;
+  file_path: string;
+  file_size: number;
+  mime_type: string;
+  uploaded_at: string;
+}
+
 export interface Announcement {
   id: string;
   title: string;
   content: string;
   category: 'general' | 'important' | 'academic' | 'event';
   is_pinned: boolean;
+  view_count?: number;
+  author_email?: string;
   created_at: string;
   updated_at: string;
+  attachments?: AnnouncementAttachment[];
 }
 
 export interface AcademicEvent {

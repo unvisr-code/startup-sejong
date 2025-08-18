@@ -5,15 +5,17 @@ import Link from 'next/link';
 import Header from '../../components/Layout/Header';
 import Footer from '../../components/Layout/Footer';
 import { motion } from 'framer-motion';
-import { FaArrowLeft, FaCalendar, FaTag } from 'react-icons/fa';
+import { FaArrowLeft, FaCalendar, FaTag, FaDownload, FaPaperclip } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { supabase, Announcement } from '../../lib/supabase';
+import { supabase, Announcement, AnnouncementAttachment } from '../../lib/supabase';
+import { getAnnouncementAttachments, getFileDownloadUrl, formatFileSize, getFileIcon } from '../../lib/fileUpload';
 
 const AnnouncementDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const [attachments, setAttachments] = useState<AnnouncementAttachment[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,6 +34,10 @@ const AnnouncementDetailPage = () => {
 
       if (error) throw error;
       setAnnouncement(data);
+
+      // 첨부파일 조회
+      const attachmentData = await getAnnouncementAttachments(announcementId);
+      setAttachments(attachmentData);
     } catch (error) {
       console.error('Error fetching announcement:', error);
       // Mock data for development
@@ -64,6 +70,25 @@ const AnnouncementDetailPage = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileDownload = async (attachment: AnnouncementAttachment) => {
+    try {
+      const downloadUrl = await getFileDownloadUrl(attachment.file_path);
+      if (downloadUrl) {
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = attachment.file_name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        alert('파일 다운로드 링크를 생성할 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('파일 다운로드 중 오류가 발생했습니다.');
     }
   };
 
@@ -181,9 +206,48 @@ const AnnouncementDetailPage = () => {
 
                 {/* Announcement Content */}
                 <div 
-                  className="prose prose-lg max-w-none"
+                  className="prose prose-lg max-w-none mb-8"
                   dangerouslySetInnerHTML={{ __html: announcement.content }}
                 />
+
+                {/* Attachments */}
+                {attachments.length > 0 && (
+                  <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                      <FaPaperclip />
+                      첨부파일 ({attachments.length}개)
+                    </h3>
+                    <div className="space-y-3">
+                      {attachments.map((attachment) => (
+                        <div
+                          key={attachment.id}
+                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <span className="text-2xl">
+                              {getFileIcon(attachment.mime_type)}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-900 truncate">
+                                {attachment.file_name}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {formatFileSize(attachment.file_size)} • {format(new Date(attachment.uploaded_at), 'yyyy.MM.dd', { locale: ko })}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleFileDownload(attachment)}
+                            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                          >
+                            <FaDownload size={14} />
+                            다운로드
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Navigation Buttons */}

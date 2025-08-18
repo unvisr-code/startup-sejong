@@ -3,10 +3,11 @@ import Head from 'next/head';
 import Header from '../../components/Layout/Header';
 import Footer from '../../components/Layout/Footer';
 import { motion } from 'framer-motion';
-import { FaCalendarAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaCalendarAlt, FaChevronLeft, FaChevronRight, FaDownload, FaCalendarPlus } from 'react-icons/fa';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { supabase, AcademicEvent } from '../../lib/supabase';
+import { downloadMonthlyICS, downloadSingleEventICS } from '../../lib/icsGenerator';
 
 const CalendarPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -369,7 +370,25 @@ const CalendarPage = () => {
                 {/* Event List */}
                 <div className="lg:col-span-1">
                   <div className="bg-white rounded-lg shadow-lg p-6">
-                    <h3 className="text-xl font-bold mb-4">이번 달 일정</h3>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xl font-bold">이번 달 일정</h3>
+                      <button
+                        onClick={() => {
+                          const filteredEvents = events.filter(event => {
+                            const eventStart = new Date(event.start_date);
+                            const eventEnd = new Date(event.end_date);
+                            const monthStart = startOfMonth(currentDate);
+                            const monthEnd = endOfMonth(currentDate);
+                            return (eventStart <= monthEnd && eventEnd >= monthStart);
+                          });
+                          downloadMonthlyICS(filteredEvents, currentDate);
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm"
+                      >
+                        <FaDownload size={14} />
+                        월간 일정 다운로드
+                      </button>
+                    </div>
                     
                     {/* Event Type Legend */}
                     <div className="flex flex-wrap gap-2 mb-6">
@@ -385,8 +404,13 @@ const CalendarPage = () => {
                     <div className="space-y-3">
                       {events
                         .filter(event => {
-                          const eventDate = new Date(event.start_date);
-                          return isSameMonth(eventDate, currentDate);
+                          const eventStart = new Date(event.start_date);
+                          const eventEnd = new Date(event.end_date);
+                          const monthStart = startOfMonth(currentDate);
+                          const monthEnd = endOfMonth(currentDate);
+                          
+                          // 이벤트가 현재 달과 겹치는지 확인 (시작일 또는 종료일이 현재 달에 포함)
+                          return (eventStart <= monthEnd && eventEnd >= monthStart);
                         })
                         .map(event => (
                           <div
@@ -442,14 +466,23 @@ const CalendarPage = () => {
                 }
               </p>
               {selectedEvent.description && (
-                <p className="text-gray-700">{selectedEvent.description}</p>
+                <p className="text-gray-700 mb-4">{selectedEvent.description}</p>
               )}
-              <button
-                onClick={() => setSelectedEvent(null)}
-                className="mt-6 w-full bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors"
-              >
-                닫기
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => downloadSingleEventICS(selectedEvent)}
+                  className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  <FaCalendarPlus />
+                  캘린더에 추가
+                </button>
+                <button
+                  onClick={() => setSelectedEvent(null)}
+                  className="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  닫기
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

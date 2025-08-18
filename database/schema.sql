@@ -25,6 +25,23 @@ CREATE INDEX idx_announcements_is_pinned ON announcements(is_pinned);
 CREATE INDEX idx_announcements_category ON announcements(category);
 
 -- =====================================================
+-- ANNOUNCEMENT ATTACHMENTS TABLE
+-- =====================================================
+CREATE TABLE IF NOT EXISTS announcement_attachments (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  announcement_id UUID REFERENCES announcements(id) ON DELETE CASCADE,
+  file_name TEXT NOT NULL,
+  file_path TEXT NOT NULL,
+  file_size BIGINT NOT NULL,
+  mime_type TEXT NOT NULL,
+  uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('Asia/Seoul', NOW())
+);
+
+-- Create index for faster queries
+CREATE INDEX idx_attachments_announcement_id ON announcement_attachments(announcement_id);
+CREATE INDEX idx_attachments_uploaded_at ON announcement_attachments(uploaded_at DESC);
+
+-- =====================================================
 -- ACADEMIC CALENDAR TABLE
 -- =====================================================
 CREATE TABLE IF NOT EXISTS academic_calendar (
