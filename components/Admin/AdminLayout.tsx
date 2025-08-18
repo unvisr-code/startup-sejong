@@ -14,6 +14,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -26,6 +27,22 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
     };
     verifyAuth();
   }, [router]);
+
+  useEffect(() => {
+    // Check window size on mount and resize
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+    
+    // Check initial size
+    checkScreenSize();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkScreenSize);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -61,7 +78,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
 
       {/* Sidebar */}
       <AnimatePresence>
-        {(sidebarOpen || window.innerWidth >= 1024) && (
+        {(sidebarOpen || isLargeScreen) && (
           <motion.aside
             initial={{ x: -300 }}
             animate={{ x: 0 }}
@@ -122,7 +139,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       </AnimatePresence>
 
       {/* Main Content */}
-      <div className={`transition-all duration-300 ${sidebarOpen || window.innerWidth >= 1024 ? 'lg:ml-64' : ''}`}>
+      <div className={`transition-all duration-300 ${sidebarOpen || isLargeScreen ? 'lg:ml-64' : ''}`}>
         {/* Header */}
         <header className="bg-white shadow-sm">
           <div className="px-6 py-4">
