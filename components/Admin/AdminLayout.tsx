@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { FaHome, FaBullhorn, FaCalendarAlt, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
 import { checkAuth, signOut } from '../../lib/auth';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -15,6 +14,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -29,6 +29,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
   }, [router]);
 
   useEffect(() => {
+    // Set client-side flag to prevent hydration mismatch
+    setIsClient(true);
+    
     // Check window size on mount and resize
     const checkScreenSize = () => {
       setIsLargeScreen(window.innerWidth >= 1024);
@@ -77,16 +80,12 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       </button>
 
       {/* Sidebar */}
-      <AnimatePresence>
-        {(sidebarOpen || isLargeScreen) && (
-          <motion.aside
-            initial={{ x: -300 }}
-            animate={{ x: 0 }}
-            exit={{ x: -300 }}
-            className={`fixed inset-y-0 left-0 z-40 w-64 bg-gradient-primary ${
-              sidebarOpen ? 'block' : 'hidden lg:block'
-            }`}
-          >
+      {isClient && (
+        <aside
+          className={`fixed inset-y-0 left-0 z-40 w-64 bg-gradient-primary transition-transform duration-300 ${
+            isLargeScreen ? 'translate-x-0' : (sidebarOpen ? 'translate-x-0' : '-translate-x-full')
+          }`}
+        >
             <div className="flex flex-col h-full">
               {/* Logo */}
               <div className="p-6 border-b border-white/20">
@@ -133,12 +132,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
                 </button>
               </div>
             </div>
-          </motion.aside>
-        )}
-      </AnimatePresence>
+        </aside>
+      )}
 
       {/* Main Content */}
-      <div className={`transition-all duration-300 ${sidebarOpen || isLargeScreen ? 'lg:ml-64' : ''}`}>
+      <div className={`transition-all duration-300 ${isLargeScreen ? 'ml-64' : ''}`}>
         {/* Header */}
         <header className="bg-white shadow-sm">
           <div className="px-6 py-4">
@@ -153,9 +151,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
       </div>
 
       {/* Mobile Overlay */}
-      {sidebarOpen && (
+      {sidebarOpen && !isLargeScreen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-30"
+          className="fixed inset-0 bg-black/50 z-30"
           onClick={() => setSidebarOpen(false)}
         />
       )}
