@@ -104,18 +104,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
                     
                     return (
                       <li key={item.href}>
-                        <Link href={item.href}>
-                          <a
-                            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-                              isActive
-                                ? 'bg-white/20 text-white'
-                                : 'text-white/80 hover:bg-white/10 hover:text-white'
-                            }`}
-                            onClick={() => setSidebarOpen(false)}
-                          >
-                            <Icon size={20} />
-                            <span>{item.label}</span>
-                          </a>
+                        <Link 
+                          href={item.href}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                            isActive
+                              ? 'bg-white/20 text-white'
+                              : 'text-white/80 hover:bg-white/10 hover:text-white'
+                          }`}
+                          onClick={() => setSidebarOpen(false)}
+                        >
+                          <Icon size={20} />
+                          <span>{item.label}</span>
                         </Link>
                       </li>
                     );

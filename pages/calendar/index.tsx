@@ -25,12 +25,34 @@ const CalendarPage = () => {
         .select('*')
         .order('start_date', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        // 재시도 로직
+        setTimeout(async () => {
+          try {
+            const { data: retryData, error: retryError } = await supabase
+              .from('academic_calendar')
+              .select('*')
+              .order('start_date', { ascending: true });
+            
+            if (!retryError && retryData) {
+              setEvents(retryData);
+              return;
+            }
+          } catch (retryErr) {
+            console.error('Retry failed:', retryErr);
+          }
+        }, 2000);
+        
+        // 재시도 중에도 mock 데이터 표시
+        throw error;
+      }
+      
       setEvents(data || []);
     } catch (error) {
       console.error('Error fetching events:', error);
-      // Mock data for development
-      setEvents([
+      // 개발용 더미 데이터 - DB 연결 실패 시 사용
+      const mockData = [
         {
           id: '1',
           title: '2025학년도 1학기 개강',
@@ -38,7 +60,8 @@ const CalendarPage = () => {
           end_date: '2025-03-02',
           event_type: 'semester',
           description: '2025학년도 1학기가 시작됩니다.',
-          created_at: '2025-01-18'
+          created_at: '2025-01-18',
+          is_important: true
         },
         {
           id: '2',
@@ -47,7 +70,8 @@ const CalendarPage = () => {
           end_date: '2025-02-28',
           event_type: 'application',
           description: '2025학년도 1학기 수강신청 기간입니다.',
-          created_at: '2025-01-18'
+          created_at: '2025-01-18',
+          is_important: true
         },
         {
           id: '3',
@@ -56,7 +80,8 @@ const CalendarPage = () => {
           end_date: '2025-04-26',
           event_type: 'exam',
           description: '중간고사 기간입니다.',
-          created_at: '2025-01-18'
+          created_at: '2025-01-18',
+          is_important: true
         },
         {
           id: '4',
@@ -65,9 +90,31 @@ const CalendarPage = () => {
           end_date: '2025-05-05',
           event_type: 'holiday',
           description: '어린이날 공휴일입니다.',
-          created_at: '2025-01-18'
+          created_at: '2025-01-18',
+          is_important: false
+        },
+        {
+          id: '5',
+          title: '기말고사',
+          start_date: '2025-06-15',
+          end_date: '2025-06-21',
+          event_type: 'exam',
+          description: '기말고사 기간입니다.',
+          created_at: '2025-01-18',
+          is_important: true
+        },
+        {
+          id: '6',
+          title: '하계방학',
+          start_date: '2025-06-22',
+          end_date: '2025-08-31',
+          event_type: 'holiday',
+          description: '하계방학 기간입니다.',
+          created_at: '2025-01-18',
+          is_important: false
         }
-      ]);
+      ];
+      setEvents(mockData);
     } finally {
       setLoading(false);
     }
@@ -118,6 +165,45 @@ const CalendarPage = () => {
       const eventEnd = new Date(event.end_date);
       return day >= eventStart && day <= eventEnd;
     });
+  };
+
+  // 연속된 일정을 그룹화하는 함수
+  const getMonthEventsWithSpan = () => {
+    return events.map(event => {
+      const eventStart = new Date(event.start_date);
+      const eventEnd = new Date(event.end_date);
+      
+      // 현재 달의 시작과 끝 날짜 계산
+      const monthStart = startOfMonth(currentDate);
+      const monthEnd = endOfMonth(currentDate);
+      
+      // 이벤트가 현재 달에 포함되는지 확인
+      if (eventEnd < monthStart || eventStart > monthEnd) {
+        return null;
+      }
+      
+      // 표시할 시작일과 종료일 계산 (현재 달 범위 내로 제한)
+      const displayStart = eventStart < monthStart ? monthStart : eventStart;
+      const displayEnd = eventEnd > monthEnd ? monthEnd : eventEnd;
+      
+      // 캘린더 그리드에서의 위치 계산
+      const startDay = displayStart.getDay();
+      const startDate = displayStart.getDate();
+      const endDate = displayEnd.getDate();
+      const duration = endDate - startDate + 1;
+      
+      // 첫 주의 패딩을 고려한 시작 인덱스
+      const firstDayPadding = monthStart.getDay();
+      const gridStartIndex = firstDayPadding + startDate - 1;
+      
+      return {
+        ...event,
+        gridStartIndex,
+        duration,
+        displayStart,
+        displayEnd
+      };
+    }).filter(Boolean);
   };
 
   const handlePrevMonth = () => {
@@ -195,9 +281,8 @@ const CalendarPage = () => {
                     </div>
 
                     {/* Calendar Grid */}
-                    <div className="grid grid-cols-7 gap-1">
+                    <div className="grid grid-cols-7 gap-1 relative">
                       {paddedDays.map((day, index) => {
-                        const dayEvents = day ? getEventsForDay(day) : [];
                         const isToday = day && isSameDay(day, new Date());
                         
                         return (
@@ -207,38 +292,76 @@ const CalendarPage = () => {
                               !day ? 'bg-gray-50' : 
                               isToday ? 'bg-blue-50 border-blue-300' : 
                               'bg-white hover:bg-gray-50'
-                            } ${day ? 'cursor-pointer' : ''}`}
-                            onClick={() => {
-                              if (dayEvents.length > 0) {
-                                setSelectedEvent(dayEvents[0]);
-                              }
-                            }}
+                            }`}
                           >
                             {day && (
-                              <>
-                                <div className={`text-sm font-medium ${isToday ? 'text-blue-600' : 'text-gray-700'}`}>
-                                  {format(day, 'd')}
-                                </div>
-                                <div className="mt-1 space-y-1">
-                                  {dayEvents.slice(0, 2).map(event => (
-                                    <div
-                                      key={event.id}
-                                      className={`text-xs p-1 rounded text-white truncate ${getEventTypeColor(event.event_type)}`}
-                                    >
-                                      {event.title}
-                                    </div>
-                                  ))}
-                                  {dayEvents.length > 2 && (
-                                    <div className="text-xs text-gray-500">
-                                      +{dayEvents.length - 2}개
-                                    </div>
-                                  )}
-                                </div>
-                              </>
+                              <div className={`text-sm font-medium ${isToday ? 'text-blue-600' : 'text-gray-700'}`}>
+                                {format(day, 'd')}
+                              </div>
                             )}
                           </div>
                         );
                       })}
+                      
+                      {/* 연속된 일정 표시 */}
+                      <div className="absolute inset-0 pointer-events-none" style={{ marginTop: '28px' }}>
+                        {events
+                          .filter(event => {
+                            const eventStart = new Date(event.start_date);
+                            const eventEnd = new Date(event.end_date);
+                            return !(eventEnd < monthStart || eventStart > monthEnd);
+                          })
+                          .map((event, eventIndex) => {
+                            const eventStart = new Date(event.start_date);
+                            const eventEnd = new Date(event.end_date);
+                            
+                            // 현재 달에서 표시할 범위 계산
+                            const displayStart = eventStart < monthStart ? monthStart : eventStart;
+                            const displayEnd = eventEnd > monthEnd ? monthEnd : eventEnd;
+                            
+                            // 주별로 나누어 표시
+                            const bars = [];
+                            let currentDate = new Date(displayStart);
+                            
+                            while (currentDate <= displayEnd) {
+                              const weekEnd = new Date(currentDate);
+                              weekEnd.setDate(weekEnd.getDate() + (6 - weekEnd.getDay()));
+                              
+                              const barEnd = weekEnd > displayEnd ? displayEnd : weekEnd;
+                              const startCol = currentDate.getDay();
+                              const endCol = barEnd.getDay();
+                              const startDateNum = currentDate.getDate();
+                              const weekRow = Math.floor((startDateNum + monthStart.getDay() - 1) / 7);
+                              
+                              // 바의 길이 계산
+                              const barLength = endCol - startCol + 1;
+                              
+                              bars.push(
+                                <div
+                                  key={`${event.id}-week-${weekRow}`}
+                                  className={`absolute h-6 ${getEventTypeColor(event.event_type)} text-white text-xs px-1 rounded flex items-center pointer-events-auto cursor-pointer hover:opacity-90 transition-opacity`}
+                                  style={{
+                                    left: `calc((100% / 7) * ${startCol} + 4px)`,
+                                    width: `calc((100% / 7) * ${barLength} - 8px)`,
+                                    top: `calc((100px + 4px) * ${weekRow} + ${eventIndex * 28}px + 4px)`,
+                                    zIndex: 10
+                                  }}
+                                  onClick={() => setSelectedEvent(event)}
+                                >
+                                  <span className="truncate">
+                                    {currentDate.getDate() === displayStart.getDate() ? event.title : ''}
+                                  </span>
+                                </div>
+                              );
+                              
+                              // 다음 주로 이동
+                              currentDate = new Date(barEnd);
+                              currentDate.setDate(currentDate.getDate() + 1);
+                            }
+                            
+                            return bars;
+                          })}
+                      </div>
                     </div>
                   </div>
                 </div>

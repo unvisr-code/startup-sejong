@@ -131,17 +131,19 @@ const AdminDashboard = () => {
               {statCards.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
-                  <Link key={index} href={stat.link}>
-                    <a className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className={`${stat.color} text-white p-3 rounded-lg`}>
-                          <Icon size={24} />
-                        </div>
-                        <FaChartLine className="text-gray-400" />
+                  <Link 
+                    key={index} 
+                    href={stat.link}
+                    className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow block"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className={`${stat.color} text-white p-3 rounded-lg`}>
+                        <Icon size={24} />
                       </div>
-                      <h3 className="text-gray-600 text-sm mb-1">{stat.title}</h3>
-                      <p className="text-3xl font-bold text-gray-800">{stat.value}</p>
-                    </a>
+                      <FaChartLine className="text-gray-400" />
+                    </div>
+                    <h3 className="text-gray-600 text-sm mb-1">{stat.title}</h3>
+                    <p className="text-3xl font-bold text-gray-800">{stat.value}</p>
                   </Link>
                 );
               })}
@@ -152,17 +154,19 @@ const AdminDashboard = () => {
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-xl font-bold mb-4">빠른 작업</h2>
                 <div className="space-y-3">
-                  <Link href="/admin/announcements/new">
-                    <a className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                      <FaPlus className="text-blue-600" />
-                      <span className="font-medium">새 공지사항 작성</span>
-                    </a>
+                  <Link 
+                    href="/admin/announcements/new"
+                    className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    <FaPlus className="text-blue-600" />
+                    <span className="font-medium">새 공지사항 작성</span>
                   </Link>
-                  <Link href="/admin/calendar/new">
-                    <a className="flex items-center gap-3 p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
-                      <FaPlus className="text-green-600" />
-                      <span className="font-medium">새 일정 추가</span>
-                    </a>
+                  <Link 
+                    href="/admin/calendar/new"
+                    className="flex items-center gap-3 p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                  >
+                    <FaPlus className="text-green-600" />
+                    <span className="font-medium">새 일정 추가</span>
                   </Link>
                 </div>
               </div>
@@ -171,8 +175,11 @@ const AdminDashboard = () => {
               <div className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold">최근 공지사항</h2>
-                  <Link href="/admin/announcements">
-                    <a className="text-primary hover:text-primary/80 text-sm">전체보기</a>
+                  <Link 
+                    href="/admin/announcements"
+                    className="text-primary hover:text-primary/80 text-sm"
+                  >
+                    전체보기
                   </Link>
                 </div>
                 <div className="space-y-3">

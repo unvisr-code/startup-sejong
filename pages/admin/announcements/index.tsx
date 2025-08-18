@@ -146,11 +146,12 @@ const AdminAnnouncementsPage = () => {
                 <option value="general">일반</option>
               </select>
               
-              <Link href="/admin/announcements/new">
-                <a className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2">
-                  <FaPlus />
-                  새 공지사항
-                </a>
+              <Link 
+                href="/admin/announcements/new"
+                className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+              >
+                <FaPlus />
+                새 공지사항
               </Link>
             </div>
           </div>
@@ -163,73 +164,122 @@ const AdminAnnouncementsPage = () => {
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : filteredAnnouncements.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      제목
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      카테고리
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      작성일
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      고정
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      작업
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredAnnouncements.map((announcement) => (
-                    <tr key={announcement.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {announcement.title}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full min-w-[800px]">
+                  <thead className="bg-gray-50 border-b sticky top-0">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[250px]">
+                        제목
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
+                        카테고리
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                        작성일
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
+                        고정
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
+                        작업
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredAnnouncements.map((announcement) => (
+                      <tr key={announcement.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div className="text-sm font-medium text-gray-900 truncate">
+                            {announcement.title}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getCategoryBadge(announcement.category)}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                          {format(new Date(announcement.created_at), 'yyyy.MM.dd', { locale: ko })}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => handleTogglePin(announcement)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              announcement.is_pinned
+                                ? 'bg-yellow-100 text-yellow-600'
+                                : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                            }`}
+                          >
+                            <FaThumbtack />
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 text-right whitespace-nowrap">
+                          <div className="flex justify-end gap-2">
+                            <Link 
+                              href={`/admin/announcements/${announcement.id}`}
+                              className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                            >
+                              <FaEdit />
+                            </Link>
+                            <button
+                              onClick={() => handleDelete(announcement.id)}
+                              className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="lg:hidden">
+                {filteredAnnouncements.map((announcement) => (
+                  <div key={announcement.id} className="p-4 border-b hover:bg-gray-50">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">{announcement.title}</h3>
+                      </div>
+                      <div className="flex items-center gap-2 ml-2">
                         {getCategoryBadge(announcement.category)}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {format(new Date(announcement.created_at), 'yyyy.MM.dd', { locale: ko })}
-                      </td>
-                      <td className="px-6 py-4">
                         <button
                           onClick={() => handleTogglePin(announcement)}
-                          className={`p-2 rounded-lg transition-colors ${
+                          className={`p-1 rounded transition-colors ${
                             announcement.is_pinned
                               ? 'bg-yellow-100 text-yellow-600'
-                              : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                              : 'bg-gray-100 text-gray-400'
                           }`}
                         >
-                          <FaThumbtack />
+                          <FaThumbtack size={12} />
                         </button>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Link href={`/admin/announcements/${announcement.id}`}>
-                            <a className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors">
-                              <FaEdit />
-                            </a>
-                          </Link>
-                          <button
-                            onClick={() => handleDelete(announcement.id)}
-                            className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-sm text-gray-600 mb-3">
+                      작성일: {format(new Date(announcement.created_at), 'yyyy.MM.dd', { locale: ko })}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Link 
+                        href={`/admin/announcements/${announcement.id}`}
+                        className="flex-1 text-center py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                      >
+                        수정
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(announcement.id)}
+                        className="flex-1 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           ) : (
             <div className="p-12 text-center text-gray-500">
               검색 결과가 없습니다.

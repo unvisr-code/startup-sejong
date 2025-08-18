@@ -160,89 +160,133 @@ const AdminCalendarPage = () => {
               </select>
             </div>
             
-            <Link href="/admin/calendar/new">
-              <a className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2">
-                <FaPlus />
-                새 일정 추가
-              </a>
+            <Link 
+              href="/admin/calendar/new"
+              className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+            >
+              <FaPlus />
+              새 일정 추가
             </Link>
           </div>
         </div>
 
-        {/* Calendar Table */}
+        {/* Calendar Table - Desktop View */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           {loading ? (
             <div className="p-12 text-center">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : filteredEvents.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      일정명
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      유형
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      시작일
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      종료일
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      작업
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredEvents.map((event) => (
-                    <tr key={event.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {event.title}
-                            </div>
-                            {event.description && (
-                              <div className="text-sm text-gray-500 truncate max-w-xs">
-                                {event.description}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        {getEventTypeBadge(event.event_type)}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {format(new Date(event.start_date), 'yyyy.MM.dd', { locale: ko })}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {format(new Date(event.end_date), 'yyyy.MM.dd', { locale: ko })}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Link href={`/admin/calendar/${event.id}`}>
-                            <a className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors">
-                              <FaEdit />
-                            </a>
-                          </Link>
-                          <button
-                            onClick={() => handleDelete(event.id)}
-                            className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </td>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full min-w-[800px]">
+                  <thead className="bg-gray-50 border-b sticky top-0">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
+                        일정명
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+                        유형
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                        시작일
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                        종료일
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
+                        작업
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredEvents.map((event) => (
+                      <tr key={event.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center">
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {event.title}
+                              </div>
+                              {event.description && (
+                                <div className="text-sm text-gray-500 truncate max-w-xs">
+                                  {event.description}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getEventTypeBadge(event.event_type)}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                          {format(new Date(event.start_date), 'yyyy.MM.dd', { locale: ko })}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                          {format(new Date(event.end_date), 'yyyy.MM.dd', { locale: ko })}
+                        </td>
+                        <td className="px-6 py-4 text-right whitespace-nowrap">
+                          <div className="flex justify-end gap-2">
+                            <Link 
+                              href={`/admin/calendar/${event.id}`}
+                              className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                            >
+                              <FaEdit />
+                            </Link>
+                            <button
+                              onClick={() => handleDelete(event.id)}
+                              className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="lg:hidden">
+                {filteredEvents.map((event) => (
+                  <div key={event.id} className="p-4 border-b hover:bg-gray-50">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">{event.title}</h3>
+                        {event.description && (
+                          <p className="text-sm text-gray-500 mt-1">{event.description}</p>
+                        )}
+                      </div>
+                      <div className="ml-2">
+                        {getEventTypeBadge(event.event_type)}
+                      </div>
+                    </div>
+                    
+                    <div className="text-sm text-gray-600 mb-3">
+                      <div>시작: {format(new Date(event.start_date), 'yyyy.MM.dd', { locale: ko })}</div>
+                      <div>종료: {format(new Date(event.end_date), 'yyyy.MM.dd', { locale: ko })}</div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Link 
+                        href={`/admin/calendar/${event.id}`}
+                        className="flex-1 text-center py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                      >
+                        수정
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(event.id)}
+                        className="flex-1 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           ) : (
             <div className="p-12 text-center text-gray-500">
               검색 결과가 없습니다.
