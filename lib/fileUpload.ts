@@ -133,7 +133,7 @@ export const uploadFile = async (
 
 // 여러 파일 업로드
 export const uploadMultipleFiles = async (
-  files: FileList, 
+  files: FileList | File[], 
   announcementId: string,
   onProgress?: (progress: number) => void
 ): Promise<{ success: boolean; results: any[]; errors: string[] }> => {

@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import AdminLayout from '../../../components/Admin/AdminLayout';
+import FileUpload from '../../../components/Admin/FileUpload';
 import { useForm } from 'react-hook-form';
-import { FaSave, FaTimes, FaEye } from 'react-icons/fa';
-import { supabase, Announcement } from '../../../lib/supabase';
+import { FaSave, FaTimes, FaEye, FaTrash, FaDownload, FaPaperclip } from 'react-icons/fa';
+import { supabase, Announcement, AnnouncementAttachment } from '../../../lib/supabase';
+import { uploadMultipleFiles, getAnnouncementAttachments, deleteFile, getFileDownloadUrl, formatFileSize, getFileIcon } from '../../../lib/fileUpload';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 interface AnnouncementForm {
   title: string;
@@ -19,6 +23,9 @@ const EditAnnouncementPage = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [existingAttachments, setExistingAttachments] = useState<AnnouncementAttachment[]>([]);
   
   const { register, handleSubmit, formState: { errors }, watch, reset } = useForm<AnnouncementForm>();
 
@@ -45,6 +52,10 @@ const EditAnnouncementPage = () => {
           category: data.category,
           is_pinned: data.is_pinned
         });
+        
+        // 첨부파일 조회
+        const attachmentData = await getAnnouncementAttachments(data.id);
+        setExistingAttachments(attachmentData);
       }
     } catch (error) {
       console.error('Error fetching announcement:', error);
@@ -62,6 +73,7 @@ const EditAnnouncementPage = () => {
 
   const onSubmit = async (data: AnnouncementForm) => {
     setLoading(true);
+    setUploadProgress(0);
     
     try {
       const { error } = await supabase
@@ -73,6 +85,24 @@ const EditAnnouncementPage = () => {
         .eq('id', id);
 
       if (error) throw error;
+
+      // 새 파일이 있으면 업로드
+      if (selectedFiles.length > 0) {
+        const uploadResult = await uploadMultipleFiles(
+          selectedFiles,
+          id as string,
+          setUploadProgress
+        );
+
+        if (!uploadResult.success) {
+          console.error('File upload errors:', uploadResult.errors);
+          alert(`공지사항은 수정되었지만 파일 업로드 중 오류가 발생했습니다:\n${uploadResult.errors.join('\n')}`);
+        } else {
+          // 첨부파일 목록 새로 고침
+          const attachmentData = await getAnnouncementAttachments(id as string);
+          setExistingAttachments(attachmentData);
+        }
+      }
       
       alert('공지사항이 수정되었습니다.');
       router.push('/admin/announcements');
@@ -81,6 +111,43 @@ const EditAnnouncementPage = () => {
       alert('공지사항 수정 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const handleDeleteAttachment = async (attachmentId: string) => {
+    if (!confirm('이 파일을 삭제하시겠습니까?')) return;
+
+    try {
+      const result = await deleteFile(attachmentId);
+      if (result.success) {
+        setExistingAttachments(existingAttachments.filter(a => a.id !== attachmentId));
+        alert('파일이 삭제되었습니다.');
+      } else {
+        alert(result.error || '파일 삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      alert('파일 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleDownloadAttachment = async (attachment: AnnouncementAttachment) => {
+    try {
+      const downloadUrl = await getFileDownloadUrl(attachment.file_path);
+      if (downloadUrl) {
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = attachment.file_name;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        alert('파일 다운로드 링크를 생성할 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('파일 다운로드 중 오류가 발생했습니다.');
     }
   };
 
@@ -180,6 +247,86 @@ const EditAnnouncementPage = () => {
                     HTML 태그 사용 가능 (예: &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;, &lt;br&gt;)
                   </p>
                 </div>
+
+                {/* Existing Attachments */}
+                {existingAttachments.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      기존 첨부파일 ({existingAttachments.length}개)
+                    </label>
+                    <div className="space-y-3">
+                      {existingAttachments.map((attachment) => (
+                        <div
+                          key={attachment.id}
+                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+                        >
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <span className="text-xl">
+                              {getFileIcon(attachment.mime_type)}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-900 truncate text-sm">
+                                {attachment.file_name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {formatFileSize(attachment.file_size)} • {format(new Date(attachment.uploaded_at), 'yyyy.MM.dd', { locale: ko })}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleDownloadAttachment(attachment)}
+                              className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200 transition-colors"
+                            >
+                              <FaDownload size={10} />
+                              다운로드
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteAttachment(attachment.id)}
+                              className="flex items-center gap-1 px-2 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200 transition-colors"
+                            >
+                              <FaTrash size={10} />
+                              삭제
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* File Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    새 파일 첨부
+                  </label>
+                  <FileUpload
+                    onFilesChange={setSelectedFiles}
+                    maxFiles={5}
+                    disabled={loading}
+                  />
+                  <p className="mt-1 text-sm text-gray-500">
+                    최대 5개 파일, 각 파일 최대 10MB
+                  </p>
+                </div>
+
+                {/* Upload Progress */}
+                {loading && uploadProgress > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      업로드 진행률
+                    </label>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      ></div>
+                    </div>
+                    <p className="mt-1 text-sm text-gray-600">{Math.round(uploadProgress)}% 완료</p>
+                  </div>
+                )}
 
                 {/* Actions */}
                 <div className="flex justify-between">

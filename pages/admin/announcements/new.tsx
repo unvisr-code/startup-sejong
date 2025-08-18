@@ -50,7 +50,7 @@ const NewAnnouncementPage = () => {
       // 파일이 있으면 업로드
       if (selectedFiles.length > 0) {
         const uploadResult = await uploadMultipleFiles(
-          selectedFiles as any,
+          selectedFiles,
           announcement.id,
           setUploadProgress
         );
