@@ -151,7 +151,7 @@ const CurriculumSharePage = () => {
               </h2>
               <div className="mt-2 flex flex-wrap sm:flex-nowrap justify-center gap-2 sm:gap-4">
                 <div className="text-xs sm:text-sm text-gray-500">
-                  <span className="font-medium">선택 학점:</span> {totalCore + totalElective}학점 (자유선택 {credits.free}학점 별도)
+                  <span className="font-medium">선택 학점:</span> {totalCore + totalElective}학점
                 </div>
                 {currentDate && (
                   <div className="text-xs sm:text-sm text-gray-500">
@@ -217,7 +217,7 @@ const CurriculumSharePage = () => {
             {/* 이수 현황 요약 */}
             <div className="bg-gray-50 rounded-lg p-4 mt-3">
               <h3 className="text-base font-bold text-gray-800 mb-2">이수 현황 요약</h3>
-              <div className="grid grid-cols-4 gap-1 sm:gap-2 text-center">
+              <div className="grid grid-cols-3 gap-1 sm:gap-2 text-center">
                 <div className="bg-white rounded-md p-2 sm:p-3">
                   <div className="text-lg sm:text-xl font-bold text-blue-600">{totalCore}</div>
                   <div className="text-[10px] sm:text-xs text-gray-600">전공필수</div>
@@ -227,12 +227,8 @@ const CurriculumSharePage = () => {
                   <div className="text-[10px] sm:text-xs text-gray-600">전공선택</div>
                 </div>
                 <div className="bg-white rounded-md p-2 sm:p-3">
-                  <div className="text-lg sm:text-xl font-bold text-green-600">{credits.free}</div>
-                  <div className="text-[10px] sm:text-xs text-gray-600">자유선택</div>
-                </div>
-                <div className="bg-white rounded-md p-2 sm:p-3">
                   <div className="text-lg sm:text-xl font-bold text-gray-800">
-                    {totalCore + totalElective + credits.free}
+                    {totalCore + totalElective}
                   </div>
                   <div className="text-[10px] sm:text-xs text-gray-600">총 학점</div>
                 </div>

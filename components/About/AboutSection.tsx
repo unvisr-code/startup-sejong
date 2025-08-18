@@ -99,19 +99,12 @@ const AboutSection = () => {
           className="mt-8 sm:mt-10 md:mt-12 bg-blue-50 rounded-2xl p-6 sm:p-8"
         >
           <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">융합창업연계전공 혜택</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div className="flex justify-center">
             <div className="flex items-start">
               <FaCheckCircle className="text-green-500 text-xl mt-1 mr-3 flex-shrink-0" />
               <div>
                 <h4 className="font-bold mb-1">주전공 필수이수학점 완화</h4>
                 <p className="text-gray-600 text-sm sm:text-base">72학점 → 39학점으로 완화되어 1+1 학위 취득 가능</p>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <FaCheckCircle className="text-green-500 text-xl mt-1 mr-3 flex-shrink-0" />
-              <div>
-                <h4 className="font-bold mb-1">창업 동아리 활동 가능</h4>
-                <p className="text-gray-600 text-sm sm:text-base">창업 동아리 활동 장려 및 지원 제공</p>
               </div>
             </div>
           </div>

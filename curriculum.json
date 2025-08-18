@@ -1,13 +1,13 @@
 {
   "meta": {
     "credits": {
-      "major": { "core": 15, "elective": 12, "free": 12, "total": 39 },
-      "minor": { "core": 9, "elective": 9, "free": 3, "total": 21 }
+      "major": { "core": 15, "elective": 24, "free": 0, "total": 39 },
+      "minor": { "core": 9, "elective": 12, "free": 0, "total": 21 }
     },
     "selectionRules": {
       "core": "아래 7과목 중에서 총 15학점(5과목) 이상 선택 이수",
-      "elective": "아래 7과목 중에서 총 12학점(4과목) 이상 선택 이수",
-      "free": "연계전공은 타학과 과목에서 12학점, 연계부전공은 3학점 이수"
+      "elective": "아래 7과목 중에서 총 24학점(8과목) 이상 선택 이수",
+      "free": "자유선택 과목 없음"
     }
   },
   "courses": {

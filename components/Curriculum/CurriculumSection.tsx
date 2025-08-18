@@ -3,7 +3,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBook, FaStar, FaCheck, FaTimes, FaPlay, FaCopy } from 'react-icons/fa';
-import { HiOutlineInformationCircle } from 'react-icons/hi';
 import curriculumData from '../../curriculum.json';
 
 interface Course {
@@ -28,7 +27,6 @@ const CurriculumSection = () => {
     elective: []
   });
   const [showResult, setShowResult] = useState(false);
-  const [showFreeTooltip, setShowFreeTooltip] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [showCopyModal, setShowCopyModal] = useState(false);
   const [shareLink, setShareLink] = useState('');
@@ -229,32 +227,6 @@ const CurriculumSection = () => {
               <span className="whitespace-nowrap">전공필수 {credits.core}학점</span>
               <span className="hidden sm:inline">+</span>
               <span className="whitespace-nowrap">전공선택 {credits.elective}학점</span>
-              <span className="hidden sm:inline">+</span>
-              <span className="relative inline-flex items-center gap-1 whitespace-nowrap">
-                자유선택 {credits.free}학점
-                <span 
-                  className="relative"
-                  onMouseEnter={() => setShowFreeTooltip(true)}
-                  onMouseLeave={() => setShowFreeTooltip(false)}
-                  onClick={() => setShowFreeTooltip(!showFreeTooltip)}
-                >
-                  <HiOutlineInformationCircle className="text-gray-400 hover:text-gray-600 transition-all hover:scale-110 cursor-help" style={{ fontSize: '14px' }} />
-                  <AnimatePresence>
-                    {showFreeTooltip && (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.1 }}
-                        className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-72 bg-gray-900 text-white text-xs rounded-md p-3 shadow-xl z-50"
-                      >
-                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-gray-900"></div>
-                        {curriculumData.courses.free.policy}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </span>
-              </span>
               <span className="whitespace-nowrap">= 총 {credits.total}학점</span>
             </p>
           </div>
