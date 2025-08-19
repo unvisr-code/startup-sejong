@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import AdminLayout from '../../components/Admin/AdminLayout';
-import { FaBell, FaPaperPlane, FaUsers, FaCheckCircle, FaExclamationTriangle, FaEye } from 'react-icons/fa';
+import { FaBell, FaPaperPlane, FaUsers, FaCheckCircle, FaExclamationTriangle, FaEye, FaCog, FaDatabase, FaKey } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -26,11 +26,24 @@ interface NotificationHistory {
   sent_at: string;
 }
 
+interface SystemStatus {
+  isConfigured: boolean;
+  vapidPublicKey: boolean;
+  vapidPrivateKey: boolean;
+  vapidEmail: boolean;
+  supabaseUrl: boolean;
+  supabaseKey: boolean;
+  errors: string[];
+  environment: string;
+}
+
 const AdminNotificationsPage = () => {
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [subscriptionCount, setSubscriptionCount] = useState(0);
   const [notifications, setNotifications] = useState<NotificationHistory[]>([]);
+  const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
+  const [showDebug, setShowDebug] = useState(false);
   const [form, setForm] = useState<NotificationForm>({
     title: '',
     body: '',
@@ -41,7 +54,92 @@ const AdminNotificationsPage = () => {
   useEffect(() => {
     fetchSubscriptionCount();
     fetchNotificationHistory();
+    fetchSystemStatus();
   }, []);
+
+  const fetchSystemStatus = async () => {
+    try {
+      const response = await fetch('/api/push/config-check');
+      if (response.ok) {
+        const status = await response.json();
+        setSystemStatus(status);
+      }
+    } catch (error) {
+      console.error('Error fetching system status:', error);
+    }
+  };
+
+  const handleSetupTables = async () => {
+    if (!confirm('데이터베이스 테이블을 자동으로 생성하시겠습니까?\n\n이 작업은 Supabase에 push_subscriptions, notifications, notification_delivery_log 테이블을 생성합니다.')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await fetch('/api/push/setup-tables', {
+        method: 'POST',
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert(`✅ 테이블 설정 완료!\n\n생성된 테이블: ${result.tablesCreated.join(', ')}\n\n${result.message}`);
+        
+        // Refresh system status and subscription count
+        await fetchSystemStatus();
+        await fetchSubscriptionCount();
+      } else {
+        let errorMessage = `❌ 테이블 설정 실패\n\n${result.message}`;
+        
+        if (result.errors && result.errors.length > 0) {
+          errorMessage += `\n\n오류 상세:\n${result.errors.join('\n')}`;
+        }
+        
+        errorMessage += '\n\n수동 설정 필요:\n1. Supabase 대시보드에서 SQL Editor 열기\n2. database/push_notifications.sql 파일 내용 복사\n3. SQL Editor에서 실행';
+        
+        alert(errorMessage);
+      }
+    } catch (error: any) {
+      console.error('Setup tables error:', error);
+      alert(`❌ 테이블 설정 중 오류 발생\n\n${error.message}\n\n수동으로 database/push_notifications.sql을 Supabase SQL Editor에서 실행해주세요.`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateVapidGuide = () => {
+    const guide = `
+🔑 VAPID 키 생성 및 설정 가이드
+
+1️⃣ VAPID 키 생성:
+   방법 1: web-push 라이브러리 사용
+   npm install -g web-push
+   web-push generate-vapid-keys
+
+   방법 2: 온라인 생성기 사용
+   https://vapidkeys.com/
+
+2️⃣ 생성된 키 예시:
+   Public Key: BBiVnQ7S9y7uXXXXXXXXXXXX...
+   Private Key: 9Q-VVVVvkXXXXXXXXXXXXXXXX...
+
+3️⃣ Vercel 환경변수 설정:
+   - NEXT_PUBLIC_VAPID_PUBLIC_KEY: [Public Key]
+   - VAPID_PRIVATE_KEY: [Private Key]  
+   - VAPID_EMAIL: [관리자 이메일 (예: admin@sejong.ac.kr)]
+
+4️⃣ 설정 후:
+   - Vercel에서 재배포
+   - 이 페이지에서 "상태 새로고침" 클릭하여 확인
+
+⚠️ 주의사항:
+   - Private Key는 절대 노출하지 마세요
+   - Public Key만 클라이언트에서 사용됩니다
+   - 이메일은 유효한 이메일 주소여야 합니다
+`;
+
+    alert(guide);
+  };
 
   const fetchSubscriptionCount = async () => {
     try {
@@ -118,11 +216,34 @@ const AdminNotificationsPage = () => {
         fetchNotificationHistory();
         fetchSubscriptionCount();
       } else {
-        throw new Error(result.error || '알림 전송에 실패했습니다.');
+        // Handle different error types
+        let errorMessage = '알림 전송에 실패했습니다.';
+        
+        if (result.type === 'VAPID_CONFIG_ERROR') {
+          errorMessage = `서버 설정 오류: ${result.details}\n\nVercel 환경변수를 확인해주세요:\n- NEXT_PUBLIC_VAPID_PUBLIC_KEY\n- VAPID_PRIVATE_KEY\n- VAPID_EMAIL`;
+        } else if (result.type === 'DATABASE_TABLE_ERROR') {
+          errorMessage = `데이터베이스 오류: ${result.details}\n\n${result.sqlFile || 'Supabase에서 필요한 테이블을 생성해주세요.'}`;
+        } else if (result.type === 'DATABASE_ERROR') {
+          errorMessage = `데이터베이스 연결 오류: ${result.details}`;
+        } else if (result.details) {
+          errorMessage = `${result.error}: ${result.details}`;
+        } else {
+          errorMessage = result.error || '알림 전송에 실패했습니다.';
+        }
+        
+        alert(errorMessage);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Send notification error:', error);
-      alert('알림 전송 중 오류가 발생했습니다.');
+      
+      let errorMessage = '알림 전송 중 오류가 발생했습니다.';
+      if (error.message?.includes('Failed to fetch')) {
+        errorMessage = '서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.';
+      } else if (error.message) {
+        errorMessage = `오류: ${error.message}`;
+      }
+      
+      alert(errorMessage);
     } finally {
       setSending(false);
     }
@@ -198,6 +319,242 @@ const AdminNotificationsPage = () => {
               </div>
               <FaCheckCircle className="text-3xl text-emerald-500" />
             </div>
+          </div>
+        </div>
+
+        {/* System Status & Debug Panel */}
+        <div className="mb-6">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <FaCog className="text-gray-500" />
+                시스템 상태
+              </h2>
+              <button
+                onClick={() => setShowDebug(!showDebug)}
+                className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                <FaEye />
+                {showDebug ? '숨기기' : '상세보기'}
+              </button>
+            </div>
+
+            {systemStatus && (
+              <div className="space-y-4">
+                {/* Configuration Status */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-gray-700 flex items-center gap-2">
+                      <FaKey className="text-blue-500" />
+                      VAPID 설정
+                    </h3>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-sm">
+                        {systemStatus.vapidPublicKey ? (
+                          <FaCheckCircle className="text-green-500" />
+                        ) : (
+                          <FaExclamationTriangle className="text-red-500" />
+                        )}
+                        <span className={systemStatus.vapidPublicKey ? 'text-green-700' : 'text-red-700'}>
+                          Public Key: {systemStatus.vapidPublicKey ? '설정됨' : '누락'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        {systemStatus.vapidPrivateKey ? (
+                          <FaCheckCircle className="text-green-500" />
+                        ) : (
+                          <FaExclamationTriangle className="text-red-500" />
+                        )}
+                        <span className={systemStatus.vapidPrivateKey ? 'text-green-700' : 'text-red-700'}>
+                          Private Key: {systemStatus.vapidPrivateKey ? '설정됨' : '누락'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        {systemStatus.vapidEmail ? (
+                          <FaCheckCircle className="text-green-500" />
+                        ) : (
+                          <FaExclamationTriangle className="text-red-500" />
+                        )}
+                        <span className={systemStatus.vapidEmail ? 'text-green-700' : 'text-red-700'}>
+                          Email: {systemStatus.vapidEmail ? '설정됨' : '누락'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-gray-700 flex items-center gap-2">
+                      <FaDatabase className="text-purple-500" />
+                      데이터베이스 설정
+                    </h3>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-sm">
+                        {systemStatus.supabaseUrl ? (
+                          <FaCheckCircle className="text-green-500" />
+                        ) : (
+                          <FaExclamationTriangle className="text-red-500" />
+                        )}
+                        <span className={systemStatus.supabaseUrl ? 'text-green-700' : 'text-red-700'}>
+                          Supabase URL: {systemStatus.supabaseUrl ? '설정됨' : '누락'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        {systemStatus.supabaseKey ? (
+                          <FaCheckCircle className="text-green-500" />
+                        ) : (
+                          <FaExclamationTriangle className="text-red-500" />
+                        )}
+                        <span className={systemStatus.supabaseKey ? 'text-green-700' : 'text-red-700'}>
+                          Supabase Key: {systemStatus.supabaseKey ? '설정됨' : '누락'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                          환경: {systemStatus.environment}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Overall Status */}
+                <div className="p-3 rounded-lg border-2 border-dashed">
+                  {systemStatus.isConfigured ? (
+                    <div className="flex items-center gap-2 text-green-700">
+                      <FaCheckCircle className="text-green-500" />
+                      <span className="font-semibold">시스템 설정이 완료되었습니다</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-red-700">
+                      <FaExclamationTriangle className="text-red-500" />
+                      <span className="font-semibold">시스템 설정이 완료되지 않았습니다</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Error Messages */}
+                {systemStatus.errors && systemStatus.errors.length > 0 && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <h4 className="font-semibold text-red-800 mb-2">설정 오류:</h4>
+                    <ul className="text-sm text-red-700 space-y-1">
+                      {systemStatus.errors.map((error, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-red-500 mt-0.5">•</span>
+                          <span>{error}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Debug Details */}
+                {showDebug && (
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-800 mb-3">상세 디버그 정보</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h5 className="font-medium text-gray-700 mb-2">환경 변수 상태</h5>
+                        <div className="text-xs space-y-1 font-mono">
+                          <div className="flex justify-between">
+                            <span>NEXT_PUBLIC_VAPID_PUBLIC_KEY:</span>
+                            <span className={systemStatus.vapidPublicKey ? 'text-green-600' : 'text-red-600'}>
+                              {systemStatus.vapidPublicKey ? 'SET' : 'MISSING'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>VAPID_PRIVATE_KEY:</span>
+                            <span className={systemStatus.vapidPrivateKey ? 'text-green-600' : 'text-red-600'}>
+                              {systemStatus.vapidPrivateKey ? 'SET' : 'MISSING'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>VAPID_EMAIL:</span>
+                            <span className={systemStatus.vapidEmail ? 'text-green-600' : 'text-red-600'}>
+                              {systemStatus.vapidEmail ? 'SET' : 'MISSING'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>NEXT_PUBLIC_SUPABASE_URL:</span>
+                            <span className={systemStatus.supabaseUrl ? 'text-green-600' : 'text-red-600'}>
+                              {systemStatus.supabaseUrl ? 'SET' : 'MISSING'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>NEXT_PUBLIC_SUPABASE_ANON_KEY:</span>
+                            <span className={systemStatus.supabaseKey ? 'text-green-600' : 'text-red-600'}>
+                              {systemStatus.supabaseKey ? 'SET' : 'MISSING'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h5 className="font-medium text-gray-700 mb-2">권장 해결 방법</h5>
+                        <div className="text-xs text-gray-600 space-y-2">
+                          {!systemStatus.isConfigured && (
+                            <>
+                              <div className="bg-yellow-50 border border-yellow-200 rounded p-2">
+                                <p className="font-medium text-yellow-800">Vercel 환경변수 설정:</p>
+                                <p className="text-yellow-700">
+                                  1. Vercel 대시보드 → 프로젝트 → Settings → Environment Variables<br/>
+                                  2. 필요한 VAPID 키들을 추가<br/>
+                                  3. 배포 후 재시도
+                                </p>
+                              </div>
+                              <div className="bg-blue-50 border border-blue-200 rounded p-2">
+                                <p className="font-medium text-blue-800">데이터베이스 테이블:</p>
+                                <p className="text-blue-700">
+                                  Supabase SQL Editor에서 database/push_notifications.sql 실행
+                                </p>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <h5 className="font-medium text-gray-700 mb-2">빠른 작업</h5>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={fetchSystemStatus}
+                          className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 rounded transition-colors"
+                        >
+                          상태 새로고침
+                        </button>
+                        <button
+                          onClick={handleSetupTables}
+                          disabled={loading}
+                          className="px-3 py-1 text-xs bg-green-100 hover:bg-green-200 text-green-700 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {loading ? '생성 중...' : '테이블 자동 생성'}
+                        </button>
+                        <button
+                          onClick={() => window.open('https://dashboard.vercel.com', '_blank')}
+                          className="px-3 py-1 text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 rounded transition-colors"
+                        >
+                          Vercel 대시보드
+                        </button>
+                        <button
+                          onClick={handleGenerateVapidGuide}
+                          className="px-3 py-1 text-xs bg-orange-100 hover:bg-orange-200 text-orange-700 rounded transition-colors"
+                        >
+                          VAPID 키 생성 가이드
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!systemStatus && (
+              <div className="text-center py-4">
+                <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-gray-400"></div>
+                <p className="text-gray-500 text-sm mt-2">시스템 상태 확인 중...</p>
+              </div>
+            )}
           </div>
         </div>
 

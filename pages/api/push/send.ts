@@ -2,12 +2,33 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import webpush from 'web-push';
 import { supabase } from '../../../lib/supabase';
 
+// Validate VAPID configuration
+const validateVapidConfig = () => {
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const privateKey = process.env.VAPID_PRIVATE_KEY;
+  const email = process.env.VAPID_EMAIL;
+
+  if (!publicKey || publicKey.length < 20) {
+    throw new Error('VAPID_PUBLIC_KEY is missing or invalid');
+  }
+  if (!privateKey || privateKey.length < 20) {
+    throw new Error('VAPID_PRIVATE_KEY is missing or invalid');
+  }
+  if (!email || !email.includes('@')) {
+    throw new Error('VAPID_EMAIL is missing or invalid');
+  }
+
+  return { publicKey, privateKey, email };
+};
+
 // Configure web-push with VAPID keys
-webpush.setVapidDetails(
-  process.env.VAPID_EMAIL || 'mailto:admin@sejong.ac.kr',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '',
-  process.env.VAPID_PRIVATE_KEY || ''
-);
+try {
+  const { publicKey, privateKey, email } = validateVapidConfig();
+  webpush.setVapidDetails(email, publicKey, privateKey);
+  console.log('VAPID configuration successful');
+} catch (error) {
+  console.error('VAPID configuration failed:', error);
+}
 
 interface PushNotificationData {
   title: string;
@@ -27,11 +48,25 @@ export default async function handler(
   }
 
   try {
+    // Validate VAPID configuration first
+    try {
+      validateVapidConfig();
+    } catch (vapidError: any) {
+      console.error('VAPID validation failed:', vapidError);
+      return res.status(500).json({ 
+        error: 'Server configuration error', 
+        details: vapidError.message,
+        type: 'VAPID_CONFIG_ERROR'
+      });
+    }
+
     const { title, body, icon, url, tag, requireInteraction, adminEmail } = req.body as PushNotificationData & { adminEmail?: string };
 
     if (!title || !body) {
       return res.status(400).json({ error: 'Title and body are required' });
     }
+
+    console.log('Push notification request:', { title, body, url, adminEmail });
 
     // Get all active subscriptions
     const { data: subscriptions, error: fetchError } = await supabase
@@ -41,7 +76,22 @@ export default async function handler(
 
     if (fetchError) {
       console.error('Error fetching subscriptions:', fetchError);
-      return res.status(500).json({ error: 'Failed to fetch subscriptions' });
+      
+      // Check if it's a table not found error
+      if (fetchError.message.includes('relation') && fetchError.message.includes('does not exist')) {
+        return res.status(500).json({ 
+          error: 'Database tables not found', 
+          details: 'Push subscription tables need to be created in Supabase',
+          type: 'DATABASE_TABLE_ERROR',
+          sqlFile: 'Run database/push_notifications.sql in Supabase SQL Editor'
+        });
+      }
+      
+      return res.status(500).json({ 
+        error: 'Failed to fetch subscriptions',
+        details: fetchError.message,
+        type: 'DATABASE_ERROR'
+      });
     }
 
     if (!subscriptions || subscriptions.length === 0) {
@@ -98,28 +148,38 @@ export default async function handler(
 
         await webpush.sendNotification(pushSubscription, payload);
         
-        // Log successful delivery
-        await supabase
-          .from('notification_delivery_log')
-          .insert({
-            notification_id: notification.id,
-            subscription_id: subscription.id,
-            status: 'sent'
-          });
+        // Log successful delivery (with error handling)
+        try {
+          await supabase
+            .from('notification_delivery_log')
+            .insert({
+              notification_id: notification.id,
+              subscription_id: subscription.id,
+              status: 'sent'
+            });
+        } catch (logError) {
+          console.warn('Failed to log successful delivery:', logError);
+          // Continue without failing the main operation
+        }
 
         return { success: true, subscriptionId: subscription.id };
       } catch (error: any) {
         console.error('Push send error:', error);
         
-        // Log failed delivery
-        await supabase
-          .from('notification_delivery_log')
-          .insert({
-            notification_id: notification.id,
-            subscription_id: subscription.id,
-            status: 'failed',
-            error_message: error.message
-          });
+        // Log failed delivery (with error handling)
+        try {
+          await supabase
+            .from('notification_delivery_log')
+            .insert({
+              notification_id: notification.id,
+              subscription_id: subscription.id,
+              status: 'failed',
+              error_message: error.message
+            });
+        } catch (logError) {
+          console.warn('Failed to log failed delivery:', logError);
+          // Continue without failing the main operation
+        }
 
         // Check if subscription is invalid and mark as inactive
         if (error.statusCode === 410 || error.statusCode === 404) {
@@ -155,8 +215,26 @@ export default async function handler(
       notificationId: notification.id
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Push API error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    
+    // Provide detailed error information
+    const errorResponse = {
+      error: 'Internal server error',
+      details: error.message || 'Unknown error occurred',
+      type: 'INTERNAL_ERROR',
+      timestamp: new Date().toISOString()
+    };
+
+    // Check for specific error types
+    if (error.message?.includes('VAPID')) {
+      errorResponse.type = 'VAPID_ERROR';
+    } else if (error.message?.includes('database') || error.message?.includes('supabase')) {
+      errorResponse.type = 'DATABASE_ERROR';
+    } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+      errorResponse.type = 'NETWORK_ERROR';
+    }
+
+    res.status(500).json(errorResponse);
   }
 }
