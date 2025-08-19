@@ -18,6 +18,12 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // PWA Support
+  experimental: {
+    webVitalsAttribution: ['CLS', 'LCP']
+  },
+  // Ensure proper handling of client-side code
+  transpilePackages: [],
 }
 
 module.exports = nextConfig

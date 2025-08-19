@@ -36,18 +36,22 @@ const AdminCalendarPage = () => {
           title: '2025학년도 1학기 개강',
           start_date: '2025-03-02',
           end_date: '2025-03-02',
-          event_type: 'semester',
+          event_type: 'semester' as const,
           description: '2025학년도 1학기가 시작됩니다.',
-          created_at: '2025-01-18'
+          created_at: '2025-01-18',
+          updated_at: '2025-01-18',
+          is_important: true
         },
         {
           id: '2',
           title: '중간고사',
           start_date: '2025-04-20',
           end_date: '2025-04-26',
-          event_type: 'exam',
+          event_type: 'exam' as const,
           description: '중간고사 기간입니다.',
-          created_at: '2025-01-18'
+          created_at: '2025-01-18',
+          updated_at: '2025-01-18',
+          is_important: true
         }
       ]);
     } finally {

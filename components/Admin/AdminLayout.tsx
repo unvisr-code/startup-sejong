@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { FaHome, FaBullhorn, FaCalendarAlt, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
+import { FaHome, FaBullhorn, FaCalendarAlt, FaBell, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
 import { checkAuth, signOut } from '../../lib/auth';
 
 interface AdminLayoutProps {
@@ -59,6 +59,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title }) => {
     { href: '/admin', label: '대시보드', icon: FaHome },
     { href: '/admin/announcements', label: '공지사항 관리', icon: FaBullhorn },
     { href: '/admin/calendar', label: '학사일정 관리', icon: FaCalendarAlt },
+    { href: '/admin/notifications', label: '푸시 알림 관리', icon: FaBell },
   ];
 
   if (loading) {

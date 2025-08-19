@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { FaBars, FaTimes, FaRocket } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import ApplicationModal from '../Modal/ApplicationModal';
+import PushNotificationButton from '../PWA/PushNotificationButton';
 
 const Header = () => {
   const router = useRouter();
@@ -122,33 +123,36 @@ const Header = () => {
             </div>
           </Link>
 
-          <div className="hidden md:flex items-center space-x-8">
-            {menuItems.map((item) => (
-              item.isSection ? (
-                <a
-                  key={item.href}
-                  href="#"
-                  onClick={(e) => handleMenuClick(e, item.href)}
-                  className={`${
-                    isScrolled ? 'text-gray-700 hover:text-primary' : 
-                    hasGradientHero ? 'text-white hover:text-white/80' : 'text-white hover:text-white/80'
-                  } transition-colors duration-300 font-medium cursor-pointer`}
-                >
-                  {item.label}
-                </a>
-              ) : (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`${
-                    isScrolled ? 'text-gray-700 hover:text-primary' : 
-                    hasGradientHero ? 'text-white hover:text-white/80' : 'text-white hover:text-white/80'
-                  } transition-colors duration-300 font-medium cursor-pointer`}
-                >
-                  {item.label}
-                </Link>
-              )
-            ))}
+          <div className="hidden md:flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
+              {menuItems.map((item) => (
+                item.isSection ? (
+                  <a
+                    key={item.href}
+                    href="#"
+                    onClick={(e) => handleMenuClick(e, item.href)}
+                    className={`${
+                      isScrolled ? 'text-gray-700 hover:text-primary' : 
+                      hasGradientHero ? 'text-white hover:text-white/80' : 'text-white hover:text-white/80'
+                    } transition-colors duration-300 font-medium cursor-pointer`}
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`${
+                      isScrolled ? 'text-gray-700 hover:text-primary' : 
+                      hasGradientHero ? 'text-white hover:text-white/80' : 'text-white hover:text-white/80'
+                    } transition-colors duration-300 font-medium cursor-pointer`}
+                  >
+                    {item.label}
+                  </Link>
+                )
+              ))}
+            </div>
+            <PushNotificationButton />
             <button
               onClick={handleApplyClick}
               className={`px-6 py-2 rounded-full transition-all duration-300 cursor-pointer font-bold ${
