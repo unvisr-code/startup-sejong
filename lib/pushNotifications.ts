@@ -7,25 +7,94 @@ export const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
 export const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
 export const VAPID_EMAIL = process.env.VAPID_EMAIL || 'mailto:admin@sejong.ac.kr';
 
+// Validate VAPID keys
+export const isVapidConfigured = (): boolean => {
+  return !!(VAPID_PUBLIC_KEY && VAPID_PUBLIC_KEY.length > 20);
+};
+
+export const getVapidError = (): string | null => {
+  if (!VAPID_PUBLIC_KEY) {
+    return 'VAPID 공개키가 설정되지 않았습니다. 관리자에게 문의하세요.';
+  }
+  if (VAPID_PUBLIC_KEY.length < 20) {
+    return 'VAPID 공개키가 유효하지 않습니다.';
+  }
+  return null;
+};
+
+// Detect browser and platform
+export const getBrowserInfo = () => {
+  if (typeof window === 'undefined') return { isIOS: false, isSafari: false, isAndroid: false, isChrome: false };
+  
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isIOS = /iphone|ipad|ipod/.test(userAgent);
+  const isSafari = /safari/.test(userAgent) && !/chrome/.test(userAgent);
+  const isAndroid = /android/.test(userAgent);
+  const isChrome = /chrome/.test(userAgent) && !/edg/.test(userAgent);
+  
+  return { isIOS, isSafari, isAndroid, isChrome };
+};
+
 // Check if push notifications are supported
 export const isPushSupported = (): boolean => {
-  return typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window;
+  if (typeof window === 'undefined') return false;
+  
+  const { isIOS, isSafari } = getBrowserInfo();
+  
+  // iOS Safari has limited PWA support
+  if (isIOS && isSafari) {
+    // Check if running as PWA (standalone mode)
+    const isStandalone = (window.navigator as any).standalone === true;
+    return isStandalone && 'serviceWorker' in navigator && 'PushManager' in window;
+  }
+  
+  return 'serviceWorker' in navigator && 'PushManager' in window;
+};
+
+// Get platform-specific error messages
+export const getPlatformError = (): string | null => {
+  const { isIOS, isSafari, isAndroid } = getBrowserInfo();
+  
+  if (isIOS && isSafari) {
+    const isStandalone = (window.navigator as any).standalone === true;
+    if (!isStandalone) {
+      return '아이폰에서는 홈 화면에 추가한 후 알림을 사용할 수 있습니다. Safari 메뉴 > 홈 화면에 추가를 선택해주세요.';
+    }
+  }
+  
+  if (!isPushSupported()) {
+    if (isAndroid) {
+      return '이 브라우저는 푸시 알림을 지원하지 않습니다. Chrome 브라우저를 사용해주세요.';
+    }
+    return '이 브라우저는 푸시 알림을 지원하지 않습니다.';
+  }
+  
+  return null;
 };
 
 // Convert VAPID key to Uint8Array
 export const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
-  const base64 = (base64String + padding)
-    .replace(/-/g, '+')
-    .replace(/_/g, '/');
-
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
+  if (!base64String || base64String.length === 0) {
+    throw new Error('VAPID 키가 유효하지 않습니다.');
   }
-  return outputArray;
+
+  try {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  } catch (error) {
+    console.error('VAPID 키 변환 실패:', error);
+    throw new Error('VAPID 키 형식이 올바르지 않습니다.');
+  }
 };
 
 // Register service worker
@@ -70,38 +139,52 @@ export const requestNotificationPermission = async (): Promise<NotificationPermi
 // Subscribe to push notifications
 export const subscribeToPush = async (): Promise<PushSubscription | null> => {
   try {
+    // Check VAPID configuration first
+    const vapidError = getVapidError();
+    if (vapidError) {
+      throw new Error(vapidError);
+    }
+
     if (!isPushSupported()) {
-      throw new Error('Push notifications are not supported');
+      throw new Error('이 브라우저는 푸시 알림을 지원하지 않습니다.');
     }
 
     const registration = await registerServiceWorker();
     if (!registration) {
-      throw new Error('Service Worker registration failed');
+      throw new Error('서비스 워커 등록에 실패했습니다.');
     }
 
     const permission = await requestNotificationPermission();
     if (permission !== 'granted') {
-      throw new Error('Notification permission denied');
+      throw new Error('알림 권한이 거부되었습니다.');
     }
 
     // Check if already subscribed
     let subscription = await registration.pushManager.getSubscription();
     
     if (!subscription) {
-      // Create new subscription
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer
-      });
+      // Create new subscription with error handling
+      try {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer
+        });
+      } catch (subscribeError) {
+        console.error('Push manager subscribe failed:', subscribeError);
+        throw new Error('푸시 구독 생성에 실패했습니다. 네트워크를 확인하거나 나중에 다시 시도해주세요.');
+      }
     }
 
     // Save subscription to database
-    await saveSubscription(subscription);
+    const saved = await saveSubscription(subscription);
+    if (!saved) {
+      console.warn('Subscription created but failed to save to database');
+    }
     
     return subscription;
   } catch (error) {
     console.error('Push subscription failed:', error);
-    return null;
+    throw error; // Re-throw to handle in component
   }
 };
 

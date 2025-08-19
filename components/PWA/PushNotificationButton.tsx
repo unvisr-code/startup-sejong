@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { FaBell, FaBellSlash } from 'react-icons/fa';
+import { FaBell, FaBellSlash, FaExclamationTriangle } from 'react-icons/fa';
 import { 
   subscribeToPush, 
   unsubscribeFromPush, 
   getSubscriptionStatus, 
   requestNotificationPermission,
-  showLocalNotification
+  showLocalNotification,
+  isVapidConfigured,
+  getVapidError,
+  getBrowserInfo,
+  getPlatformError
 } from '../../lib/pushNotifications';
 
 const PushNotificationButton: React.FC = () => {
@@ -13,12 +17,27 @@ const PushNotificationButton: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [isClient, setIsClient] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isConfigured, setIsConfigured] = useState(true);
 
   useEffect(() => {
     setIsClient(true);
     if (typeof window !== 'undefined') {
-      checkSubscriptionStatus();
-      setPermission(Notification.permission);
+      // Check platform compatibility first
+      const platformError = getPlatformError();
+      if (platformError) {
+        setError(platformError);
+        return;
+      }
+
+      // Check VAPID configuration
+      setIsConfigured(isVapidConfigured());
+      if (!isVapidConfigured()) {
+        setError(getVapidError());
+      } else {
+        checkSubscriptionStatus();
+        setPermission(Notification.permission);
+      }
     }
   }, []);
 
@@ -29,6 +48,7 @@ const PushNotificationButton: React.FC = () => {
 
   const handleSubscribe = async () => {
     setLoading(true);
+    setError(null);
     try {
       const subscription = await subscribeToPush();
       if (subscription) {
@@ -39,11 +59,19 @@ const PushNotificationButton: React.FC = () => {
           '이제 새로운 공지사항과 중요 일정을 실시간으로 받아보실 수 있습니다.'
         );
       } else {
-        alert('알림 구독에 실패했습니다. 브라우저 설정을 확인해주세요.');
+        setError('알림 구독에 실패했습니다. 브라우저 설정을 확인해주세요.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Subscribe error:', error);
-      alert('알림 구독 중 오류가 발생했습니다.');
+      const errorMessage = error.message || '알림 구독 중 오류가 발생했습니다.';
+      setError(errorMessage);
+      
+      // Show user-friendly alert for critical errors
+      if (errorMessage.includes('VAPID')) {
+        alert('시스템 설정 오류입니다. 관리자에게 문의해주세요.');
+      } else {
+        alert(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -86,6 +114,26 @@ const PushNotificationButton: React.FC = () => {
   // Don't show button if not on client or notifications are not supported
   if (!isClient || typeof window === 'undefined' || !('Notification' in window) || !('serviceWorker' in navigator)) {
     return null;
+  }
+
+  // Show platform compatibility error  
+  if (error?.includes('아이폰') || error?.includes('브라우저')) {
+    return (
+      <div className="flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg cursor-not-allowed" title={error}>
+        <FaExclamationTriangle />
+        <span className="hidden sm:inline">호환성 제한</span>
+      </div>
+    );
+  }
+
+  // Show configuration error state
+  if (!isConfigured || error?.includes('VAPID')) {
+    return (
+      <div className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg cursor-not-allowed" title="설정 오류">
+        <FaExclamationTriangle />
+        <span className="hidden sm:inline">설정 오류</span>
+      </div>
+    );
   }
 
   // Show permission request button if permission not granted
