@@ -66,5 +66,8 @@ export interface AcademicEvent {
   end_date: string;
   event_type: 'semester' | 'exam' | 'holiday' | 'application' | 'other';
   description?: string;
+  location?: string;
+  is_important: boolean;
   created_at: string;
+  updated_at: string;
 }

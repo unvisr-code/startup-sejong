@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 interface CalendarForm {
   title: string;
   description?: string;
+  location?: string;
   start_date: string;
   end_date: string;
   event_type: 'semester' | 'exam' | 'holiday' | 'application' | 'other';
@@ -44,6 +45,7 @@ const EditCalendarPage = () => {
         reset({
           title: data.title,
           description: data.description || '',
+          location: data.location || '',
           start_date: format(new Date(data.start_date), 'yyyy-MM-dd'),
           end_date: format(new Date(data.end_date), 'yyyy-MM-dd'),
           event_type: data.event_type,
@@ -124,6 +126,19 @@ const EditCalendarPage = () => {
               {errors.title && (
                 <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
               )}
+            </div>
+
+            {/* Location */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                장소
+              </label>
+              <input
+                type="text"
+                {...register('location')}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="예: 대양홀, 온라인"
+              />
             </div>
 
             {/* Description */}
@@ -224,6 +239,41 @@ const EditCalendarPage = () => {
                     <FaStar className="text-yellow-500" />
                     <span className="text-gray-700">중요 일정으로 표시</span>
                   </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Preview Card */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">미리보기</h3>
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <div className="flex items-start gap-3">
+                  <FaCalendarAlt className={`text-2xl mt-1 ${
+                    watch('event_type') === 'exam' ? 'text-red-500' :
+                    watch('event_type') === 'semester' ? 'text-blue-500' :
+                    watch('event_type') === 'holiday' ? 'text-green-500' :
+                    watch('event_type') === 'application' ? 'text-purple-500' :
+                    'text-gray-500'
+                  }`} />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-800 flex items-center gap-1">
+                      {watch('is_important') && <FaStar className="text-yellow-500" size={12} />}
+                      {watch('title') || '일정명'}
+                    </h4>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {watch('start_date') && watch('end_date') ? (
+                        watch('start_date') === watch('end_date') ? 
+                          watch('start_date') : 
+                          `${watch('start_date')} ~ ${watch('end_date')}`
+                      ) : '날짜를 선택하세요'}
+                    </p>
+                    {watch('location') && (
+                      <p className="text-sm text-gray-500 mt-1">📍 {watch('location')}</p>
+                    )}
+                    {watch('description') && (
+                      <p className="text-sm text-gray-700 mt-2">{watch('description')}</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

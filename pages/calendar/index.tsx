@@ -61,7 +61,9 @@ const CalendarPage = () => {
           end_date: '2025-03-02',
           event_type: 'semester',
           description: '2025학년도 1학기가 시작됩니다.',
+          location: '세종대학교',
           created_at: '2025-01-18',
+          updated_at: '2025-01-18',
           is_important: true
         },
         {
@@ -71,7 +73,9 @@ const CalendarPage = () => {
           end_date: '2025-02-28',
           event_type: 'application',
           description: '2025학년도 1학기 수강신청 기간입니다.',
+          location: '온라인 (학사정보시스템)',
           created_at: '2025-01-18',
+          updated_at: '2025-01-18',
           is_important: true
         },
         {
@@ -81,7 +85,9 @@ const CalendarPage = () => {
           end_date: '2025-04-26',
           event_type: 'exam',
           description: '중간고사 기간입니다.',
+          location: '각 강의실',
           created_at: '2025-01-18',
+          updated_at: '2025-01-18',
           is_important: true
         },
         {
@@ -92,6 +98,7 @@ const CalendarPage = () => {
           event_type: 'holiday',
           description: '어린이날 공휴일입니다.',
           created_at: '2025-01-18',
+          updated_at: '2025-01-18',
           is_important: false
         },
         {
@@ -101,7 +108,9 @@ const CalendarPage = () => {
           end_date: '2025-06-21',
           event_type: 'exam',
           description: '기말고사 기간입니다.',
+          location: '각 강의실',
           created_at: '2025-01-18',
+          updated_at: '2025-01-18',
           is_important: true
         },
         {
@@ -112,6 +121,7 @@ const CalendarPage = () => {
           event_type: 'holiday',
           description: '하계방학 기간입니다.',
           created_at: '2025-01-18',
+          updated_at: '2025-01-18',
           is_important: false
         }
       ];
@@ -429,6 +439,9 @@ const CalendarPage = () => {
                                     ` - ${format(new Date(event.end_date), 'MM/dd', { locale: ko })}`
                                   }
                                 </p>
+                                {event.location && (
+                                  <p className="text-xs text-gray-500 mt-1">📍 {event.location}</p>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -469,6 +482,11 @@ const CalendarPage = () => {
                   ` ~ ${format(new Date(selectedEvent.end_date), 'yyyy년 MM월 dd일', { locale: ko })}`
                 }
               </p>
+              {selectedEvent.location && (
+                <p className="text-gray-600 mb-2 flex items-center gap-2">
+                  📍 <span>{selectedEvent.location}</span>
+                </p>
+              )}
               {selectedEvent.description && (
                 <p className="text-gray-700 mb-4">{selectedEvent.description}</p>
               )}

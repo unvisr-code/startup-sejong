@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import AdminLayout from '../../../components/Admin/AdminLayout';
 import { useForm } from 'react-hook-form';
-import { FaSave, FaTimes, FaCalendarAlt } from 'react-icons/fa';
+import { FaSave, FaTimes, FaCalendarAlt, FaStar } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 
 interface CalendarForm {
@@ -213,11 +213,9 @@ const NewCalendarEventPage = () => {
                       'text-gray-500'
                     }`} />
                     <div className="flex-1">
-                      <h4 className="font-semibold text-gray-800">
+                      <h4 className="font-semibold text-gray-800 flex items-center gap-1">
+                        {watch('is_important') && <FaStar className="text-yellow-500" size={12} />}
                         {watch('title') || '일정명'}
-                        {watch('is_important') && (
-                          <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">중요</span>
-                        )}
                       </h4>
                       <p className="text-sm text-gray-600 mt-1">
                         {watch('start_date') && watch('end_date') ? (
