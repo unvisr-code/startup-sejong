@@ -8,22 +8,44 @@ export const checkStorageSetup = async (): Promise<{ hasStorage: boolean; hasBuc
       return { hasStorage: false, hasBucket: false, error: 'Supabase 환경변수가 설정되지 않았습니다.' };
     }
 
-    // Storage 연결 테스트
-    const { data: buckets, error: listError } = await supabase.storage.listBuckets();
-    
-    if (listError) {
-      console.error('Storage list error:', listError);
-      return { hasStorage: false, hasBucket: false, error: `Storage 접근 실패: ${listError.message}` };
+    // Storage 연결 테스트 - 더 안정적인 방법으로 시도
+    try {
+      // 버킷에서 파일 리스트 시도 (권한 체크)
+      const { error: filesError } = await supabase.storage
+        .from('announcement-attachments')
+        .list('test', { limit: 1 });
+      
+      // 버킷이 존재하고 접근 가능
+      if (!filesError) {
+        console.log('Storage bucket found and accessible');
+        return { hasStorage: true, hasBucket: true };
+      }
+      
+      // 버킷이 없거나 접근 불가
+      if (filesError?.message?.includes('not found') || filesError?.message?.includes('does not exist')) {
+        console.error('Bucket not found:', filesError);
+        return { hasStorage: true, hasBucket: false, error: 'announcement-attachments 버킷이 존재하지 않습니다.' };
+      }
+      
+      // 기타 에러
+      console.error('Storage access error:', filesError);
+      return { hasStorage: false, hasBucket: false, error: `Storage 접근 실패: ${filesError.message}` };
+      
+    } catch (innerError) {
+      // listBuckets 대신 직접 버킷 접근 시도
+      console.log('Trying alternative bucket check...');
+      
+      const { error: uploadTestError } = await supabase.storage
+        .from('announcement-attachments')
+        .list('', { limit: 1 });
+      
+      if (!uploadTestError) {
+        return { hasStorage: true, hasBucket: true };
+      }
+      
+      console.error('Alternative check failed:', uploadTestError);
+      return { hasStorage: false, hasBucket: false, error: `Storage 버킷 확인 실패: ${uploadTestError.message}` };
     }
-
-    // announcement-attachments 버킷 존재 확인
-    const hasBucket = buckets?.some(bucket => bucket.name === 'announcement-attachments') || false;
-    
-    return { 
-      hasStorage: true, 
-      hasBucket, 
-      error: hasBucket ? undefined : 'announcement-attachments 버킷이 존재하지 않습니다.' 
-    };
   } catch (error) {
     console.error('Storage setup check error:', error);
     return { hasStorage: false, hasBucket: false, error: 'Storage 설정 확인 중 오류가 발생했습니다.' };
@@ -117,11 +139,9 @@ export const uploadFile = async (
     // Storage 설정 확인
     const storageCheck = await checkStorageSetup();
     if (!storageCheck.hasStorage || !storageCheck.hasBucket) {
-      console.error('Storage setup issue:', storageCheck.error);
-      return { 
-        success: false, 
-        error: `Storage 설정 오류: ${storageCheck.error}\n\n설정 가이드:\n1. Supabase 대시보드 > Storage 이동\n2. 'announcement-attachments' 버킷 생성\n3. 버킷을 Public으로 설정` 
-      };
+      console.warn('Storage not properly configured, using fallback:', storageCheck.error);
+      // Fallback로 자동 전환
+      return await uploadFileMetadataOnly(file, announcementId);
     }
 
     // 파일 검증
@@ -253,9 +273,13 @@ export const uploadMultipleFiles = async (
   const storageCheck = await checkStorageSetup();
   const useStorage = storageCheck.hasStorage && storageCheck.hasBucket;
   
+  console.log('Storage check result:', storageCheck);
+  
   if (!useStorage) {
-    console.warn('Storage not available, using fallback mode');
+    console.warn('Storage not available, using fallback mode:', storageCheck.error);
     usedFallback = true;
+  } else {
+    console.log('Storage is properly configured, using normal upload mode');
   }
   
   for (let i = 0; i < totalFiles; i++) {
@@ -266,11 +290,15 @@ export const uploadMultipleFiles = async (
       // 정상 Storage 업로드 시도
       result = await uploadFile(file, announcementId);
       
-      // Storage 실패 시 fallback 시도
-      if (!result.success && result.error?.includes('Storage')) {
-        console.warn(`Storage failed for ${file.name}, trying fallback`);
-        result = await uploadFileMetadataOnly(file, announcementId);
-        usedFallback = true;
+      // Storage 실패 시 fallback 시도 - 오류 상태를 더 정확히 체크
+      if (!result.success) {
+        console.warn(`Upload failed for ${file.name}:`, result.error);
+        // 모든 실패가 fallback으로 가는 것은 아님 - 다른 오류도 있을 수 있음
+        if (result.error?.includes('Storage') || result.error?.includes('bucket')) {
+          console.warn('Falling back to metadata-only mode');
+          result = await uploadFileMetadataOnly(file, announcementId);
+          usedFallback = true;
+        }
       }
     } else {
       // 처음부터 fallback 사용
