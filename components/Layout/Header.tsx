@@ -39,6 +39,26 @@ const Header = () => {
     };
   }, [isMenuOpen]);
 
+  // URL 해시가 있으면 해당 섹션으로 스크롤
+  useEffect(() => {
+    if (router.pathname === '/' && router.asPath.includes('#')) {
+      const hash = router.asPath.split('#')[1];
+      setTimeout(() => {
+        const element = document.getElementById(hash);
+        if (element) {
+          const headerOffset = 80;
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    }
+  }, [router.asPath, router.pathname]);
+
   const menuItems = [
     { href: 'about', label: '전공소개', isSection: true },
     { href: 'curriculum', label: '교육과정', isSection: true },
@@ -55,16 +75,23 @@ const Header = () => {
 
   const handleMenuClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
     e.preventDefault();
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const headerOffset = 80; // 헤더 높이만큼 오프셋 추가
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+    
+    // 현재 홈페이지가 아니면 홈으로 이동 후 섹션으로 스크롤
+    if (router.pathname !== '/') {
+      router.push(`/#${sectionId}`);
+    } else {
+      // 홈페이지에서는 바로 스크롤
+      const element = document.getElementById(sectionId);
+      if (element) {
+        const headerOffset = 80; // 헤더 높이만큼 오프셋 추가
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
     }
     setIsMenuOpen(false);
   };
