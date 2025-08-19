@@ -43,6 +43,7 @@ export interface AnnouncementAttachment {
   file_size: number;
   mime_type: string;
   uploaded_at: string;
+  download_count?: number;
 }
 
 export interface Announcement {

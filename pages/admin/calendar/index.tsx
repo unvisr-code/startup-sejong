@@ -23,7 +23,7 @@ const AdminCalendarPage = () => {
       const { data, error } = await supabase
         .from('academic_calendar')
         .select('*')
-        .order('start_date', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setEvents(data || []);

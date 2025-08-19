@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Header from '../../components/Layout/Header';
 import Footer from '../../components/Layout/Footer';
 import { motion } from 'framer-motion';
-import { FaArrowLeft, FaCalendar, FaTag, FaDownload, FaPaperclip } from 'react-icons/fa';
+import { FaArrowLeft, FaCalendar, FaTag, FaDownload, FaPaperclip, FaEye, FaCloudDownloadAlt } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { supabase, Announcement, AnnouncementAttachment } from '../../lib/supabase';
@@ -33,7 +33,16 @@ const AnnouncementDetailPage = () => {
         .single();
 
       if (error) throw error;
-      setAnnouncement(data);
+      
+      // 조회수 증가
+      const newViewCount = (data.view_count || 0) + 1;
+      await supabase
+        .from('announcements')
+        .update({ view_count: newViewCount })
+        .eq('id', announcementId);
+      
+      // 증가된 조회수로 상태 업데이트
+      setAnnouncement({ ...data, view_count: newViewCount });
 
       // 첨부파일 조회
       const attachmentData = await getAnnouncementAttachments(announcementId);
@@ -88,6 +97,12 @@ const AnnouncementDetailPage = () => {
         const originalContent = downloadButton.innerHTML;
         downloadButton.textContent = '다운로드 중...';
         
+        // 다운로드 수 증가
+        await supabase
+          .from('announcement_attachments')
+          .update({ download_count: (attachment.download_count || 0) + 1 })
+          .eq('id', attachment.id);
+        
         // 강제 다운로드 실행
         const success = await downloadFile(attachment.file_path, attachment.file_name);
         
@@ -99,6 +114,12 @@ const AnnouncementDetailPage = () => {
           alert('파일 다운로드에 실패했습니다.\n\nStorage 설정을 확인하거나 관리자에게 문의해주세요.');
         }
       } else {
+        // 다운로드 수 증가
+        await supabase
+          .from('announcement_attachments')
+          .update({ download_count: (attachment.download_count || 0) + 1 })
+          .eq('id', attachment.id);
+        
         // 버튼이 없으면 그냥 다운로드 시도
         const success = await downloadFile(attachment.file_path, attachment.file_name);
         if (!success) {
@@ -211,14 +232,20 @@ const AnnouncementDetailPage = () => {
                   {announcement.title}
                 </h1>
 
-                <div className="flex items-center text-gray-500 text-sm mb-6 pb-6 border-b">
-                  <FaCalendar className="mr-2" />
-                  작성일: {format(new Date(announcement.created_at), 'yyyy년 MM월 dd일', { locale: ko })}
-                  {announcement.updated_at !== announcement.created_at && (
-                    <span className="ml-4">
-                      (수정일: {format(new Date(announcement.updated_at), 'yyyy년 MM월 dd일', { locale: ko })})
-                    </span>
-                  )}
+                <div className="flex items-center justify-between text-gray-500 text-sm mb-6 pb-6 border-b">
+                  <div className="flex items-center">
+                    <FaCalendar className="mr-2" />
+                    작성일: {format(new Date(announcement.created_at), 'yyyy년 MM월 dd일', { locale: ko })}
+                    {announcement.updated_at !== announcement.created_at && (
+                      <span className="ml-4">
+                        (수정일: {format(new Date(announcement.updated_at), 'yyyy년 MM월 dd일', { locale: ko })})
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <FaEye className="text-gray-400" />
+                    <span className="text-gray-600">조회수 {announcement.view_count || 0}</span>
+                  </div>
                 </div>
 
                 {/* Announcement Content */}
@@ -250,6 +277,12 @@ const AnnouncementDetailPage = () => {
                               </p>
                               <p className="text-sm text-gray-500">
                                 {formatFileSize(attachment.file_size)} • {format(new Date(attachment.uploaded_at), 'yyyy.MM.dd', { locale: ko })}
+                                {attachment.download_count !== undefined && (
+                                  <span className="ml-2">
+                                    <FaCloudDownloadAlt className="inline mr-1" size={12} />
+                                    {attachment.download_count}회
+                                  </span>
+                                )}
                               </p>
                             </div>
                           </div>

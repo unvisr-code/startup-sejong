@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Header from '../../components/Layout/Header';
 import Footer from '../../components/Layout/Footer';
 import { motion } from 'framer-motion';
-import { FaCalendarAlt, FaChevronLeft, FaChevronRight, FaDownload, FaCalendarPlus } from 'react-icons/fa';
+import { FaCalendarAlt, FaChevronLeft, FaChevronRight, FaDownload, FaCalendarPlus, FaStar } from 'react-icons/fa';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { supabase, AcademicEvent } from '../../lib/supabase';
@@ -349,8 +349,13 @@ const CalendarPage = () => {
                                   }}
                                   onClick={() => setSelectedEvent(event)}
                                 >
-                                  <span className="truncate">
-                                    {currentDate.getDate() === displayStart.getDate() ? event.title : ''}
+                                  <span className="truncate flex items-center gap-1">
+                                    {currentDate.getDate() === displayStart.getDate() && (
+                                      <>
+                                        {event.is_important && <FaStar className="text-yellow-300 flex-shrink-0" size={10} />}
+                                        <span className={event.is_important ? 'font-bold' : ''}>{event.title}</span>
+                                      </>
+                                    )}
                                   </span>
                                 </div>
                               );
@@ -374,19 +379,12 @@ const CalendarPage = () => {
                       <h3 className="text-xl font-bold">이번 달 일정</h3>
                       <button
                         onClick={() => {
-                          const filteredEvents = events.filter(event => {
-                            const eventStart = new Date(event.start_date);
-                            const eventEnd = new Date(event.end_date);
-                            const monthStart = startOfMonth(currentDate);
-                            const monthEnd = endOfMonth(currentDate);
-                            return (eventStart <= monthEnd && eventEnd >= monthStart);
-                          });
-                          downloadMonthlyICS(filteredEvents, currentDate);
+                          downloadMonthlyICS(events, currentDate);
                         }}
                         className="flex items-center gap-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm"
                       >
                         <FaDownload size={14} />
-                        월간 일정 다운로드
+                        전체 일정 다운로드
                       </button>
                     </div>
                     
@@ -421,7 +419,10 @@ const CalendarPage = () => {
                             <div className="flex items-start gap-3">
                               <div className={`w-2 h-2 rounded-full mt-1.5 ${getEventTypeColor(event.event_type)}`}></div>
                               <div className="flex-1">
-                                <h4 className="font-semibold text-sm">{event.title}</h4>
+                                <h4 className={`text-sm ${event.is_important ? 'font-bold' : 'font-semibold'} flex items-center gap-1`}>
+                                  {event.is_important && <FaStar className="text-yellow-500" size={12} />}
+                                  {event.title}
+                                </h4>
                                 <p className="text-xs text-gray-500 mt-1">
                                   {format(new Date(event.start_date), 'MM/dd', { locale: ko })}
                                   {event.start_date !== event.end_date && 
@@ -458,7 +459,10 @@ const CalendarPage = () => {
                   {getEventTypeLabel(selectedEvent.event_type)}
                 </span>
               </div>
-              <h3 className="text-xl font-bold mb-2">{selectedEvent.title}</h3>
+              <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                {selectedEvent.is_important && <FaStar className="text-yellow-500" />}
+                {selectedEvent.title}
+              </h3>
               <p className="text-gray-600 mb-4">
                 {format(new Date(selectedEvent.start_date), 'yyyy년 MM월 dd일', { locale: ko })}
                 {selectedEvent.start_date !== selectedEvent.end_date && 

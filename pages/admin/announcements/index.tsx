@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import AdminLayout from '../../../components/Admin/AdminLayout';
-import { FaPlus, FaEdit, FaTrash, FaThumbtack, FaSearch } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaThumbtack, FaSearch, FaEye, FaDownload } from 'react-icons/fa';
 import { supabase, Announcement } from '../../../lib/supabase';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -21,7 +21,12 @@ const AdminAnnouncementsPage = () => {
     try {
       const { data, error } = await supabase
         .from('announcements')
-        .select('*')
+        .select(`
+          *,
+          announcement_attachments(
+            download_count
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -179,6 +184,12 @@ const AdminAnnouncementsPage = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                         작성일
                       </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
+                        조회수
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+                        다운로드
+                      </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
                         고정
                       </th>
@@ -200,6 +211,18 @@ const AdminAnnouncementsPage = () => {
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
                           {format(new Date(announcement.created_at), 'yyyy.MM.dd', { locale: ko })}
+                        </td>
+                        <td className="px-6 py-4 text-center whitespace-nowrap">
+                          <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
+                            <FaEye className="text-gray-400" size={12} />
+                            {announcement.view_count || 0}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-center whitespace-nowrap">
+                          <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
+                            <FaDownload className="text-gray-400" size={12} />
+                            {(announcement as any).announcement_attachments?.reduce((sum: number, att: any) => sum + (att.download_count || 0), 0) || 0}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <button
