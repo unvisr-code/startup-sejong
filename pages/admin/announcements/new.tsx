@@ -58,6 +58,10 @@ const NewAnnouncementPage = () => {
         if (!uploadResult.success) {
           console.error('File upload errors:', uploadResult.errors);
           alert(`공지사항은 생성되었지만 파일 업로드 중 오류가 발생했습니다:\n${uploadResult.errors.join('\n')}`);
+        } else if (uploadResult.usedFallback) {
+          alert('공지사항이 성공적으로 작성되었습니다.\n\n⚠️ 참고: Supabase Storage가 설정되지 않아 파일은 미리보기로만 저장되었습니다.\n실제 파일 다운로드 기능을 사용하려면 Storage 설정이 필요합니다.');
+          router.push('/admin/announcements');
+          return;
         }
       }
 

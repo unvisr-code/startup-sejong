@@ -75,6 +75,12 @@ const AnnouncementDetailPage = () => {
 
   const handleFileDownload = async (attachment: AnnouncementAttachment) => {
     try {
+      // Fallback 파일 확인
+      if (attachment.file_path.startsWith('fallback/') || attachment.file_name.includes('(미리보기)')) {
+        alert('이 파일은 미리보기로만 저장되어 다운로드할 수 없습니다.\n\n관리자에게 실제 파일을 요청하거나 Supabase Storage 설정을 확인해주세요.');
+        return;
+      }
+      
       const downloadUrl = await getFileDownloadUrl(attachment.file_path);
       if (downloadUrl) {
         const link = document.createElement('a');
@@ -84,7 +90,7 @@ const AnnouncementDetailPage = () => {
         link.click();
         document.body.removeChild(link);
       } else {
-        alert('파일 다운로드 링크를 생성할 수 없습니다.');
+        alert('파일 다운로드 링크를 생성할 수 없습니다.\n\nStorage 설정 문제이거나 파일이 존재하지 않을 수 있습니다.');
       }
     } catch (error) {
       console.error('Download error:', error);
@@ -169,11 +175,9 @@ const AnnouncementDetailPage = () => {
               transition={{ duration: 0.8 }}
             >
               {/* Back Button */}
-              <Link href="/announcements">
-                <a className="inline-flex items-center text-primary hover:text-primary/80 mb-6">
-                  <FaArrowLeft className="mr-2" />
-                  목록으로 돌아가기
-                </a>
+              <Link href="/announcements" className="inline-flex items-center text-primary hover:text-primary/80 mb-6">
+                <FaArrowLeft className="mr-2" />
+                목록으로 돌아가기
               </Link>
 
               {/* Announcement Header */}
@@ -252,10 +256,8 @@ const AnnouncementDetailPage = () => {
 
               {/* Navigation Buttons */}
               <div className="mt-8 flex justify-between">
-                <Link href="/announcements">
-                  <a className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
-                    목록으로
-                  </a>
+                <Link href="/announcements" className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
+                  목록으로
                 </Link>
               </div>
             </motion.div>

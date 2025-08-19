@@ -101,6 +101,12 @@ const EditAnnouncementPage = () => {
           // 첨부파일 목록 새로 고침
           const attachmentData = await getAnnouncementAttachments(id as string);
           setExistingAttachments(attachmentData);
+          
+          if (uploadResult.usedFallback) {
+            alert('공지사항이 수정되었습니다.\n\n⚠️ 참고: Supabase Storage가 설정되지 않아 파일은 미리보기로만 저장되었습니다.\n실제 파일 다운로드 기능을 사용하려면 Storage 설정이 필요합니다.');
+            router.push('/admin/announcements');
+            return;
+          }
         }
       }
       

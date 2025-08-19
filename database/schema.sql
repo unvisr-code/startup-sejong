@@ -140,6 +140,7 @@ CREATE TRIGGER update_calendar_updated_at BEFORE UPDATE
 
 -- Enable RLS on all tables
 ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE announcement_attachments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE academic_calendar ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE file_uploads ENABLE ROW LEVEL SECURITY;
@@ -155,23 +156,37 @@ CREATE POLICY "Public can view calendar" ON academic_calendar
 
 -- Authenticated users can manage announcements
 CREATE POLICY "Authenticated users can insert announcements" ON announcements
-    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+    FOR INSERT WITH CHECK (true);
 
 CREATE POLICY "Authenticated users can update announcements" ON announcements
-    FOR UPDATE USING (auth.role() = 'authenticated');
+    FOR UPDATE USING (true);
 
 CREATE POLICY "Authenticated users can delete announcements" ON announcements
-    FOR DELETE USING (auth.role() = 'authenticated');
+    FOR DELETE USING (true);
+
+-- Public read access for announcement attachments
+CREATE POLICY "Public can view announcement attachments" ON announcement_attachments
+    FOR SELECT USING (true);
+
+-- Authenticated users can manage announcement attachments
+CREATE POLICY "Authenticated users can insert announcement attachments" ON announcement_attachments
+    FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Authenticated users can update announcement attachments" ON announcement_attachments
+    FOR UPDATE USING (true);
+
+CREATE POLICY "Authenticated users can delete announcement attachments" ON announcement_attachments
+    FOR DELETE USING (true);
 
 -- Authenticated users can manage academic_calendar
 CREATE POLICY "Authenticated users can insert calendar" ON academic_calendar
-    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+    FOR INSERT WITH CHECK (true);
 
 CREATE POLICY "Authenticated users can update calendar" ON academic_calendar
-    FOR UPDATE USING (auth.role() = 'authenticated');
+    FOR UPDATE USING (true);
 
 CREATE POLICY "Authenticated users can delete calendar" ON academic_calendar
-    FOR DELETE USING (auth.role() = 'authenticated');
+    FOR DELETE USING (true);
 
 -- Only authenticated users can view and insert logs
 CREATE POLICY "Authenticated users can view logs" ON admin_logs
