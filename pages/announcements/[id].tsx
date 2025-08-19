@@ -9,7 +9,7 @@ import { FaArrowLeft, FaCalendar, FaTag, FaDownload, FaPaperclip } from 'react-i
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { supabase, Announcement, AnnouncementAttachment } from '../../lib/supabase';
-import { getAnnouncementAttachments, getFileDownloadUrl, formatFileSize, getFileIcon } from '../../lib/fileUpload';
+import { getAnnouncementAttachments, downloadFile, formatFileSize, getFileIcon } from '../../lib/fileUpload';
 
 const AnnouncementDetailPage = () => {
   const router = useRouter();
@@ -73,7 +73,7 @@ const AnnouncementDetailPage = () => {
     }
   };
 
-  const handleFileDownload = async (attachment: AnnouncementAttachment) => {
+  const handleFileDownload = async (attachment: AnnouncementAttachment, event?: React.MouseEvent<HTMLButtonElement>) => {
     try {
       // Fallback 파일 확인
       if (attachment.file_path.startsWith('fallback/') || attachment.file_name.includes('(미리보기)')) {
@@ -81,16 +81,29 @@ const AnnouncementDetailPage = () => {
         return;
       }
       
-      const downloadUrl = await getFileDownloadUrl(attachment.file_path);
-      if (downloadUrl) {
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = attachment.file_name;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      // 다운로드 버튼 비활성화 (다운로드 중)
+      const downloadButton = event?.currentTarget as HTMLButtonElement;
+      if (downloadButton) {
+        downloadButton.disabled = true;
+        const originalContent = downloadButton.innerHTML;
+        downloadButton.textContent = '다운로드 중...';
+        
+        // 강제 다운로드 실행
+        const success = await downloadFile(attachment.file_path, attachment.file_name);
+        
+        // 버튼 원상 복구
+        downloadButton.disabled = false;
+        downloadButton.innerHTML = originalContent;
+        
+        if (!success) {
+          alert('파일 다운로드에 실패했습니다.\n\nStorage 설정을 확인하거나 관리자에게 문의해주세요.');
+        }
       } else {
-        alert('파일 다운로드 링크를 생성할 수 없습니다.\n\nStorage 설정 문제이거나 파일이 존재하지 않을 수 있습니다.');
+        // 버튼이 없으면 그냥 다운로드 시도
+        const success = await downloadFile(attachment.file_path, attachment.file_name);
+        if (!success) {
+          alert('파일 다운로드에 실패했습니다.\n\nStorage 설정을 확인하거나 관리자에게 문의해주세요.');
+        }
       }
     } catch (error) {
       console.error('Download error:', error);
@@ -241,7 +254,7 @@ const AnnouncementDetailPage = () => {
                             </div>
                           </div>
                           <button
-                            onClick={() => handleFileDownload(attachment)}
+                            onClick={(e) => handleFileDownload(attachment, e)}
                             className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
                           >
                             <FaDownload size={14} />

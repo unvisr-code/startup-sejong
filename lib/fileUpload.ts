@@ -393,6 +393,60 @@ export const getFileDownloadUrl = async (filePath: string): Promise<string | nul
   }
 };
 
+// 파일 강제 다운로드 (브라우저에서 열지 않고 다운로드)
+export const downloadFile = async (
+  filePath: string,
+  fileName: string
+): Promise<boolean> => {
+  try {
+    // Fallback 파일인지 확인
+    if (filePath.startsWith('fallback/')) {
+      console.warn('Fallback file cannot be downloaded');
+      return false;
+    }
+    
+    // 다운로드 URL 생성
+    const downloadUrl = await getFileDownloadUrl(filePath);
+    if (!downloadUrl) {
+      console.error('Failed to generate download URL');
+      return false;
+    }
+    
+    // Fetch를 사용하여 파일 데이터 가져오기
+    const response = await fetch(downloadUrl);
+    if (!response.ok) {
+      console.error('Failed to fetch file:', response.statusText);
+      return false;
+    }
+    
+    // Blob으로 변환
+    const blob = await response.blob();
+    
+    // Blob URL 생성
+    const blobUrl = window.URL.createObjectURL(blob);
+    
+    // 다운로드 링크 생성 및 클릭
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = fileName;
+    link.style.display = 'none';
+    
+    document.body.appendChild(link);
+    link.click();
+    
+    // 정리
+    setTimeout(() => {
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    }, 100);
+    
+    return true;
+  } catch (error) {
+    console.error('Download file error:', error);
+    return false;
+  }
+};
+
 // 공지사항의 모든 첨부파일 조회
 export const getAnnouncementAttachments = async (announcementId: string) => {
   try {
