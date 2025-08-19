@@ -130,6 +130,50 @@ export const getFileIcon = (mimeType: string): string => {
   return '📎';
 };
 
+// 이미지 파일 여부 확인
+export const isImageFile = (mimeType: string): boolean => {
+  return mimeType.startsWith('image/') && [
+    'image/jpeg',
+    'image/jpg', 
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml'
+  ].includes(mimeType.toLowerCase());
+};
+
+// 이미지 미리보기 URL 생성
+export const getImagePreviewUrl = async (filePath: string): Promise<string | null> => {
+  try {
+    // Fallback 파일인지 확인
+    if (filePath.startsWith('fallback/')) {
+      console.warn('Fallback file preview requested - no actual file available');
+      return null;
+    }
+    
+    const { data, error } = await supabase.storage
+      .from('announcement-attachments')
+      .createSignedUrl(filePath, 3600); // 1시간 유효
+    
+    if (error) {
+      console.error('Storage preview URL error:', error);
+      return null;
+    }
+    
+    return data?.signedUrl || null;
+  } catch (error) {
+    console.error('Get preview URL error:', error);
+    return null;
+  }
+};
+
+// 이미지 로드 상태 타입
+export interface ImageLoadState {
+  loading: boolean;
+  error: boolean;
+  url: string | null;
+}
+
 // 단일 파일 업로드
 export const uploadFile = async (
   file: File, 

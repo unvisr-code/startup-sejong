@@ -2,7 +2,15 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['www.instagram.com'],
+    domains: ['www.instagram.com', 'ihgojwljhbdrfmqhlspb.supabase.co'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/**',
+      },
+    ],
   },
   eslint: {
     ignoreDuringBuilds: true,

@@ -9,7 +9,9 @@ import { FaArrowLeft, FaCalendar, FaTag, FaDownload, FaPaperclip, FaEye, FaCloud
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { supabase, Announcement, AnnouncementAttachment } from '../../lib/supabase';
-import { getAnnouncementAttachments, downloadFile, formatFileSize, getFileIcon } from '../../lib/fileUpload';
+import { getAnnouncementAttachments, downloadFile, formatFileSize, getFileIcon, isImageFile, getImagePreviewUrl, ImageLoadState } from '../../lib/fileUpload';
+import ImageModal from '../../components/Common/ImageModal';
+import Image from 'next/image';
 
 const AnnouncementDetailPage = () => {
   const router = useRouter();
@@ -17,6 +19,9 @@ const AnnouncementDetailPage = () => {
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [attachments, setAttachments] = useState<AnnouncementAttachment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imageLoadStates, setImageLoadStates] = useState<{ [key: string]: ImageLoadState }>({});
 
   useEffect(() => {
     if (id) {
@@ -47,6 +52,31 @@ const AnnouncementDetailPage = () => {
       // 첨부파일 조회
       const attachmentData = await getAnnouncementAttachments(announcementId);
       setAttachments(attachmentData);
+      
+      // 이미지 파일들의 미리보기 URL 로드
+      const imageAttachments = attachmentData.filter(att => isImageFile(att.mime_type));
+      const loadStates: { [key: string]: ImageLoadState } = {};
+      
+      for (const attachment of imageAttachments) {
+        loadStates[attachment.id] = { loading: true, error: false, url: null };
+      }
+      setImageLoadStates(loadStates);
+      
+      // 이미지 URL들을 병렬로 로드
+      imageAttachments.forEach(async (attachment) => {
+        try {
+          const url = await getImagePreviewUrl(attachment.file_path);
+          setImageLoadStates(prev => ({
+            ...prev,
+            [attachment.id]: { loading: false, error: !url, url }
+          }));
+        } catch (error) {
+          setImageLoadStates(prev => ({
+            ...prev,
+            [attachment.id]: { loading: false, error: true, url: null }
+          }));
+        }
+      });
     } catch (error) {
       console.error('Error fetching announcement:', error);
       // Mock data for development
@@ -130,6 +160,27 @@ const AnnouncementDetailPage = () => {
       console.error('Download error:', error);
       alert('파일 다운로드 중 오류가 발생했습니다.');
     }
+  };
+
+  const handleImageClick = (attachment: AnnouncementAttachment) => {
+    const imageAttachments = attachments.filter(att => isImageFile(att.mime_type));
+    const index = imageAttachments.findIndex(img => img.id === attachment.id);
+    if (index !== -1) {
+      setCurrentImageIndex(index);
+      setImageModalOpen(true);
+    }
+  };
+
+  const handleImageModalClose = () => {
+    setImageModalOpen(false);
+  };
+
+  const handleImageChange = (index: number) => {
+    setCurrentImageIndex(index);
+  };
+
+  const handleModalDownload = (attachment: AnnouncementAttachment) => {
+    handleFileDownload(attachment);
   };
 
   const getCategoryColor = (category: string) => {
@@ -265,12 +316,49 @@ const AnnouncementDetailPage = () => {
                       {attachments.map((attachment) => (
                         <div
                           key={attachment.id}
-                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border hover:bg-gray-100 transition-colors"
+                          className={`flex items-center justify-between p-4 bg-gray-50 rounded-lg border transition-colors ${
+                            isImageFile(attachment.mime_type) 
+                              ? 'hover:bg-blue-50 cursor-pointer' 
+                              : 'hover:bg-gray-100'
+                          }`}
+                          onClick={() => {
+                            if (isImageFile(attachment.mime_type)) {
+                              handleImageClick(attachment);
+                            }
+                          }}
                         >
                           <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <span className="text-2xl">
-                              {getFileIcon(attachment.mime_type)}
-                            </span>
+                            {isImageFile(attachment.mime_type) ? (
+                              <div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border bg-gray-200">
+                                {imageLoadStates[attachment.id]?.loading && (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                  </div>
+                                )}
+                                {imageLoadStates[attachment.id]?.error && (
+                                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                    <span className="text-xl">{getFileIcon(attachment.mime_type)}</span>
+                                  </div>
+                                )}
+                                {imageLoadStates[attachment.id]?.url && !imageLoadStates[attachment.id]?.loading && !imageLoadStates[attachment.id]?.error && (
+                                  <img
+                                    src={imageLoadStates[attachment.id].url!}
+                                    alt={attachment.file_name}
+                                    className="w-full h-full object-cover"
+                                    onError={() => {
+                                      setImageLoadStates(prev => ({
+                                        ...prev,
+                                        [attachment.id]: { ...prev[attachment.id], error: true }
+                                      }));
+                                    }}
+                                  />
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-2xl">
+                                {getFileIcon(attachment.mime_type)}
+                              </span>
+                            )}
                             <div className="flex-1 min-w-0">
                               <p className="font-medium text-gray-900 truncate">
                                 {attachment.file_name}
@@ -287,7 +375,10 @@ const AnnouncementDetailPage = () => {
                             </div>
                           </div>
                           <button
-                            onClick={(e) => handleFileDownload(attachment, e)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleFileDownload(attachment, e);
+                            }}
                             className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
                           >
                             <FaDownload size={14} />
@@ -310,6 +401,16 @@ const AnnouncementDetailPage = () => {
           </div>
         </section>
       </main>
+
+      {/* 이미지 모달 */}
+      <ImageModal
+        isOpen={imageModalOpen}
+        onClose={handleImageModalClose}
+        images={attachments.filter(att => isImageFile(att.mime_type))}
+        currentIndex={currentImageIndex}
+        onImageChange={handleImageChange}
+        onDownload={handleModalDownload}
+      />
 
       <Footer />
     </>
