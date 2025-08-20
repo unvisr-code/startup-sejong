@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import 'react-quill/dist/quill.snow.css';
 
 // React Quill을 dynamic import로 불러오기 (SSR 문제 방지)
-const ReactQuill = dynamic(() => import('react-quill'), { 
-  ssr: false,
-  loading: () => <div className="h-64 bg-gray-50 rounded-lg animate-pulse" />
-});
+const ReactQuill = dynamic(
+  async () => {
+    const { default: RQ } = await import('react-quill');
+    // CSS를 dynamic import 내에서 처리
+    await import('react-quill/dist/quill.snow.css');
+    return RQ;
+  },
+  { 
+    ssr: false,
+    loading: () => <div className="h-64 bg-gray-50 rounded-lg animate-pulse" />
+  }
+);
 
 interface RichTextEditorProps {
   value: string;
@@ -22,6 +29,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   height = '400px'
 }) => {
   const [isClient, setIsClient] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -74,9 +82,26 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     return <div className="h-64 bg-gray-50 rounded-lg animate-pulse" />;
   }
 
-  return (
-    <div className="rich-text-editor">
-      <style dangerouslySetInnerHTML={{ __html: `
+  // 에러 발생 시 폴백 UI
+  if (isError) {
+    return (
+      <div className="border border-gray-300 rounded-lg p-4">
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full p-2 border-0 outline-none resize-none"
+          style={{ minHeight: height }}
+        />
+      </div>
+    );
+  }
+
+  // React Quill 렌더링을 try-catch로 감싸기
+  try {
+    return (
+      <div className="rich-text-editor">
+        <style dangerouslySetInnerHTML={{ __html: `
         .rich-text-editor .ql-toolbar {
           border: 1px solid #e5e7eb;
           border-radius: 0.5rem 0.5rem 0 0;
@@ -189,6 +214,21 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       </div>
     </div>
   );
+  } catch (error) {
+    console.error('RichTextEditor error:', error);
+    setIsError(true);
+    return (
+      <div className="border border-gray-300 rounded-lg p-4">
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full p-2 border-0 outline-none resize-none"
+          style={{ minHeight: height }}
+        />
+      </div>
+    );
+  }
 };
 
 export default RichTextEditor;
