@@ -35,41 +35,46 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     setIsClient(true);
   }, []);
 
-  // Quill 모듈 설정
+  // Quill 모듈 설정 - 더 많은 옵션 추가
   const modules = {
     toolbar: [
       // 제목 스타일
-      [{ 'header': [1, 2, 3, false] }],
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
       
       // 텍스트 스타일
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'color': [] }, { 'background': [] }],
       
       // 목록
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
       [{ 'indent': '-1'}, { 'indent': '+1' }],
       
-      // 정렬
-      [{ 'align': [] }],
+      // 정렬 - 모든 옵션 명시
+      [{ 'align': [] }, { 'align': 'center' }, { 'align': 'right' }, { 'align': 'justify' }],
       
-      // 링크와 이미지
-      ['link', 'image'],
+      // 링크와 미디어
+      ['link', 'image', 'video'],
       
       // 기타
       ['blockquote', 'code-block'],
+      [{ 'script': 'sub'}, { 'script': 'super' }],
       ['clean'] // 서식 지우기
-    ]
+    ],
+    clipboard: {
+      matchVisual: false // 붙여넣기 시 원본 스타일 유지
+    }
   };
 
-  // Quill 포맷 설정
+  // Quill 포맷 설정 - 모든 포맷 지원
   const formats = [
     'header',
     'bold', 'italic', 'underline', 'strike',
     'color', 'background',
-    'list', 'bullet', 'indent',
+    'list', 'bullet', 'check', 'indent',
     'align',
-    'link', 'image',
-    'blockquote', 'code-block'
+    'link', 'image', 'video',
+    'blockquote', 'code-block',
+    'script'
   ];
 
   // 커스텀 스타일
@@ -106,6 +111,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           border: 1px solid #e5e7eb;
           border-radius: 0.5rem 0.5rem 0 0;
           background-color: #f9fafb;
+          padding: 0.75rem !important;
         }
         
         .rich-text-editor .ql-container {
@@ -119,11 +125,25 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         .rich-text-editor .ql-editor {
           min-height: ${height};
           padding: 1rem;
+          line-height: 1.6;
         }
         
         .rich-text-editor .ql-editor.ql-blank::before {
           color: #9ca3af;
           font-style: normal;
+        }
+        
+        /* 정렬 스타일 */
+        .rich-text-editor .ql-editor .ql-align-center {
+          text-align: center;
+        }
+        
+        .rich-text-editor .ql-editor .ql-align-right {
+          text-align: right;
+        }
+        
+        .rich-text-editor .ql-editor .ql-align-justify {
+          text-align: justify;
         }
         
         .rich-text-editor .ql-editor h1 {
@@ -191,6 +211,22 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         .rich-text-editor .ql-toolbar .ql-picker-label:hover {
           background-color: #e5e7eb;
           border-radius: 0.25rem;
+        }
+        
+        /* 툴바 그룹 구분 */
+        .rich-text-editor .ql-toolbar .ql-formats {
+          margin-right: 15px !important;
+        }
+        
+        /* 툴바 버튼 크기 조정 */
+        .rich-text-editor .ql-toolbar button {
+          width: 28px !important;
+          height: 28px !important;
+        }
+        
+        /* 드롭다운 크기 조정 */
+        .rich-text-editor .ql-toolbar .ql-picker {
+          height: 28px !important;
         }
       ` }} />
       

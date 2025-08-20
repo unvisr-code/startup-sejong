@@ -271,7 +271,7 @@ const EditAnnouncementPage = () => {
                   {showPreview ? (
                     // 미리보기 모드
                     <div className="min-h-[400px] p-4 border border-gray-300 rounded-lg bg-gray-50">
-                      <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: editorContent || '<p class="text-gray-400">내용을 입력해주세요</p>' }} />
+                      <div className="prose max-w-none ql-content" dangerouslySetInnerHTML={{ __html: editorContent || '<p class="text-gray-400">내용을 입력해주세요</p>' }} />
                     </div>
                   ) : (
                     // 에디터 모드
@@ -431,9 +431,9 @@ const EditAnnouncementPage = () => {
 
                 {/* Content */}
                 <div 
-                  className="prose prose-sm max-w-none"
+                  className="prose prose-sm max-w-none ql-content"
                   dangerouslySetInnerHTML={{ 
-                    __html: content || '<p class="text-gray-400">내용을 입력하세요...</p>' 
+                    __html: editorContent || '<p class="text-gray-400">내용을 입력하세요...</p>' 
                   }}
                 />
               </div>

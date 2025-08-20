@@ -301,7 +301,7 @@ const AnnouncementDetailPage = () => {
 
                 {/* Announcement Content */}
                 <div 
-                  className="prose prose-lg max-w-none mb-8"
+                  className="prose prose-lg max-w-none mb-8 ql-content"
                   dangerouslySetInnerHTML={{ __html: announcement.content }}
                 />
 
