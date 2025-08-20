@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
-// React Quill을 dynamic import로 불러오기 (SSR 문제 방지)
+// React Quill New를 dynamic import로 불러오기 (React 19 지원)
 const ReactQuill = dynamic(
   async () => {
-    const { default: RQ } = await import('react-quill');
+    const { default: RQ } = await import('react-quill-new');
     // CSS를 dynamic import 내에서 처리
-    await import('react-quill/dist/quill.snow.css');
+    await import('react-quill-new/dist/quill.snow.css');
     return RQ;
   },
   { 
