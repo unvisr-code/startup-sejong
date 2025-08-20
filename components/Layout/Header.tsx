@@ -219,7 +219,10 @@ const Header = () => {
                     </Link>
                   )
                 ))}
-                <div className="px-4 py-3 border-t border-gray-100">
+                <div className="px-4 py-3 border-t border-gray-100 space-y-3">
+                  <div className="flex justify-center">
+                    <PushNotificationButton />
+                  </div>
                   <button
                     className="w-full bg-gradient-primary text-white text-center py-3 rounded-xl hover:shadow-lg transition-all duration-300 cursor-pointer font-medium focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                     onClick={handleApplyClick}
