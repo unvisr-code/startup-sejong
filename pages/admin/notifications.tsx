@@ -5,6 +5,7 @@ import { FaBell, FaPaperPlane, FaUsers, FaCheckCircle, FaExclamationTriangle, Fa
 import { supabase } from '../../lib/supabase';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import SubscribersModal from '../../components/Admin/SubscribersModal';
 
 interface NotificationForm {
   title: string;
@@ -45,6 +46,7 @@ const AdminNotificationsPage = () => {
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [showDebug, setShowDebug] = useState(false);
   const [showSubscriptionManager, setShowSubscriptionManager] = useState(false);
+  const [showSubscribersModal, setShowSubscribersModal] = useState(false);
   const [form, setForm] = useState<NotificationForm>({
     title: '',
     body: '',
@@ -321,11 +323,15 @@ const AdminNotificationsPage = () => {
       <AdminLayout title="푸시 알림 관리">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div 
+            className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => setShowSubscribersModal(true)}
+          >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">활성 구독자</p>
                 <p className="text-2xl font-bold text-gray-900">{subscriptionCount}</p>
+                <p className="text-xs text-gray-500 mt-1">클릭하여 상세보기</p>
               </div>
               <FaUsers className="text-3xl text-blue-500" />
             </div>
@@ -855,6 +861,14 @@ const AdminNotificationsPage = () => {
             <p>• HTTPS 환경에서만 푸시 알림이 작동합니다.</p>
           </div>
         </div>
+
+        {/* Subscribers Modal */}
+        <SubscribersModal
+          isOpen={showSubscribersModal}
+          onClose={() => setShowSubscribersModal(false)}
+          subscriptionCount={subscriptionCount}
+          onSubscriptionDeleted={fetchSubscriptionCount}
+        />
       </AdminLayout>
     </>
   );

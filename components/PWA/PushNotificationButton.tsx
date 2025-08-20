@@ -173,9 +173,9 @@ const PushNotificationButton: React.FC = () => {
       }`}
       title={isSubscribed ? '알림 구독 해제' : '알림 구독'}
     >
-      {isSubscribed ? <FaBell /> : <FaBellSlash />}
+      {isSubscribed ? <FaBell /> : <FaBell />}
       <span className="hidden sm:inline">
-        {loading ? '처리 중...' : isSubscribed ? '알림 ON' : '알림 OFF'}
+        {loading ? '처리 중...' : isSubscribed ? '알림 ON' : '알림 받기'}
       </span>
     </button>
   );
