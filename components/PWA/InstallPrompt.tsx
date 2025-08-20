@@ -155,9 +155,9 @@ const InstallPrompt: React.FC = () => {
                  browserInfo.isAndroid ? '안드로이드에 앱 추가하기' : '앱으로 설치하기'}
               </h3>
               <p className="text-gray-600 text-xs mt-1">
-                {showAutoPrompt ? '홈 화면에 추가하여 더 편리하게 이용하세요' :
-                 browserInfo.isIOS ? '사파리 메뉴에서 "홈 화면에 추가"를 선택하세요' :
-                 '브라우저 메뉴에서 "홈 화면에 추가"를 찾아보세요'}
+                {showAutoPrompt ? '홈 화면에 추가하여 푸시 알림을 받고 더 편리하게 이용하세요' :
+                 browserInfo.isIOS ? '홈 화면에 추가하면 푸시 알림을 받을 수 있습니다' :
+                 '앱을 설치하면 푸시 알림을 받을 수 있습니다'}
               </p>
             </div>
             <button

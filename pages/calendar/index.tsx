@@ -8,8 +8,10 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSam
 import { ko } from 'date-fns/locale';
 import { supabase, AcademicEvent } from '../../lib/supabase';
 import { downloadMonthlyICS, downloadSingleEventICS } from '../../lib/icsGenerator';
+import { useRouter } from 'next/router';
 
 const CalendarPage = () => {
+  const router = useRouter();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<AcademicEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +20,25 @@ const CalendarPage = () => {
   useEffect(() => {
     fetchEvents();
   }, []);
+
+  // Handle URL hash for direct event linking
+  useEffect(() => {
+    if (events.length > 0 && router.asPath.includes('#event-')) {
+      const eventId = router.asPath.split('#event-')[1];
+      const targetEvent = events.find(e => e.id === eventId);
+      
+      if (targetEvent) {
+        setSelectedEvent(targetEvent);
+        // Scroll to calendar section after a short delay
+        setTimeout(() => {
+          const calendarSection = document.getElementById('calendar-section');
+          if (calendarSection) {
+            calendarSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 500);
+      }
+    }
+  }, [events, router.asPath]);
 
   const fetchEvents = async () => {
     try {
@@ -259,7 +280,7 @@ const CalendarPage = () => {
                 <p className="mt-4 text-gray-600">학사일정을 불러오는 중...</p>
               </div>
             ) : (
-              <div className="grid lg:grid-cols-3 gap-8">
+              <div className="grid lg:grid-cols-3 gap-8" id="calendar-section">
                 {/* Calendar View */}
                 <div className="lg:col-span-2">
                   <div className="bg-white rounded-lg shadow-lg p-6">

@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import SubscribersModal from '../../components/Admin/SubscribersModal';
+import { formatNotificationBody } from '../../lib/utils';
 
 interface NotificationForm {
   title: string;
@@ -255,7 +256,7 @@ const AdminNotificationsPage = () => {
       if (announcement) {
         setForm({
           title: `[공지] ${announcement.title}`,
-          body: announcement.content.substring(0, 100) + '...',
+          body: formatNotificationBody(announcement.content, 100),
           url: `/announcements/${announcement.id}`,
           requireInteraction: announcement.category === 'important'
         });
@@ -264,10 +265,11 @@ const AdminNotificationsPage = () => {
       const event = recentCalendarEvents.find(e => e.id === id);
       if (event) {
         const startDate = format(new Date(event.start_date), 'MM월 dd일', { locale: ko });
+        const eventDescription = event.description || '새로운 일정이 등록되었습니다.';
         setForm({
           title: `[일정] ${event.title}`,
-          body: `${startDate} - ${event.description || '새로운 일정이 등록되었습니다.'}`.substring(0, 120),
-          url: '/calendar',
+          body: `${startDate} - ${formatNotificationBody(eventDescription, 80)}`,
+          url: `/calendar#event-${event.id}`,
           requireInteraction: event.event_type === 'exam' || event.event_type === 'application'
         });
       }

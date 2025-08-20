@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { FaSave, FaTimes } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 import { uploadMultipleFiles } from '../../../lib/fileUpload';
+import { formatNotificationBody } from '../../../lib/utils';
 
 interface AnnouncementForm {
   title: string;
@@ -77,7 +78,7 @@ const NewAnnouncementPage = () => {
             },
             body: JSON.stringify({
               title: `[공지] ${data.title}`,
-              body: data.content.substring(0, 100) + '...',
+              body: formatNotificationBody(data.content, 100),
               url: `/announcements/${announcement.id}`,
               requireInteraction: data.category === 'important',
               adminEmail: 'admin@sejong.ac.kr'
