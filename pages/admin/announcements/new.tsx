@@ -3,8 +3,9 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import AdminLayout from '../../../components/Admin/AdminLayout';
 import FileUpload from '../../../components/Admin/FileUpload';
+import RichTextEditor from '../../../components/Admin/RichTextEditor';
 import { useForm } from 'react-hook-form';
-import { FaSave, FaTimes } from 'react-icons/fa';
+import { FaSave, FaTimes, FaEye } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 import { uploadMultipleFiles } from '../../../lib/fileUpload';
 import { formatNotificationBody } from '../../../lib/utils';
@@ -22,7 +23,9 @@ const NewAnnouncementPage = () => {
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<AnnouncementForm>({
+  const [editorContent, setEditorContent] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
+  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<AnnouncementForm>({
     defaultValues: {
       category: 'general',
       is_pinned: false,
@@ -31,16 +34,22 @@ const NewAnnouncementPage = () => {
   });
 
   const onSubmit = async (data: AnnouncementForm) => {
+    // 에디터 내용 검증
+    if (!editorContent || editorContent === '<p><br></p>') {
+      alert('내용을 입력해주세요.');
+      return;
+    }
+    
     setLoading(true);
     setUploadProgress(0);
     
     try {
-      // 공지사항 먼저 생성
+      // 공지사항 먼저 생성 (에디터 내용 사용)
       const { data: announcement, error: announcementError } = await supabase
         .from('announcements')
         .insert([{
           title: data.title,
-          content: data.content,
+          content: editorContent, // 에디터 내용 사용
           category: data.category,
           is_pinned: data.is_pinned,
           author_email: 'admin@sejong.ac.kr'
@@ -78,7 +87,7 @@ const NewAnnouncementPage = () => {
             },
             body: JSON.stringify({
               title: `[공지] ${data.title}`,
-              body: formatNotificationBody(data.content, 100),
+              body: formatNotificationBody(editorContent, 100), // 에디터 내용 사용
               url: `/announcements/${announcement.id}`,
               requireInteraction: data.category === 'important',
               adminEmail: 'admin@sejong.ac.kr'
@@ -190,21 +199,38 @@ const NewAnnouncementPage = () => {
 
             {/* Content */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                내용 *
-              </label>
-              <textarea
-                {...register('content', { required: '내용을 입력해주세요' })}
-                rows={15}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="공지사항 내용을 입력하세요. HTML 태그를 사용할 수 있습니다."
-              />
-              {errors.content && (
-                <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  내용 *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPreview(!showPreview)}
+                  className="flex items-center gap-1 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  <FaEye />
+                  {showPreview ? '편집기' : '미리보기'}
+                </button>
+              </div>
+              
+              {showPreview ? (
+                // 미리보기 모드
+                <div className="min-h-[400px] p-4 border border-gray-300 rounded-lg bg-gray-50">
+                  <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: editorContent || '<p class="text-gray-400">내용을 입력해주세요</p>' }} />
+                </div>
+              ) : (
+                // 에디터 모드
+                <RichTextEditor
+                  value={editorContent}
+                  onChange={setEditorContent}
+                  placeholder="공지사항 내용을 입력하세요..."
+                  height="400px"
+                />
               )}
-              <p className="mt-1 text-sm text-gray-500">
-                HTML 태그 사용 가능 (예: &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;)
-              </p>
+              
+              {!editorContent && (
+                <p className="mt-1 text-sm text-red-600">내용을 입력해주세요</p>
+              )}
             </div>
 
             {/* File Upload */}
