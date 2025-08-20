@@ -24,6 +24,18 @@ const nextConfig = {
   },
   // Ensure proper handling of client-side code
   transpilePackages: [],
+  // Fix for Fast Refresh issues
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.watchOptions = {
+        ...config.watchOptions,
+        poll: 1000,
+        aggregateTimeout: 300,
+        ignored: /node_modules/,
+      }
+    }
+    return config
+  },
 }
 
 module.exports = nextConfig

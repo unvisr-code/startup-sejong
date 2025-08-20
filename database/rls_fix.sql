@@ -53,3 +53,46 @@ CREATE POLICY "Authenticated users can update calendar" ON academic_calendar
 
 CREATE POLICY "Authenticated users can delete calendar" ON academic_calendar
     FOR DELETE USING (true);
+
+-- =====================================================
+-- push_subscriptions 테이블 RLS 정책
+-- =====================================================
+-- Push 알림을 위한 RLS 정책 설정
+
+-- 기존 정책 삭제
+DROP POLICY IF EXISTS "Anyone can view active subscriptions" ON push_subscriptions;
+DROP POLICY IF EXISTS "Anyone can create subscriptions" ON push_subscriptions;
+DROP POLICY IF EXISTS "Service role can manage all subscriptions" ON push_subscriptions;
+
+-- 새로운 정책 생성
+-- 1. 누구나 활성 구독을 조회할 수 있음 (개발환경용)
+CREATE POLICY "Anyone can view active subscriptions" ON push_subscriptions
+    FOR SELECT USING (is_active = true);
+
+-- 2. 누구나 구독을 생성할 수 있음 (사용자가 알림 구독 시)
+CREATE POLICY "Anyone can create subscriptions" ON push_subscriptions
+    FOR INSERT WITH CHECK (true);
+
+-- 3. 누구나 자신의 구독을 업데이트할 수 있음 (endpoint 기준)
+CREATE POLICY "Anyone can update own subscription" ON push_subscriptions
+    FOR UPDATE USING (true);
+
+-- 4. 누구나 자신의 구독을 삭제할 수 있음
+CREATE POLICY "Anyone can delete own subscription" ON push_subscriptions
+    FOR DELETE USING (true);
+
+-- notifications 테이블 정책 (선택사항)
+DROP POLICY IF EXISTS "Anyone can view notifications" ON notifications;
+DROP POLICY IF EXISTS "Service role can manage notifications" ON notifications;
+
+CREATE POLICY "Anyone can view notifications" ON notifications
+    FOR SELECT USING (true);
+
+CREATE POLICY "Service role can manage notifications" ON notifications
+    FOR ALL USING (true);
+
+-- notification_delivery_log 테이블 정책 (선택사항)
+DROP POLICY IF EXISTS "Service role can manage delivery logs" ON notification_delivery_log;
+
+CREATE POLICY "Service role can manage delivery logs" ON notification_delivery_log
+    FOR ALL USING (true);

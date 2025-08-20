@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import webpush from 'web-push';
 import { supabase } from '../../../lib/supabase';
+import { supabaseAdmin } from '../../../lib/supabaseAdmin';
 
 // Validate VAPID configuration
 const validateVapidConfig = () => {
@@ -39,6 +40,18 @@ interface PushNotificationData {
   requireInteraction?: boolean;
 }
 
+interface PushSubscriptionRecord {
+  id: string;
+  endpoint: string;
+  p256dh_key: string;
+  auth_key: string;
+  user_agent?: string;
+  ip_address?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -68,11 +81,13 @@ export default async function handler(
 
     console.log('Push notification request:', { title, body, url, adminEmail });
 
-    // Get all active subscriptions
-    const { data: subscriptions, error: fetchError } = await supabase
+    // Get all active subscriptions using Admin client to bypass RLS
+    const { data: subscriptions, error: fetchError } = await supabaseAdmin
       .from('push_subscriptions')
       .select('*')
       .eq('is_active', true);
+    
+    console.log('Active subscriptions found:', subscriptions?.length || 0);
 
     if (fetchError) {
       console.error('Error fetching subscriptions:', fetchError);
@@ -103,7 +118,7 @@ export default async function handler(
     }
 
     // Create notification record
-    const { data: notification, error: notificationError } = await supabase
+    const { data: notification, error: notificationError } = await supabaseAdmin
       .from('notifications')
       .insert({
         title,
@@ -136,7 +151,7 @@ export default async function handler(
     });
 
     // Send push notifications to all subscriptions
-    const sendPromises = subscriptions.map(async (subscription) => {
+    const sendPromises = subscriptions.map(async (subscription: PushSubscriptionRecord) => {
       try {
         const pushSubscription = {
           endpoint: subscription.endpoint,
@@ -146,11 +161,13 @@ export default async function handler(
           }
         };
 
+        console.log(`Sending to subscription ${subscription.id}...`);
         await webpush.sendNotification(pushSubscription, payload);
+        console.log(`✅ Successfully sent to ${subscription.id}`);
         
         // Log successful delivery (with error handling)
         try {
-          await supabase
+          await supabaseAdmin
             .from('notification_delivery_log')
             .insert({
               notification_id: notification.id,
@@ -164,11 +181,17 @@ export default async function handler(
 
         return { success: true, subscriptionId: subscription.id };
       } catch (error: any) {
-        console.error('Push send error:', error);
+        console.error(`❌ Failed to send to ${subscription.id}:`, error.message);
+        console.error('Error details:', {
+          statusCode: error.statusCode,
+          headers: error.headers,
+          body: error.body,
+          endpoint: subscription.endpoint.substring(0, 50) + '...'
+        });
         
         // Log failed delivery (with error handling)
         try {
-          await supabase
+          await supabaseAdmin
             .from('notification_delivery_log')
             .insert({
               notification_id: notification.id,
@@ -183,7 +206,8 @@ export default async function handler(
 
         // Check if subscription is invalid and mark as inactive
         if (error.statusCode === 410 || error.statusCode === 404) {
-          await supabase
+          console.log(`Marking subscription ${subscription.id} as inactive (${error.statusCode})`);
+          await supabaseAdmin
             .from('push_subscriptions')
             .update({ is_active: false })
             .eq('id', subscription.id);
@@ -196,9 +220,14 @@ export default async function handler(
     const results = await Promise.all(sendPromises);
     const successCount = results.filter(r => r.success).length;
     const errorCount = results.filter(r => !r.success).length;
+    
+    console.log('\n📊 Push notification results:');
+    console.log(`✅ Success: ${successCount}`);
+    console.log(`❌ Failed: ${errorCount}`);
+    console.log(`📝 Total: ${subscriptions.length}`);
 
     // Update notification stats
-    await supabase
+    await supabaseAdmin
       .from('notifications')
       .update({
         success_count: successCount,
