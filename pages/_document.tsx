@@ -17,7 +17,7 @@ export default function Document() {
         <meta name="theme-color" content="#3b82f6" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="세종창업" />
+        <meta name="apple-mobile-web-app-title" content="융합창업전공" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         
         {/* PWA Icons for various devices */}

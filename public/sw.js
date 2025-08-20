@@ -124,13 +124,20 @@ self.addEventListener('push', (event) => {
   }
 
   const title = data.title || '세종대 융합창업연계전공';
+  
+  // 미리보기와 동일한 형식으로 body 구성
+  let bodyText = data.body || '새로운 알림이 있습니다.';
+  
   const options = {
-    body: data.body || '새로운 알림이 있습니다.',
+    body: bodyText,
     icon: data.icon || '/icons/icon-192x192.png',
     badge: data.badge || '/icons/icon-72x72.png',
-    tag: data.tag || 'notification',
+    tag: data.tag || `notification-${Date.now()}`, // 각 알림이 고유하도록
     requireInteraction: data.requireInteraction || false,
     vibrate: data.vibrate || [200, 100, 200],
+    silent: false, // 소리 재생
+    renotify: true, // 같은 태그여도 다시 알림
+    timestamp: Date.now(), // 알림 시간 표시
     actions: data.actions || [
       {
         action: 'open',

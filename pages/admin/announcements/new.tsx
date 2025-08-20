@@ -13,6 +13,7 @@ interface AnnouncementForm {
   content: string;
   category: 'general' | 'important' | 'academic' | 'event';
   is_pinned: boolean;
+  send_push: boolean;
 }
 
 const NewAnnouncementPage = () => {
@@ -23,7 +24,8 @@ const NewAnnouncementPage = () => {
   const { register, handleSubmit, formState: { errors }, watch } = useForm<AnnouncementForm>({
     defaultValues: {
       category: 'general',
-      is_pinned: false
+      is_pinned: false,
+      send_push: false
     }
   });
 
@@ -65,7 +67,37 @@ const NewAnnouncementPage = () => {
         }
       }
 
-      alert('공지사항이 성공적으로 작성되었습니다.');
+      // 푸시 알림 발송
+      if (data.send_push) {
+        try {
+          const pushResponse = await fetch('/api/push/send', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              title: `[공지] ${data.title}`,
+              body: data.content.substring(0, 100) + '...',
+              url: `/announcements/${announcement.id}`,
+              requireInteraction: data.category === 'important',
+              adminEmail: 'admin@sejong.ac.kr'
+            }),
+          });
+
+          const pushResult = await pushResponse.json();
+          if (pushResponse.ok) {
+            alert(`공지사항이 성공적으로 작성되었습니다.\n\n푸시 알림이 ${pushResult.sent}명에게 발송되었습니다.`);
+          } else {
+            alert(`공지사항은 작성되었으나 푸시 알림 발송에 실패했습니다.\n${pushResult.error || '오류가 발생했습니다.'}`);
+          }
+        } catch (error) {
+          console.error('Push notification error:', error);
+          alert('공지사항은 작성되었으나 푸시 알림 발송에 실패했습니다.');
+        }
+      } else {
+        alert('공지사항이 성공적으로 작성되었습니다.');
+      }
+      
       router.push('/admin/announcements');
     } catch (error) {
       console.error('Error creating announcement:', error);
@@ -133,6 +165,23 @@ const NewAnnouncementPage = () => {
                   />
                   <span className="text-sm text-gray-600">
                     이 공지사항을 목록 상단에 고정합니다
+                  </span>
+                </div>
+              </div>
+
+              {/* Push Notification */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  푸시 알림
+                </label>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    {...register('send_push')}
+                    className="mr-2 h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  />
+                  <span className="text-sm text-gray-600">
+                    이 공지사항을 푸시 알림으로 발송합니다
                   </span>
                 </div>
               </div>

@@ -15,6 +15,7 @@ interface AnnouncementForm {
   content: string;
   category: 'general' | 'important' | 'academic' | 'event';
   is_pinned: boolean;
+  send_push: boolean;
 }
 
 const EditAnnouncementPage = () => {
@@ -50,7 +51,8 @@ const EditAnnouncementPage = () => {
           title: data.title,
           content: data.content,
           category: data.category,
-          is_pinned: data.is_pinned
+          is_pinned: data.is_pinned,
+          send_push: false // 수정 시에는 기본적으로 false
         });
         
         // 첨부파일 조회

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import AdminLayout from '../../components/Admin/AdminLayout';
-import { FaBell, FaPaperPlane, FaUsers, FaCheckCircle, FaExclamationTriangle, FaEye, FaCog, FaDatabase, FaKey, FaTrash, FaSync } from 'react-icons/fa';
+import { FaBell, FaPaperPlane, FaUsers, FaCheckCircle, FaExclamationTriangle, FaEye, FaCog, FaDatabase, FaKey, FaTrash, FaSync, FaCalendarAlt, FaBullhorn } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -47,6 +47,10 @@ const AdminNotificationsPage = () => {
   const [showDebug, setShowDebug] = useState(false);
   const [showSubscriptionManager, setShowSubscriptionManager] = useState(false);
   const [showSubscribersModal, setShowSubscribersModal] = useState(false);
+  const [recentAnnouncements, setRecentAnnouncements] = useState<any[]>([]);
+  const [recentCalendarEvents, setRecentCalendarEvents] = useState<any[]>([]);
+  const [selectedContent, setSelectedContent] = useState<'custom' | 'announcement' | 'calendar'>('custom');
+  const [selectedItemId, setSelectedItemId] = useState<string>('');
   const [form, setForm] = useState<NotificationForm>({
     title: '',
     body: '',
@@ -58,6 +62,7 @@ const AdminNotificationsPage = () => {
     fetchSubscriptionCount();
     fetchNotificationHistory();
     fetchSystemStatus();
+    fetchRecentContent();
   }, []);
 
   const fetchSystemStatus = async () => {
@@ -211,6 +216,61 @@ const AdminNotificationsPage = () => {
       console.error('Error fetching notifications:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRecentContent = async () => {
+    try {
+      // 최근 공지사항 가져오기
+      const { data: announcements, error: announcementsError } = await supabase
+        .from('announcements')
+        .select('id, title, content, category, created_at')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (announcementsError) throw announcementsError;
+      setRecentAnnouncements(announcements || []);
+
+      // 최근 학사일정 가져오기
+      const { data: events, error: eventsError } = await supabase
+        .from('academic_calendar')
+        .select('id, title, description, start_date, end_date, event_type')
+        .gte('start_date', new Date().toISOString().split('T')[0])
+        .order('start_date', { ascending: true })
+        .limit(10);
+
+      if (eventsError) throw eventsError;
+      setRecentCalendarEvents(events || []);
+    } catch (error) {
+      console.error('Error fetching recent content:', error);
+    }
+  };
+
+  const handleContentSelection = (type: 'announcement' | 'calendar', id: string) => {
+    setSelectedContent(type);
+    setSelectedItemId(id);
+
+    if (type === 'announcement') {
+      const announcement = recentAnnouncements.find(a => a.id === id);
+      if (announcement) {
+        setForm({
+          title: `[공지] ${announcement.title}`,
+          body: announcement.content.substring(0, 100) + '...',
+          url: `/announcements/${announcement.id}`,
+          requireInteraction: announcement.category === 'important'
+        });
+      }
+    } else if (type === 'calendar') {
+      const event = recentCalendarEvents.find(e => e.id === id);
+      if (event) {
+        const startDate = format(new Date(event.start_date), 'MM월 dd일', { locale: ko });
+        setForm({
+          title: `[일정] ${event.title}`,
+          body: `${startDate} - ${event.description || '새로운 일정이 등록되었습니다.'}`.substring(0, 120),
+          url: '/calendar',
+          requireInteraction: event.event_type === 'exam' || event.event_type === 'application'
+        });
+      }
     }
   };
 
@@ -685,6 +745,95 @@ const AdminNotificationsPage = () => {
             </h2>
 
             <form onSubmit={handleSendNotification} className="space-y-4">
+              {/* Content Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  알림 유형
+                </label>
+                <div className="flex gap-2 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedContent('custom');
+                      setSelectedItemId('');
+                    }}
+                    className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                      selectedContent === 'custom' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    직접 작성
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedContent('announcement')}
+                    className={`px-3 py-1 text-sm rounded-lg transition-colors flex items-center gap-1 ${
+                      selectedContent === 'announcement' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <FaBullhorn className="text-xs" />
+                    공지사항 선택
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedContent('calendar')}
+                    className={`px-3 py-1 text-sm rounded-lg transition-colors flex items-center gap-1 ${
+                      selectedContent === 'calendar' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <FaCalendarAlt className="text-xs" />
+                    일정 선택
+                  </button>
+                </div>
+
+                {/* Announcement Selection */}
+                {selectedContent === 'announcement' && (
+                  <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                    <label className="block text-xs font-medium text-blue-700 mb-2">
+                      최근 공지사항
+                    </label>
+                    <select
+                      value={selectedItemId}
+                      onChange={(e) => handleContentSelection('announcement', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">선택하세요</option>
+                      {recentAnnouncements.map((announcement) => (
+                        <option key={announcement.id} value={announcement.id}>
+                          [{announcement.category}] {announcement.title.substring(0, 30)}...
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Calendar Event Selection */}
+                {selectedContent === 'calendar' && (
+                  <div className="bg-green-50 rounded-lg p-3 mb-3">
+                    <label className="block text-xs font-medium text-green-700 mb-2">
+                      예정된 일정
+                    </label>
+                    <select
+                      value={selectedItemId}
+                      onChange={(e) => handleContentSelection('calendar', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="">선택하세요</option>
+                      {recentCalendarEvents.map((event) => (
+                        <option key={event.id} value={event.id}>
+                          [{format(new Date(event.start_date), 'MM/dd', { locale: ko })}] {event.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   제목 *
