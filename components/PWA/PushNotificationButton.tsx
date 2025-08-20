@@ -119,19 +119,23 @@ const PushNotificationButton: React.FC = () => {
   // Show platform compatibility error  
   if (error?.includes('아이폰') || error?.includes('브라우저')) {
     return (
-      <div className="flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg cursor-not-allowed" title={error}>
-        <FaExclamationTriangle />
-        <span className="hidden sm:inline">호환성 제한</span>
-      </div>
+      <button
+        onClick={() => alert(error)}
+        className="flex items-center gap-2 px-3 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm hover:bg-yellow-200 transition-colors"
+        title={error}
+      >
+        <FaBell className="flex-shrink-0" />
+        <span>알림 안내</span>
+      </button>
     );
   }
 
   // Show configuration error state
   if (!isConfigured || error?.includes('VAPID')) {
     return (
-      <div className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg cursor-not-allowed" title="설정 오류">
-        <FaExclamationTriangle />
-        <span className="hidden sm:inline">설정 오류</span>
+      <div className="flex items-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg cursor-not-allowed text-sm" title="설정 오류">
+        <FaExclamationTriangle className="flex-shrink-0" />
+        <span>설정 오류</span>
       </div>
     );
   }
@@ -142,11 +146,11 @@ const PushNotificationButton: React.FC = () => {
       <button
         onClick={handlePermissionRequest}
         disabled={loading}
-        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+        className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 text-sm sm:text-base"
         title="알림 허용"
       >
-        <FaBell />
-        <span className="hidden sm:inline">알림 받기</span>
+        <FaBell className="flex-shrink-0" />
+        <span>알림 받기</span>
       </button>
     );
   }
@@ -154,9 +158,9 @@ const PushNotificationButton: React.FC = () => {
   // Show denied state
   if (permission === 'denied') {
     return (
-      <div className="flex items-center gap-2 px-4 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed" title="알림이 차단됨">
-        <FaBellSlash />
-        <span className="hidden sm:inline">알림 차단됨</span>
+      <div className="flex items-center gap-2 px-3 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed text-sm" title="알림이 차단됨">
+        <FaBellSlash className="flex-shrink-0" />
+        <span>알림 차단됨</span>
       </div>
     );
   }
@@ -166,15 +170,15 @@ const PushNotificationButton: React.FC = () => {
     <button
       onClick={isSubscribed ? handleUnsubscribe : handleSubscribe}
       disabled={loading}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 ${
+      className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition-colors disabled:opacity-50 text-sm sm:text-base ${
         isSubscribed 
           ? 'bg-green-600 text-white hover:bg-green-700' 
           : 'bg-blue-600 text-white hover:bg-blue-700'
       }`}
       title={isSubscribed ? '알림 구독 해제' : '알림 구독'}
     >
-      {isSubscribed ? <FaBell /> : <FaBell />}
-      <span className="hidden sm:inline">
+      <FaBell className="flex-shrink-0" />
+      <span>
         {loading ? '처리 중...' : isSubscribed ? '알림 ON' : '알림 받기'}
       </span>
     </button>
