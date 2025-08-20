@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import AdminLayout from '../../components/Admin/AdminLayout';
-import { FaBell, FaPaperPlane, FaUsers, FaCheckCircle, FaExclamationTriangle, FaEye, FaCog, FaDatabase, FaKey } from 'react-icons/fa';
+import { FaBell, FaPaperPlane, FaUsers, FaCheckCircle, FaExclamationTriangle, FaEye, FaCog, FaDatabase, FaKey, FaTrash, FaSync } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -44,6 +44,7 @@ const AdminNotificationsPage = () => {
   const [notifications, setNotifications] = useState<NotificationHistory[]>([]);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
   const [showDebug, setShowDebug] = useState(false);
+  const [showSubscriptionManager, setShowSubscriptionManager] = useState(false);
   const [form, setForm] = useState<NotificationForm>({
     title: '',
     body: '',
@@ -102,6 +103,44 @@ const AdminNotificationsPage = () => {
     } catch (error: any) {
       console.error('Setup tables error:', error);
       alert(`❌ 테이블 설정 중 오류 발생\n\n${error.message}\n\n수동으로 database/push_notifications.sql을 Supabase SQL Editor에서 실행해주세요.`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearSubscriptions = async (action: string) => {
+    const confirmMessages: { [key: string]: string } = {
+      'clear-inactive': '비활성 구독을 모두 삭제하시겠습니까?',
+      'clear-old': '30일 이상된 구독을 모두 삭제하시겠습니까?',
+      'clear-all': '⚠️ 모든 구독을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다!',
+      'mark-inactive': '모든 구독을 비활성화하시겠습니까?'
+    };
+    
+    if (!confirm(confirmMessages[action])) {
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const response = await fetch('/api/push/clear-subscriptions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert(`✅ ${result.message}\n남은 활성 구독: ${result.remainingActiveSubscriptions}개`);
+        await fetchSubscriptionCount();
+      } else {
+        alert(`❌ 실패: ${result.error}`);
+      }
+    } catch (error: any) {
+      console.error('Clear subscriptions error:', error);
+      alert(`❌ 오류 발생: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -319,6 +358,79 @@ const AdminNotificationsPage = () => {
               </div>
               <FaCheckCircle className="text-3xl text-emerald-500" />
             </div>
+          </div>
+        </div>
+
+        {/* Subscription Management Panel */}
+        <div className="mb-6">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <FaUsers className="text-blue-500" />
+                구독 관리
+              </h2>
+              <button
+                onClick={() => setShowSubscriptionManager(!showSubscriptionManager)}
+                className="flex items-center gap-2 px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                <FaCog />
+                {showSubscriptionManager ? '숨기기' : '관리 도구'}
+              </button>
+            </div>
+            
+            {showSubscriptionManager && (
+              <div className="space-y-4">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p className="text-sm text-yellow-800 mb-3">
+                    ⚠️ 주의: VAPID 키를 변경한 경우 기존 구독이 작동하지 않을 수 있습니다.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => handleClearSubscriptions('clear-inactive')}
+                      disabled={loading}
+                      className="px-3 py-1 text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded transition-colors disabled:opacity-50"
+                    >
+                      <FaTrash className="inline mr-1" />
+                      비활성 구독 삭제
+                    </button>
+                    <button
+                      onClick={() => handleClearSubscriptions('clear-old')}
+                      disabled={loading}
+                      className="px-3 py-1 text-xs bg-orange-100 hover:bg-orange-200 text-orange-700 rounded transition-colors disabled:opacity-50"
+                    >
+                      <FaTrash className="inline mr-1" />
+                      30일 이상된 구독 삭제
+                    </button>
+                    <button
+                      onClick={() => handleClearSubscriptions('mark-inactive')}
+                      disabled={loading}
+                      className="px-3 py-1 text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 rounded transition-colors disabled:opacity-50"
+                    >
+                      <FaSync className="inline mr-1" />
+                      모든 구독 비활성화
+                    </button>
+                    <button
+                      onClick={() => handleClearSubscriptions('clear-all')}
+                      disabled={loading}
+                      className="px-3 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded transition-colors disabled:opacity-50"
+                    >
+                      <FaTrash className="inline mr-1" />
+                      모든 구독 삭제 (위험!)
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <h4 className="font-semibold text-blue-800 mb-2">구독 재등록 안내</h4>
+                  <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
+                    <li>위에서 기존 구독을 정리합니다</li>
+                    <li>메인 페이지에서 "알림 받기" 버튼 클릭</li>
+                    <li>브라우저 알림 권한 허용</li>
+                    <li>새로운 VAPID 키로 구독 완료</li>
+                  </ol>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

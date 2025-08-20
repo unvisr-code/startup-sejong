@@ -9,14 +9,23 @@ const validateVapidConfig = () => {
   const privateKey = process.env.VAPID_PRIVATE_KEY;
   const email = process.env.VAPID_EMAIL;
 
+  console.log('🔍 VAPID Config Check:');
+  console.log(`  Public Key: ${publicKey ? `${publicKey.substring(0, 20)}...` : 'MISSING'}`);
+  console.log(`  Private Key: ${privateKey ? `${privateKey.substring(0, 10)}... (${privateKey.length} chars)` : 'MISSING'}`);
+  console.log(`  Email: ${email || 'MISSING'}`);
+
   if (!publicKey || publicKey.length < 20) {
-    throw new Error('VAPID_PUBLIC_KEY is missing or invalid');
+    throw new Error(`VAPID_PUBLIC_KEY is missing or invalid (length: ${publicKey?.length || 0})`);
   }
   if (!privateKey || privateKey.length < 20) {
-    throw new Error('VAPID_PRIVATE_KEY is missing or invalid');
+    throw new Error(`VAPID_PRIVATE_KEY is missing or invalid (length: ${privateKey?.length || 0})`);
   }
-  if (!email || !email.includes('@')) {
-    throw new Error('VAPID_EMAIL is missing or invalid');
+  if (!email) {
+    throw new Error('VAPID_EMAIL is missing');
+  }
+  if (!email.startsWith('mailto:')) {
+    console.warn('⚠️ VAPID_EMAIL should start with "mailto:" - fixing automatically');
+    return { publicKey, privateKey, email: `mailto:${email}` };
   }
 
   return { publicKey, privateKey, email };
@@ -26,9 +35,11 @@ const validateVapidConfig = () => {
 try {
   const { publicKey, privateKey, email } = validateVapidConfig();
   webpush.setVapidDetails(email, publicKey, privateKey);
-  console.log('VAPID configuration successful');
-} catch (error) {
-  console.error('VAPID configuration failed:', error);
+  console.log('✅ VAPID configuration successful');
+  console.log(`  Email: ${email}`);
+} catch (error: any) {
+  console.error('❌ VAPID configuration failed:', error.message);
+  console.error('  Please check your environment variables');
 }
 
 interface PushNotificationData {
@@ -79,7 +90,12 @@ export default async function handler(
       return res.status(400).json({ error: 'Title and body are required' });
     }
 
-    console.log('Push notification request:', { title, body, url, adminEmail });
+    console.log('\n🔔 ===========================================');
+    console.log('🔔 Push Notification Request');
+    console.log('🔔 ===========================================');
+    console.log('📝 Content:', { title, body, url, adminEmail });
+    console.log('🌍 Environment:', process.env.NODE_ENV);
+    console.log('🔑 Service Role Key:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
 
     // Get all active subscriptions using Admin client to bypass RLS
     const { data: subscriptions, error: fetchError } = await supabaseAdmin
@@ -161,9 +177,13 @@ export default async function handler(
           }
         };
 
-        console.log(`Sending to subscription ${subscription.id}...`);
-        await webpush.sendNotification(pushSubscription, payload);
+        console.log(`📤 Sending to subscription ${subscription.id}...`);
+        console.log(`  Endpoint: ${subscription.endpoint.substring(0, 60)}...`);
+        
+        const result = await webpush.sendNotification(pushSubscription, payload);
         console.log(`✅ Successfully sent to ${subscription.id}`);
+        console.log(`  Status: ${result.statusCode}`);
+        console.log(`  Headers:`, result.headers);
         
         // Log successful delivery (with error handling)
         try {
@@ -182,12 +202,24 @@ export default async function handler(
         return { success: true, subscriptionId: subscription.id };
       } catch (error: any) {
         console.error(`❌ Failed to send to ${subscription.id}:`, error.message);
-        console.error('Error details:', {
+        console.error('  Error details:', {
           statusCode: error.statusCode,
           headers: error.headers,
           body: error.body,
-          endpoint: subscription.endpoint.substring(0, 50) + '...'
+          endpoint: subscription.endpoint.substring(0, 50) + '...',
+          stack: error.stack?.split('\n').slice(0, 3).join('\n')
         });
+        
+        // Log specific error types
+        if (error.statusCode === 401) {
+          console.error('  🔐 Authentication error - check VAPID keys');
+        } else if (error.statusCode === 410) {
+          console.error('  🗑️ Subscription expired - will mark as inactive');
+        } else if (error.statusCode === 404) {
+          console.error('  ❓ Subscription not found - endpoint invalid');
+        } else if (error.statusCode === 400) {
+          console.error('  ⚠️ Bad request - check payload format');
+        }
         
         // Log failed delivery (with error handling)
         try {
@@ -221,10 +253,22 @@ export default async function handler(
     const successCount = results.filter(r => r.success).length;
     const errorCount = results.filter(r => !r.success).length;
     
-    console.log('\n📊 Push notification results:');
-    console.log(`✅ Success: ${successCount}`);
-    console.log(`❌ Failed: ${errorCount}`);
-    console.log(`📝 Total: ${subscriptions.length}`);
+    console.log('\n📊 ===========================================');
+    console.log('📊 Push Notification Results');
+    console.log('📊 ===========================================');
+    console.log(`✅ Success: ${successCount}/${subscriptions.length}`);
+    console.log(`❌ Failed: ${errorCount}/${subscriptions.length}`);
+    console.log(`📝 Success Rate: ${subscriptions.length > 0 ? Math.round((successCount / subscriptions.length) * 100) : 0}%`);
+    
+    // Log failed subscription IDs for debugging
+    const failedSubs = results.filter(r => !r.success);
+    if (failedSubs.length > 0) {
+      console.log('\n❌ Failed Subscriptions:');
+      failedSubs.forEach(sub => {
+        console.log(`  - ${sub.subscriptionId}: ${sub.error}`);
+      });
+    }
+    console.log('===========================================\n');
 
     // Update notification stats
     await supabaseAdmin
