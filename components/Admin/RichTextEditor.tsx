@@ -76,7 +76,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   return (
     <div className="rich-text-editor">
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .rich-text-editor .ql-toolbar {
           border: 1px solid #e5e7eb;
           border-radius: 0.5rem 0.5rem 0 0;
@@ -167,7 +167,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           background-color: #e5e7eb;
           border-radius: 0.25rem;
         }
-      `}</style>
+      ` }} />
       
       <ReactQuill
         theme="snow"

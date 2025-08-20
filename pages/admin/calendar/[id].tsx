@@ -4,7 +4,7 @@ import Head from 'next/head';
 import AdminLayout from '../../../components/Admin/AdminLayout';
 import { useForm } from 'react-hook-form';
 import { FaSave, FaTimes, FaCalendarAlt, FaStar } from 'react-icons/fa';
-import { supabase, AcademicEvent } from '../../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 import { format } from 'date-fns';
 
 interface CalendarForm {
