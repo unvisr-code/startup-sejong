@@ -14,6 +14,7 @@ interface CalendarForm {
   description: string;
   location: string;
   is_important: boolean;
+  send_push: boolean;
 }
 
 const NewCalendarEventPage = () => {
@@ -22,7 +23,8 @@ const NewCalendarEventPage = () => {
   const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<CalendarForm>({
     defaultValues: {
       event_type: 'other',
-      is_important: false
+      is_important: false,
+      send_push: false
     }
   });
 
@@ -39,17 +41,66 @@ const NewCalendarEventPage = () => {
     setLoading(true);
     
     try {
-      const { error } = await supabase
+      const { data: calendarEvent, error } = await supabase
         .from('academic_calendar')
         .insert([{
-          ...data,
+          title: data.title,
+          start_date: data.start_date,
+          end_date: data.end_date,
+          event_type: data.event_type,
+          description: data.description,
+          location: data.location,
+          is_important: data.is_important,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
-        }]);
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
       
-      alert('일정이 추가되었습니다.');
+      // 푸시 알림 발송
+      if (data.send_push) {
+        try {
+          const eventTypeLabel = {
+            'semester': '학기',
+            'exam': '시험',
+            'holiday': '휴일',
+            'application': '신청',
+            'other': '일정'
+          }[data.event_type] || '일정';
+
+          const notificationBody = data.description || 
+            `${data.start_date === data.end_date ? data.start_date : `${data.start_date} ~ ${data.end_date}`}${data.location ? `, ${data.location}` : ''}`;
+
+          const pushResponse = await fetch('/api/push/send', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              title: `[${eventTypeLabel}] ${data.title}`,
+              body: notificationBody,
+              url: `/calendar#event-${calendarEvent.id}`,
+              requireInteraction: data.is_important,
+              adminEmail: 'admin@sejong.ac.kr'
+            }),
+          });
+
+          const pushResult = await pushResponse.json();
+          if (pushResponse.ok) {
+            alert(`일정이 추가되었습니다.\n\n푸시 알림이 ${pushResult.sent}명에게 발송되었습니다.`);
+          } else {
+            alert(`일정은 추가되었으나 푸시 알림 발송에 실패했습니다.\n${pushResult.error || '오류가 발생했습니다.'}`);
+          }
+        } catch (error) {
+          console.error('Push notification error:', error);
+          alert('일정은 추가되었으나 푸시 알림 발송에 실패했습니다.');
+        }
+      } else {
+        alert('일정이 추가되었습니다.');
+      }
+      
       router.push('/admin/calendar');
     } catch (error) {
       console.error('Error creating calendar event:', error);
@@ -171,6 +222,23 @@ const NewCalendarEventPage = () => {
                       이 일정을 중요 일정으로 표시합니다
                     </span>
                   </div>
+                </div>
+              </div>
+
+              {/* Push Notification */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  푸시 알림
+                </label>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    {...register('send_push')}
+                    className="mr-2 h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  />
+                  <span className="text-sm text-gray-600">
+                    이 일정을 푸시 알림으로 발송합니다
+                  </span>
                 </div>
               </div>
 
