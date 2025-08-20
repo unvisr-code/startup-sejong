@@ -111,9 +111,23 @@ const PushNotificationButton: React.FC = () => {
     }
   };
 
-  // Don't show button if not on client or notifications are not supported
-  if (!isClient || typeof window === 'undefined' || !('Notification' in window) || !('serviceWorker' in navigator)) {
+  // Don't show button if not on client
+  if (!isClient || typeof window === 'undefined') {
     return null;
+  }
+
+  // Show compatibility message for unsupported browsers
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+    return (
+      <button
+        onClick={() => alert('이 브라우저는 알림을 지원하지 않습니다.\n\n• iOS: Safari에서 홈 화면에 추가 후 사용해주세요\n• Android: Chrome 브라우저를 사용해주세요')}
+        className="flex items-center gap-2 px-3 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm hover:bg-yellow-200 transition-colors"
+        title="알림 미지원"
+      >
+        <FaBell className="flex-shrink-0" />
+        <span>알림 안내</span>
+      </button>
+    );
   }
 
   // Show platform compatibility error  

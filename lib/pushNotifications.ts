@@ -24,15 +24,16 @@ export const getVapidError = (): string | null => {
 
 // Detect browser and platform
 export const getBrowserInfo = () => {
-  if (typeof window === 'undefined') return { isIOS: false, isSafari: false, isAndroid: false, isChrome: false };
+  if (typeof window === 'undefined') return { isIOS: false, isSafari: false, isAndroid: false, isChrome: false, isIOSChrome: false };
   
   const userAgent = navigator.userAgent.toLowerCase();
-  const isIOS = /iphone|ipad|ipod/.test(userAgent);
-  const isSafari = /safari/.test(userAgent) && !/chrome/.test(userAgent);
+  const isIOS = /iphone|ipad|ipod/.test(userAgent) || (navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform));
+  const isSafari = /safari/.test(userAgent) && !/chrome/.test(userAgent) && !/crios/.test(userAgent);
   const isAndroid = /android/.test(userAgent);
   const isChrome = /chrome/.test(userAgent) && !/edg/.test(userAgent);
+  const isIOSChrome = isIOS && /crios/.test(userAgent); // Chrome on iOS
   
-  return { isIOS, isSafari, isAndroid, isChrome };
+  return { isIOS, isSafari, isAndroid, isChrome, isIOSChrome };
 };
 
 // Check if push notifications are supported
@@ -53,13 +54,23 @@ export const isPushSupported = (): boolean => {
 
 // Get platform-specific error messages
 export const getPlatformError = (): string | null => {
-  const { isIOS, isSafari, isAndroid } = getBrowserInfo();
+  const { isIOS, isSafari, isAndroid, isIOSChrome } = getBrowserInfo();
+  
+  // iOS Chrome cannot support push notifications due to iOS restrictions
+  if (isIOSChrome) {
+    return '아이폰 Chrome에서는 알림이 지원되지 않습니다. Safari에서 홈 화면에 추가 후 사용해주세요.';
+  }
   
   if (isIOS && isSafari) {
     const isStandalone = (window.navigator as any).standalone === true;
     if (!isStandalone) {
       return '아이폰에서는 홈 화면에 추가한 후 알림을 사용할 수 있습니다. Safari 메뉴 > 홈 화면에 추가를 선택해주세요.';
     }
+  }
+  
+  // iOS other browsers
+  if (isIOS && !isSafari) {
+    return '아이폰에서는 Safari 브라우저에서 홈 화면에 추가한 후 알림을 사용할 수 있습니다.';
   }
   
   if (!isPushSupported()) {
