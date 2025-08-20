@@ -35,29 +35,28 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     setIsClient(true);
   }, []);
 
-  // Quill 모듈 설정 - 더 많은 옵션 추가
+  // Quill 모듈 설정 - react-quill-new에서 지원되는 기능만 사용
   const modules = {
     toolbar: [
       // 제목 스타일
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'header': [1, 2, 3, false] }],
       
       // 텍스트 스타일
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'color': [] }, { 'background': [] }],
       
-      // 목록
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
+      // 목록 - check는 지원되지 않을 수 있으므로 제거
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       [{ 'indent': '-1'}, { 'indent': '+1' }],
       
-      // 정렬 - 모든 옵션 명시
-      [{ 'align': [] }, { 'align': 'center' }, { 'align': 'right' }, { 'align': 'justify' }],
+      // 정렬
+      [{ 'align': [] }],
       
       // 링크와 미디어
-      ['link', 'image', 'video'],
+      ['link', 'image'],
       
       // 기타
       ['blockquote', 'code-block'],
-      [{ 'script': 'sub'}, { 'script': 'super' }],
       ['clean'] // 서식 지우기
     ],
     clipboard: {
@@ -65,16 +64,15 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   };
 
-  // Quill 포맷 설정 - 모든 포맷 지원
+  // Quill 포맷 설정 - 지원되는 포맷만 포함
   const formats = [
     'header',
     'bold', 'italic', 'underline', 'strike',
     'color', 'background',
-    'list', 'bullet', 'check', 'indent',
+    'list', 'bullet', 'indent',
     'align',
-    'link', 'image', 'video',
-    'blockquote', 'code-block',
-    'script'
+    'link', 'image',
+    'blockquote', 'code-block'
   ];
 
   // 커스텀 스타일

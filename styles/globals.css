@@ -42,173 +42,419 @@
   }
 }
 
-/* Quill Editor Content Styles */
+/* Quill Editor Content Styles - Complete Rewrite for Actual Quill Structure */
+
+/* Base text alignment classes for Quill content */
+.ql-content .ql-align-center,
+.ql-editor .ql-align-center,
+.prose .ql-align-center {
+  text-align: center !important;
+}
+
+.ql-content .ql-align-right,
+.ql-editor .ql-align-right,
+.prose .ql-align-right {
+  text-align: right !important;
+}
+
+.ql-content .ql-align-justify,
+.ql-editor .ql-align-justify,
+.prose .ql-align-justify {
+  text-align: justify !important;
+}
+
+/* Quill List Styles - Data List Based */
+.ql-content li,
+.ql-editor li,
+.prose li {
+  list-style: none !important;
+  padding-left: 1.5em !important;
+  position: relative !important;
+  margin: 0.5em 0 !important;
+  line-height: 1.6 !important;
+}
+
+.ql-content li > .ql-ui,
+.ql-editor li > .ql-ui,
+.prose li > .ql-ui {
+  position: absolute !important;
+  left: 0 !important;
+  width: 1.2em !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+
+.ql-content li > .ql-ui:before,
+.ql-editor li > .ql-ui:before,
+.prose li > .ql-ui:before {
+  display: inline-block !important;
+  margin-right: 0.3em !important;
+  font-size: 1em !important;
+  line-height: 1.6 !important;
+}
+
+/* Bullet Lists */
+.ql-content li[data-list="bullet"] > .ql-ui:before,
+.ql-editor li[data-list="bullet"] > .ql-ui:before,
+.prose li[data-list="bullet"] > .ql-ui:before {
+  content: '•' !important;
+  font-weight: bold !important;
+}
+
+/* Ordered Lists */
+.ql-content li[data-list="ordered"],
+.ql-editor li[data-list="ordered"],
+.prose li[data-list="ordered"] {
+  counter-increment: list-counter !important;
+}
+
+.ql-content li[data-list="ordered"] > .ql-ui:before,
+.ql-editor li[data-list="ordered"] > .ql-ui:before,
+.prose li[data-list="ordered"] > .ql-ui:before {
+  content: counter(list-counter) '. ' !important;
+}
+
+/* Reset counter at the beginning of ordered lists */
 .ql-content,
 .ql-editor,
 .prose {
-  /* Text Alignment */
-  .ql-align-center {
-    text-align: center !important;
-  }
-  
-  .ql-align-right {
-    text-align: right !important;
-  }
-  
-  .ql-align-justify {
-    text-align: justify !important;
-  }
+  counter-reset: list-counter !important;
+}
 
-  /* Lists */
-  ul, ol {
-    padding-left: 1.5em !important;
-    margin: 1em 0 !important;
-  }
+/* Checkbox Lists */
+.ql-content li[data-list="checked"] > .ql-ui,
+.ql-editor li[data-list="checked"] > .ql-ui,
+.prose li[data-list="checked"] > .ql-ui,
+.ql-content li[data-list="unchecked"] > .ql-ui,
+.ql-editor li[data-list="unchecked"] > .ql-ui,
+.prose li[data-list="unchecked"] > .ql-ui {
+  color: #777 !important;
+  cursor: pointer !important;
+}
 
-  ul {
-    list-style-type: disc !important;
-  }
+.ql-content li[data-list="checked"] > .ql-ui:before,
+.ql-editor li[data-list="checked"] > .ql-ui:before,
+.prose li[data-list="checked"] > .ql-ui:before {
+  content: '☑' !important;
+  font-size: 1.1em !important;
+}
 
-  ul ul {
-    list-style-type: circle !important;
-  }
+.ql-content li[data-list="unchecked"] > .ql-ui:before,
+.ql-editor li[data-list="unchecked"] > .ql-ui:before,
+.prose li[data-list="unchecked"] > .ql-ui:before {
+  content: '☐' !important;
+  font-size: 1.1em !important;
+}
 
-  ul ul ul {
-    list-style-type: square !important;
-  }
+/* Blockquote */
+.ql-content blockquote,
+.ql-editor blockquote,
+.prose blockquote {
+  border-left: 4px solid #e5e7eb !important;
+  padding-left: 1em !important;
+  margin: 1.5em 0 !important;
+  color: #6b7280 !important;
+  font-style: italic !important;
+  background-color: #f9fafb !important;
+  padding: 1em !important;
+  border-radius: 0.25rem !important;
+}
 
-  ol {
-    list-style-type: decimal !important;
-  }
+/* Code Block */
+.ql-content pre,
+.ql-editor pre,
+.prose pre,
+.ql-content .ql-code-block-container,
+.ql-editor .ql-code-block-container,
+.prose .ql-code-block-container {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+  padding: 1em !important;
+  border-radius: 0.375rem !important;
+  overflow-x: auto !important;
+  margin: 1em 0 !important;
+  font-family: 'Monaco', 'Courier New', monospace !important;
+  font-size: 0.9em !important;
+}
 
-  li {
-    margin: 0.5em 0 !important;
-  }
+.ql-content code,
+.ql-editor code,
+.prose code {
+  background-color: #f3f4f6 !important;
+  color: #dc2626 !important;
+  padding: 0.2em 0.4em !important;
+  border-radius: 0.25rem !important;
+  font-size: 0.9em !important;
+  font-family: 'Monaco', 'Courier New', monospace !important;
+}
 
-  /* Blockquote */
-  blockquote {
-    border-left: 4px solid #e5e7eb !important;
-    padding-left: 1em !important;
-    margin: 1.5em 0 !important;
-    color: #6b7280 !important;
-    font-style: italic !important;
-    background-color: #f9fafb !important;
-    padding: 1em !important;
-    border-radius: 0.25rem !important;
-  }
+.ql-content pre code,
+.ql-editor pre code,
+.prose pre code,
+.ql-content .ql-code-block-container code,
+.ql-editor .ql-code-block-container code,
+.prose .ql-code-block-container code {
+  background-color: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+}
 
-  /* Code Block */
-  pre {
-    background-color: #1e293b !important;
-    color: #e2e8f0 !important;
-    padding: 1em !important;
-    border-radius: 0.375rem !important;
-    overflow-x: auto !important;
-    margin: 1em 0 !important;
-    font-family: 'Courier New', Courier, monospace !important;
-  }
+/* Headers */
+.ql-content h1,
+.ql-editor h1,
+.prose h1 {
+  font-size: 2em !important;
+  font-weight: bold !important;
+  margin: 0.67em 0 !important;
+  line-height: 1.2 !important;
+}
 
-  code {
-    background-color: #f3f4f6 !important;
-    color: #dc2626 !important;
-    padding: 0.2em 0.4em !important;
-    border-radius: 0.25rem !important;
-    font-size: 0.9em !important;
-  }
+.ql-content h2,
+.ql-editor h2,
+.prose h2 {
+  font-size: 1.5em !important;
+  font-weight: bold !important;
+  margin: 0.83em 0 !important;
+  line-height: 1.3 !important;
+}
 
-  pre code {
-    background-color: transparent !important;
-    color: inherit !important;
-    padding: 0 !important;
-  }
+.ql-content h3,
+.ql-editor h3,
+.prose h3 {
+  font-size: 1.17em !important;
+  font-weight: bold !important;
+  margin: 1em 0 !important;
+  line-height: 1.4 !important;
+}
 
-  /* Headers */
-  h1 {
-    font-size: 2em !important;
-    font-weight: bold !important;
-    margin: 0.67em 0 !important;
-    line-height: 1.2 !important;
-  }
+.ql-content h4,
+.ql-editor h4,
+.prose h4 {
+  font-size: 1em !important;
+  font-weight: bold !important;
+  margin: 1.33em 0 !important;
+}
 
-  h2 {
-    font-size: 1.5em !important;
-    font-weight: bold !important;
-    margin: 0.83em 0 !important;
-    line-height: 1.3 !important;
-  }
+.ql-content h5,
+.ql-editor h5,
+.prose h5 {
+  font-size: 0.83em !important;
+  font-weight: bold !important;
+  margin: 1.67em 0 !important;
+}
 
-  h3 {
-    font-size: 1.17em !important;
-    font-weight: bold !important;
-    margin: 1em 0 !important;
-    line-height: 1.4 !important;
-  }
+.ql-content h6,
+.ql-editor h6,
+.prose h6 {
+  font-size: 0.67em !important;
+  font-weight: bold !important;
+  margin: 2.33em 0 !important;
+}
 
-  /* Paragraph */
-  p {
-    margin: 1em 0 !important;
-    line-height: 1.6 !important;
-  }
+/* Paragraph */
+.ql-content p,
+.ql-editor p,
+.prose p {
+  margin: 1em 0 !important;
+  line-height: 1.6 !important;
+}
 
-  /* Links */
-  a {
-    color: #2563eb !important;
-    text-decoration: underline !important;
-  }
+/* Links */
+.ql-content a,
+.ql-editor a,
+.prose a {
+  color: #2563eb !important;
+  text-decoration: underline !important;
+}
 
-  a:hover {
-    color: #1d4ed8 !important;
-  }
+.ql-content a:hover,
+.ql-editor a:hover,
+.prose a:hover {
+  color: #1d4ed8 !important;
+}
 
-  /* Images */
-  img {
-    max-width: 100% !important;
-    height: auto !important;
-    display: block !important;
-    margin: 1em auto !important;
-    border-radius: 0.375rem !important;
-  }
+/* Images and Videos */
+.ql-content img,
+.ql-editor img,
+.prose img,
+.ql-content .ql-video,
+.ql-editor .ql-video,
+.prose .ql-video {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block !important;
+  margin: 1em auto !important;
+  border-radius: 0.375rem !important;
+}
 
-  /* Text Styles */
-  strong, b {
-    font-weight: bold !important;
-  }
+.ql-content .ql-video.ql-align-center,
+.ql-editor .ql-video.ql-align-center,
+.prose .ql-video.ql-align-center {
+  margin: 1em auto !important;
+}
 
-  em, i {
-    font-style: italic !important;
-  }
+.ql-content .ql-video.ql-align-right,
+.ql-editor .ql-video.ql-align-right,
+.prose .ql-video.ql-align-right {
+  margin: 1em 0 1em auto !important;
+}
 
-  u {
-    text-decoration: underline !important;
-  }
+/* Text Styles */
+.ql-content strong,
+.ql-editor strong,
+.prose strong,
+.ql-content b,
+.ql-editor b,
+.prose b {
+  font-weight: bold !important;
+}
 
-  s, strike {
-    text-decoration: line-through !important;
-  }
+.ql-content em,
+.ql-editor em,
+.prose em,
+.ql-content i,
+.ql-editor i,
+.prose i {
+  font-style: italic !important;
+}
 
-  /* Indent */
-  .ql-indent-1 {
-    padding-left: 3em !important;
-  }
-  .ql-indent-2 {
-    padding-left: 6em !important;
-  }
-  .ql-indent-3 {
-    padding-left: 9em !important;
-  }
-  .ql-indent-4 {
-    padding-left: 12em !important;
-  }
-  .ql-indent-5 {
-    padding-left: 15em !important;
-  }
-  .ql-indent-6 {
-    padding-left: 18em !important;
-  }
-  .ql-indent-7 {
-    padding-left: 21em !important;
-  }
-  .ql-indent-8 {
-    padding-left: 24em !important;
-  }
+.ql-content u,
+.ql-editor u,
+.prose u {
+  text-decoration: underline !important;
+}
+
+.ql-content s,
+.ql-editor s,
+.prose s,
+.ql-content strike,
+.ql-editor strike,
+.prose strike {
+  text-decoration: line-through !important;
+}
+
+/* Script styles */
+.ql-content .ql-script-sub,
+.ql-editor .ql-script-sub,
+.prose .ql-script-sub {
+  vertical-align: sub !important;
+  font-size: smaller !important;
+}
+
+.ql-content .ql-script-super,
+.ql-editor .ql-script-super,
+.prose .ql-script-super {
+  vertical-align: super !important;
+  font-size: smaller !important;
+}
+
+/* Indent Classes */
+.ql-content .ql-indent-1,
+.ql-editor .ql-indent-1,
+.prose .ql-indent-1 {
+  padding-left: 3em !important;
+}
+
+.ql-content li.ql-indent-1,
+.ql-editor li.ql-indent-1,
+.prose li.ql-indent-1 {
+  padding-left: 4.5em !important;
+}
+
+.ql-content .ql-indent-2,
+.ql-editor .ql-indent-2,
+.prose .ql-indent-2 {
+  padding-left: 6em !important;
+}
+
+.ql-content li.ql-indent-2,
+.ql-editor li.ql-indent-2,
+.prose li.ql-indent-2 {
+  padding-left: 7.5em !important;
+}
+
+.ql-content .ql-indent-3,
+.ql-editor .ql-indent-3,
+.prose .ql-indent-3 {
+  padding-left: 9em !important;
+}
+
+.ql-content li.ql-indent-3,
+.ql-editor li.ql-indent-3,
+.prose li.ql-indent-3 {
+  padding-left: 10.5em !important;
+}
+
+/* Color classes */
+.ql-content .ql-color-red,
+.ql-editor .ql-color-red,
+.prose .ql-color-red {
+  color: #e60000 !important;
+}
+
+.ql-content .ql-color-orange,
+.ql-editor .ql-color-orange,
+.prose .ql-color-orange {
+  color: #ff9900 !important;
+}
+
+.ql-content .ql-color-yellow,
+.ql-editor .ql-color-yellow,
+.prose .ql-color-yellow {
+  color: #ffff00 !important;
+}
+
+.ql-content .ql-color-green,
+.ql-editor .ql-color-green,
+.prose .ql-color-green {
+  color: #008a00 !important;
+}
+
+.ql-content .ql-color-blue,
+.ql-editor .ql-color-blue,
+.prose .ql-color-blue {
+  color: #0066cc !important;
+}
+
+.ql-content .ql-color-purple,
+.ql-editor .ql-color-purple,
+.prose .ql-color-purple {
+  color: #9933ff !important;
+}
+
+/* Background colors */
+.ql-content .ql-bg-red,
+.ql-editor .ql-bg-red,
+.prose .ql-bg-red {
+  background-color: #e60000 !important;
+}
+
+.ql-content .ql-bg-orange,
+.ql-editor .ql-bg-orange,
+.prose .ql-bg-orange {
+  background-color: #ff9900 !important;
+}
+
+.ql-content .ql-bg-yellow,
+.ql-editor .ql-bg-yellow,
+.prose .ql-bg-yellow {
+  background-color: #ffff00 !important;
+}
+
+.ql-content .ql-bg-green,
+.ql-editor .ql-bg-green,
+.prose .ql-bg-green {
+  background-color: #008a00 !important;
+}
+
+.ql-content .ql-bg-blue,
+.ql-editor .ql-bg-blue,
+.prose .ql-bg-blue {
+  background-color: #0066cc !important;
+}
+
+.ql-content .ql-bg-purple,
+.ql-editor .ql-bg-purple,
+.prose .ql-bg-purple {
+  background-color: #9933ff !important;
 }
