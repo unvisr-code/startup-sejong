@@ -36,7 +36,10 @@ const PushNotificationButton: React.FC = () => {
         setError(getVapidError());
       } else {
         checkSubscriptionStatus();
-        setPermission(Notification.permission);
+        // Only access Notification.permission if API exists
+        if ('Notification' in window) {
+          setPermission(Notification.permission);
+        }
       }
     }
   }, []);
@@ -116,11 +119,41 @@ const PushNotificationButton: React.FC = () => {
     return null;
   }
 
-  // Show compatibility message for unsupported browsers
+  // Check iOS first (before Notification API check)
+  const browserInfo = getBrowserInfo();
+  const isIOS = browserInfo.isIOS;
+  
+  // Show iOS-specific message
+  if (isIOS) {
+    const isStandalone = (window.navigator as any).standalone === true;
+    
+    // If running as PWA on iOS, try to show normal button
+    if (isStandalone && 'serviceWorker' in navigator && 'PushManager' in window) {
+      // Continue to normal flow
+    } else {
+      // Show guidance for iOS users
+      const message = browserInfo.isSafari 
+        ? '아이폰에서 알림을 받으려면:\n1. Safari 공유 버튼 탭\n2. "홈 화면에 추가" 선택\n3. 추가된 앱에서 알림 설정'
+        : '아이폰에서는 Safari 브라우저를 사용해주세요.\n\nSafari에서:\n1. 공유 버튼 탭\n2. "홈 화면에 추가" 선택';
+      
+      return (
+        <button
+          onClick={() => alert(message)}
+          className="flex items-center gap-2 px-3 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm hover:bg-yellow-200 transition-colors"
+          title="알림 안내"
+        >
+          <FaBell className="flex-shrink-0" />
+          <span>알림 안내</span>
+        </button>
+      );
+    }
+  }
+
+  // Show compatibility message for unsupported browsers (non-iOS)
   if (!('Notification' in window) || !('serviceWorker' in navigator)) {
     return (
       <button
-        onClick={() => alert('이 브라우저는 알림을 지원하지 않습니다.\n\n• iOS: Safari에서 홈 화면에 추가 후 사용해주세요\n• Android: Chrome 브라우저를 사용해주세요')}
+        onClick={() => alert('이 브라우저는 알림을 지원하지 않습니다.\n\nChrome 또는 Firefox 브라우저를 사용해주세요.')}
         className="flex items-center gap-2 px-3 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm hover:bg-yellow-200 transition-colors"
         title="알림 미지원"
       >
@@ -130,8 +163,8 @@ const PushNotificationButton: React.FC = () => {
     );
   }
 
-  // Show platform compatibility error  
-  if (error?.includes('아이폰') || error?.includes('브라우저')) {
+  // Show platform compatibility error (for other cases)
+  if (error?.includes('브라우저')) {
     return (
       <button
         onClick={() => alert(error)}
