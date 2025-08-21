@@ -1,6 +1,6 @@
 // Service Worker for 세종대 융합창업연계전공 PWA
-const CACHE_NAME = 'sejong-startup-v4-tracking-2024-08-21';
-const SW_VERSION = 'v4.0.0-tracking-fixed';
+const CACHE_NAME = 'sejong-startup-v5-debug-2024-08-21';
+const SW_VERSION = 'v5.0.0-debug-tracking';
 
 console.log(`🚀 Service Worker ${SW_VERSION} initializing...`);
 const urlsToCache = [
@@ -122,13 +122,15 @@ self.addEventListener('activate', (event) => {
 
 // Push event - handle push notifications
 self.addEventListener('push', (event) => {
-  console.log('Push event received:', event);
+  console.log(`📨 [SW ${SW_VERSION}] Push event received`);
   
   let data = {};
   if (event.data) {
     try {
       data = event.data.json();
-      console.log('Push data:', data);
+      console.log('📨 Push data parsed:', data);
+      console.log('📨 Has primaryKey:', !!data.primaryKey);
+      console.log('📨 Has subscriptionId:', !!data.subscriptionId);
     } catch (e) {
       console.warn('Failed to parse push data as JSON, using text:', e);
       data = {
