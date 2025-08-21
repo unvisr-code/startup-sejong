@@ -198,7 +198,7 @@ const NewAnnouncementPage = () => {
             </div>
 
             {/* Content */}
-            <div>
+            <div className="mb-12">
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-medium text-gray-700">
                   내용 *
@@ -245,6 +245,9 @@ const NewAnnouncementPage = () => {
               />
               <p className="mt-1 text-sm text-gray-500">
                 최대 5개 파일, 각 파일 최대 10MB
+              </p>
+              <p className="mt-2 text-xs text-blue-600">
+                💡 Tip: 이미지는 에디터에서 직접 드래그 앤 드롭하거나 이미지 버튼을 사용할 수도 있습니다
               </p>
             </div>
 

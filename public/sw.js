@@ -1,5 +1,5 @@
 // Service Worker for 세종대 융합창업연계전공 PWA
-const CACHE_NAME = 'sejong-startup-v1';
+const CACHE_NAME = 'sejong-startup-v2-no-admin-cache';
 const urlsToCache = [
   '/',
   '/announcements',
@@ -32,6 +32,21 @@ self.addEventListener('install', (event) => {
 self.addEventListener('fetch', (event) => {
   // Skip non-GET requests and cross-origin requests
   if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  // Skip caching for admin APIs - always fetch from network
+  if (event.request.url.includes('/api/push/') || 
+      event.request.url.includes('/admin/') ||
+      event.request.url.includes('_next/static/webpack') ||
+      event.request.url.includes('calculate-open-rates')) {
+    event.respondWith(
+      fetch(event.request)
+        .catch((error) => {
+          console.error('Network fetch failed for admin API:', error);
+          throw error;
+        })
+    );
     return;
   }
 
@@ -168,17 +183,78 @@ self.addEventListener('push', (event) => {
 
 // Notification click event
 self.addEventListener('notificationclick', (event) => {
-  console.log('Notification click received.');
+  console.log('🔔 Notification click received');
+  console.log('📋 Full notification data:', event.notification);
+  console.log('📋 Notification.data:', event.notification.data);
 
   event.notification.close();
 
   if (event.action === 'close') {
+    console.log('👋 User chose to close notification');
     return;
   }
 
-  const url = event.notification.data.url;
+  const url = event.notification.data?.url || '/';
+  const notificationId = event.notification.data?.primaryKey;
+  const subscriptionId = event.notification.data?.subscriptionId;
+
+  console.log('📱 Extracted data:', { 
+    notificationId, 
+    subscriptionId, 
+    url,
+    hasNotificationId: !!notificationId,
+    hasSubscriptionId: !!subscriptionId
+  });
+
+  // If we don't have required tracking data, still open the URL but log the issue
+  if (!notificationId || !subscriptionId) {
+    console.warn('⚠️ Missing tracking data:', { 
+      notificationId: notificationId || 'MISSING', 
+      subscriptionId: subscriptionId || 'MISSING' 
+    });
+  }
+
   event.waitUntil(
-    clients.openWindow(url)
+    Promise.all([
+      // Always open the page
+      clients.openWindow(url).then(() => {
+        console.log('✅ Successfully opened URL:', url);
+      }).catch(error => {
+        console.error('❌ Failed to open URL:', error);
+      }),
+      
+      // Track the notification open only if we have the required data
+      (notificationId && subscriptionId) ? 
+        fetch('/api/push/track-open', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            notificationId: notificationId,
+            subscriptionId: subscriptionId
+          })
+        })
+        .then(response => {
+          console.log('📊 Track-open API response status:', response.status);
+          return response.json();
+        })
+        .then(data => {
+          console.log('📊 Track-open API response data:', data);
+          if (data.success) {
+            console.log('✅ Successfully tracked notification open');
+          } else {
+            console.warn('⚠️ Track-open API returned success: false', data);
+          }
+        })
+        .catch(error => {
+          console.error('❌ Error tracking notification open:', error);
+          // Don't block the user experience if tracking fails
+        })
+        : Promise.resolve().then(() => {
+          console.warn('⚠️ Skipping tracking due to missing data');
+        })
+    ])
   );
 });
 

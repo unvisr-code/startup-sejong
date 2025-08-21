@@ -154,8 +154,8 @@ export default async function handler(
       return res.status(500).json({ error: 'Failed to create notification record' });
     }
 
-    // Prepare push payload
-    const payload = JSON.stringify({
+    // Prepare push payload template
+    const createPayload = (subscriptionId: string) => JSON.stringify({
       title,
       body,
       icon: icon || '/icons/icon-192x192.png',
@@ -163,7 +163,8 @@ export default async function handler(
       url: url || '/',
       tag: tag || 'admin-notification',
       requireInteraction: requireInteraction || false,
-      primaryKey: notification.id
+      primaryKey: notification.id,
+      subscriptionId: subscriptionId
     });
 
     // Send push notifications to all subscriptions
@@ -180,6 +181,8 @@ export default async function handler(
         console.log(`📤 Sending to subscription ${subscription.id}...`);
         console.log(`  Endpoint: ${subscription.endpoint.substring(0, 60)}...`);
         
+        // Create payload with subscription ID for tracking
+        const payload = createPayload(subscription.id);
         const result = await webpush.sendNotification(pushSubscription, payload);
         console.log(`✅ Successfully sent to ${subscription.id}`);
         console.log(`  Status: ${result.statusCode}`);

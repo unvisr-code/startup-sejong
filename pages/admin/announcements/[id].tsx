@@ -253,7 +253,7 @@ const EditAnnouncementPage = () => {
                 </div>
 
                 {/* Content */}
-                <div>
+                <div className="mb-10">
                   <div className="flex items-center justify-between mb-2">
                     <label className="block text-sm font-medium text-gray-700">
                       내용 *
@@ -270,17 +270,19 @@ const EditAnnouncementPage = () => {
                   
                   {showPreview ? (
                     // 미리보기 모드
-                    <div className="min-h-[400px] p-4 border border-gray-300 rounded-lg bg-gray-50">
+                    <div className="min-h-[400px] p-4 border border-gray-300 rounded-lg bg-gray-50 mb-12">
                       <div className="prose max-w-none ql-content" dangerouslySetInnerHTML={{ __html: editorContent || '<p class="text-gray-400">내용을 입력해주세요</p>' }} />
                     </div>
                   ) : (
                     // 에디터 모드
-                    <RichTextEditor
-                      value={editorContent}
-                      onChange={setEditorContent}
-                      placeholder="공지사항 내용을 입력하세요..."
-                      height="400px"
-                    />
+                    <div className="mb-12">
+                      <RichTextEditor
+                        value={editorContent}
+                        onChange={setEditorContent}
+                        placeholder="공지사항 내용을 입력하세요..."
+                        height="400px"
+                      />
+                    </div>
                   )}
                   
                   {!editorContent && (
@@ -290,7 +292,7 @@ const EditAnnouncementPage = () => {
 
                 {/* Existing Attachments */}
                 {existingAttachments.length > 0 && (
-                  <div>
+                  <div className="mb-8">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       기존 첨부파일 ({existingAttachments.length}개)
                     </label>
@@ -338,7 +340,7 @@ const EditAnnouncementPage = () => {
                 )}
 
                 {/* File Upload */}
-                <div>
+                <div className="mb-8">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     새 파일 첨부
                   </label>
@@ -354,7 +356,7 @@ const EditAnnouncementPage = () => {
 
                 {/* Upload Progress */}
                 {loading && uploadProgress > 0 && (
-                  <div>
+                  <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       업로드 진행률
                     </label>
@@ -438,19 +440,6 @@ const EditAnnouncementPage = () => {
                 />
               </div>
 
-              {/* HTML Helper */}
-              <div className="mt-6 bg-gray-50 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">HTML 태그 도우미</h3>
-                <div className="space-y-1 text-xs text-gray-600 font-mono">
-                  <div>&lt;h2&gt;제목&lt;/h2&gt; - 큰 제목</div>
-                  <div>&lt;h3&gt;소제목&lt;/h3&gt; - 작은 제목</div>
-                  <div>&lt;p&gt;문단&lt;/p&gt; - 일반 문단</div>
-                  <div>&lt;strong&gt;강조&lt;/strong&gt; - <strong>굵은 글씨</strong></div>
-                  <div>&lt;ul&gt;&lt;li&gt;항목&lt;/li&gt;&lt;/ul&gt; - 목록</div>
-                  <div>&lt;br&gt; - 줄바꿈</div>
-                  <div>&lt;a href="url"&gt;링크&lt;/a&gt; - 링크</div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

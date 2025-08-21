@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import AdminLayout from '../../components/Admin/AdminLayout';
-import { FaBullhorn, FaCalendarAlt, FaChartLine, FaPlus } from 'react-icons/fa';
+import { FaBullhorn, FaCalendarAlt, FaChartLine, FaPlus, FaEye, FaBell } from 'react-icons/fa';
 import Link from 'next/link';
 import { supabase } from '../../lib/supabase';
 import { format } from 'date-fns';
@@ -15,6 +15,7 @@ const AdminDashboard = () => {
     upcomingEvents: 0
   });
   const [recentAnnouncements, setRecentAnnouncements] = useState<any[]>([]);
+  const [popularAnnouncements, setPopularAnnouncements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -52,6 +53,13 @@ const AdminDashboard = () => {
         .order('created_at', { ascending: false })
         .limit(5);
 
+      // Fetch popular announcements (by view count)
+      const { data: popular } = await supabase
+        .from('announcements')
+        .select('*')
+        .order('view_count', { ascending: false })
+        .limit(5);
+
       setStats({
         announcements: announcementsCount || 0,
         events: eventsCount || 0,
@@ -60,6 +68,7 @@ const AdminDashboard = () => {
       });
 
       setRecentAnnouncements(announcements || []);
+      setPopularAnnouncements(popular || []);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       // Set mock data for development
@@ -185,18 +194,100 @@ const AdminDashboard = () => {
                 <div className="space-y-3">
                   {recentAnnouncements.length > 0 ? (
                     recentAnnouncements.map(announcement => (
-                      <div key={announcement.id} className="border-b pb-2">
-                        <h3 className="font-medium text-sm line-clamp-1">
+                      <Link 
+                        key={announcement.id} 
+                        href={`/announcements/${announcement.id}`}
+                        className="block border-b pb-2 hover:bg-gray-50 -mx-2 px-2 rounded transition-colors"
+                      >
+                        <h3 className="font-medium text-sm line-clamp-1 text-gray-800 hover:text-primary">
                           {announcement.title}
                         </h3>
                         <p className="text-xs text-gray-500 mt-1">
                           {format(new Date(announcement.created_at), 'yyyy.MM.dd', { locale: ko })}
                         </p>
-                      </div>
+                      </Link>
                     ))
                   ) : (
                     <p className="text-gray-500 text-sm">아직 공지사항이 없습니다.</p>
                   )}
+                </div>
+              </div>
+            </div>
+
+            {/* Popular Announcements */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <FaEye className="text-purple-500" />
+                    인기 공지사항
+                  </h2>
+                  <Link 
+                    href="/admin/announcements"
+                    className="text-primary hover:text-primary/80 text-sm"
+                  >
+                    전체보기
+                  </Link>
+                </div>
+                <div className="space-y-3">
+                  {popularAnnouncements.length > 0 ? (
+                    popularAnnouncements.map((announcement, index) => (
+                      <Link 
+                        key={announcement.id} 
+                        href={`/announcements/${announcement.id}`}
+                        className="flex items-center justify-between border-b pb-2 hover:bg-gray-50 -mx-2 px-2 rounded transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg font-bold text-gray-400">
+                            {index + 1}
+                          </span>
+                          <div className="flex-1">
+                            <h3 className="font-medium text-sm line-clamp-1 text-gray-800 hover:text-primary">
+                              {announcement.title}
+                            </h3>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {format(new Date(announcement.created_at), 'yyyy.MM.dd', { locale: ko })}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <FaEye size={12} />
+                          <span>{announcement.view_count || 0}</span>
+                        </div>
+                      </Link>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-sm">아직 공지사항이 없습니다.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Push Notification Summary */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <FaBell className="text-blue-500" />
+                    푸시 알림 현황
+                  </h2>
+                  <Link 
+                    href="/admin/notifications"
+                    className="text-primary hover:text-primary/80 text-sm"
+                  >
+                    상세보기
+                  </Link>
+                </div>
+                <div className="space-y-3">
+                  <div className="text-sm text-gray-600">
+                    <p>푸시 알림 현황을 확인하세요.</p>
+                    <p className="mt-2">구독자 수, 발송 기록, 성공률 등을 확인할 수 있습니다.</p>
+                  </div>
+                  <Link 
+                    href="/admin/notifications"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    <FaBell />
+                    푸시 알림 관리로 이동
+                  </Link>
                 </div>
               </div>
             </div>

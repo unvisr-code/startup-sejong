@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes, FaUser, FaClock, FaDesktop, FaTrash, FaSearch, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { FaTimes, FaUser, FaClock, FaDesktop, FaTrash, FaSearch, FaCheckCircle, FaTimesCircle, FaMobileAlt, FaTabletAlt, FaChrome, FaFirefox, FaSafari, FaEdge, FaApple, FaAndroid, FaWindows, FaLinux } from 'react-icons/fa';
 import { supabaseAdmin } from '../../lib/supabaseAdmin';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+// import { utcToZonedTime } from 'date-fns-tz';
 
 interface Subscriber {
   id: string;
@@ -109,21 +110,57 @@ const SubscribersModal: React.FC<SubscribersModalProps> = ({
   };
 
   const getBrowserInfo = (userAgent: string | null) => {
-    if (!userAgent) return '알 수 없음';
+    if (!userAgent) return { name: '알 수 없음', icon: FaDesktop };
     
-    if (userAgent.includes('Chrome')) return 'Chrome';
-    if (userAgent.includes('Firefox')) return 'Firefox';
-    if (userAgent.includes('Safari')) return 'Safari';
-    if (userAgent.includes('Edge')) return 'Edge';
-    return '기타';
+    if (userAgent.includes('Edg')) return { name: 'Edge', icon: FaEdge };
+    if (userAgent.includes('Chrome')) return { name: 'Chrome', icon: FaChrome };
+    if (userAgent.includes('Firefox')) return { name: 'Firefox', icon: FaFirefox };
+    if (userAgent.includes('Safari')) return { name: 'Safari', icon: FaSafari };
+    return { name: '기타', icon: FaDesktop };
+  };
+
+  const getOSInfo = (userAgent: string | null) => {
+    if (!userAgent) return { name: '알 수 없음', icon: FaDesktop };
+    
+    if (userAgent.includes('iPhone') || userAgent.includes('iPad')) return { name: 'iOS', icon: FaApple };
+    if (userAgent.includes('Mac')) return { name: 'macOS', icon: FaApple };
+    if (userAgent.includes('Android')) return { name: 'Android', icon: FaAndroid };
+    if (userAgent.includes('Windows')) return { name: 'Windows', icon: FaWindows };
+    if (userAgent.includes('Linux')) return { name: 'Linux', icon: FaLinux };
+    return { name: '기타', icon: FaDesktop };
   };
 
   const getDeviceInfo = (userAgent: string | null) => {
-    if (!userAgent) return '알 수 없음';
+    if (!userAgent) return { name: '알 수 없음', icon: FaDesktop };
     
-    if (userAgent.includes('Mobile')) return '모바일';
-    if (userAgent.includes('Tablet')) return '태블릿';
-    return '데스크톱';
+    if (userAgent.includes('iPhone') || userAgent.includes('Android') && userAgent.includes('Mobile')) 
+      return { name: '모바일', icon: FaMobileAlt };
+    if (userAgent.includes('iPad') || userAgent.includes('Tablet')) 
+      return { name: '태블릿', icon: FaTabletAlt };
+    return { name: '데스크톱', icon: FaDesktop };
+  };
+
+  const formatKST = (dateString: string) => {
+    const date = new Date(dateString);
+    // Intl.DateTimeFormat을 사용하여 한국 시간대로 변환
+    const kstFormatter = new Intl.DateTimeFormat('ko-KR', {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    
+    const parts = kstFormatter.formatToParts(date);
+    const year = parts.find(part => part.type === 'year')?.value;
+    const month = parts.find(part => part.type === 'month')?.value;
+    const day = parts.find(part => part.type === 'day')?.value;
+    const hour = parts.find(part => part.type === 'hour')?.value;
+    const minute = parts.find(part => part.type === 'minute')?.value;
+    
+    return `${year}.${month}.${day} ${hour}:${minute}`;
   };
 
   const filteredSubscribers = subscribers.filter(sub => {
@@ -239,7 +276,7 @@ const SubscribersModal: React.FC<SubscribersModalProps> = ({
                           </p>
                           <div className="flex items-center gap-2 text-xs text-gray-500">
                             <FaClock />
-                            {format(new Date(subscriber.created_at), 'yyyy.MM.dd HH:mm', { locale: ko })}
+                            {formatKST(subscriber.created_at)} (KST)
                           </div>
                         </div>
                         <div className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -251,19 +288,49 @@ const SubscribersModal: React.FC<SubscribersModalProps> = ({
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm text-gray-600">
                         <div className="flex items-center gap-2">
-                          <FaDesktop className="text-gray-400" />
-                          <span>
-                            {getBrowserInfo(subscriber.user_agent)} / {getDeviceInfo(subscriber.user_agent)}
-                          </span>
+                          {(() => {
+                            const device = getDeviceInfo(subscriber.user_agent);
+                            const DeviceIcon = device.icon;
+                            return (
+                              <>
+                                <DeviceIcon className="text-gray-400" size={14} />
+                                <span>{device.name}</span>
+                              </>
+                            );
+                          })()}
                         </div>
-                        {subscriber.ip_address && (
-                          <div>
-                            <span className="text-gray-500">IP:</span> {subscriber.ip_address}
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {(() => {
+                            const browser = getBrowserInfo(subscriber.user_agent);
+                            const BrowserIcon = browser.icon;
+                            return (
+                              <>
+                                <BrowserIcon className="text-gray-400" size={14} />
+                                <span>{browser.name}</span>
+                              </>
+                            );
+                          })()}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {(() => {
+                            const os = getOSInfo(subscriber.user_agent);
+                            const OSIcon = os.icon;
+                            return (
+                              <>
+                                <OSIcon className="text-gray-400" size={14} />
+                                <span>{os.name}</span>
+                              </>
+                            );
+                          })()}
+                        </div>
                       </div>
+                      {subscriber.ip_address && (
+                        <div className="text-sm text-gray-500 mt-1">
+                          <span className="text-gray-500">IP:</span> {subscriber.ip_address}
+                        </div>
+                      )}
 
                       {subscriber.user_agent && (
                         <details className="mt-2">

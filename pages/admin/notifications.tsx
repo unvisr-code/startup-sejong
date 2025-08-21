@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import AdminLayout from '../../components/Admin/AdminLayout';
-import { FaBell, FaPaperPlane, FaUsers, FaCheckCircle, FaExclamationTriangle, FaEye, FaCog, FaDatabase, FaKey, FaTrash, FaSync, FaCalendarAlt, FaBullhorn } from 'react-icons/fa';
+import { FaBell, FaPaperPlane, FaUsers, FaCheckCircle, FaExclamationTriangle, FaEye, FaCog, FaDatabase, FaKey, FaTrash, FaSync, FaCalendarAlt, FaBullhorn, FaChartLine, FaMouse } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
-import { format } from 'date-fns';
+import { format, subDays, startOfDay, endOfDay } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import SubscribersModal from '../../components/Admin/SubscribersModal';
 import { formatNotificationBody } from '../../lib/utils';
+import dynamic from 'next/dynamic';
+
+// Chart 컴포넌트를 dynamic import로 불러오기 (SSR 문제 해결)
+const SubscriberChart = dynamic(() => import('../../components/Admin/SubscriberChart'), { 
+  ssr: false,
+  loading: () => <div className="h-64 bg-gray-100 rounded-lg animate-pulse"></div>
+});
 
 interface NotificationForm {
   title: string;
@@ -23,6 +30,7 @@ interface NotificationHistory {
   sent_count: number;
   success_count: number;
   error_count: number;
+  open_count?: number;
   admin_email: string;
   created_at: string;
   sent_at: string;
@@ -52,6 +60,9 @@ const AdminNotificationsPage = () => {
   const [recentCalendarEvents, setRecentCalendarEvents] = useState<any[]>([]);
   const [selectedContent, setSelectedContent] = useState<'custom' | 'announcement' | 'calendar'>('custom');
   const [selectedItemId, setSelectedItemId] = useState<string>('');
+  const [selectedNotifications, setSelectedNotifications] = useState<string[]>([]);
+  const [subscriberTrendData, setSubscriberTrendData] = useState<any[]>([]);
+  const [openRates, setOpenRates] = useState<Record<string, number>>({});
   const [form, setForm] = useState<NotificationForm>({
     title: '',
     body: '',
@@ -64,6 +75,7 @@ const AdminNotificationsPage = () => {
     fetchNotificationHistory();
     fetchSystemStatus();
     fetchRecentContent();
+    fetchSubscriberTrend();
   }, []);
 
   const fetchSystemStatus = async () => {
@@ -205,6 +217,7 @@ const AdminNotificationsPage = () => {
   const fetchNotificationHistory = async () => {
     setLoading(true);
     try {
+      console.log('📋 Fetching notification history...');
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
@@ -212,9 +225,16 @@ const AdminNotificationsPage = () => {
         .limit(20);
 
       if (error) throw error;
+      
+      console.log(`📋 Found ${data?.length || 0} notifications`);
       setNotifications(data || []);
+      
+      // Always fetch open rates after notifications are loaded
+      console.log('🔄 Fetching open rates after notifications loaded...');
+      await fetchOpenRates();
+      
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error('❌ Error fetching notifications:', error);
     } finally {
       setLoading(false);
     }
@@ -355,6 +375,151 @@ const AdminNotificationsPage = () => {
   const getSuccessRate = (notification: NotificationHistory) => {
     if (notification.sent_count === 0) return 0;
     return Math.round((notification.success_count / notification.sent_count) * 100);
+  };
+
+  const getOpenRate = (notificationId: string) => {
+    const rate = openRates[notificationId] || 0;
+    // 디버깅을 위한 로그 (처음 몇 개만)
+    if (Object.keys(openRates).length > 0 && Math.random() < 0.1) {
+      console.log(`🎯 getOpenRate(${notificationId.slice(0,8)}...): ${rate}%`);
+    }
+    return rate;
+  };
+
+  const formatKST = (dateString: string) => {
+    const date = new Date(dateString);
+    // Intl.DateTimeFormat을 사용하여 한국 시간대로 변환
+    const kstFormatter = new Intl.DateTimeFormat('ko-KR', {
+      timeZone: 'Asia/Seoul',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    
+    const parts = kstFormatter.formatToParts(date);
+    const year = parts.find(part => part.type === 'year')?.value;
+    const month = parts.find(part => part.type === 'month')?.value;
+    const day = parts.find(part => part.type === 'day')?.value;
+    const hour = parts.find(part => part.type === 'hour')?.value;
+    const minute = parts.find(part => part.type === 'minute')?.value;
+    
+    return `${year}.${month}.${day} ${hour}:${minute} KST`;
+  };
+
+  const fetchOpenRates = async () => {
+    try {
+      console.log('🔄 Fetching open rates...');
+      const response = await fetch('/api/push/calculate-open-rates', {
+        cache: 'no-cache',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📊 API Response:', data);
+        
+        if (data.success) {
+          setOpenRates(data.openRates);
+          console.log('✅ Open rates updated in React state:', data.openRates);
+          
+          // 성공 메시지 표시
+          const nonZeroRates = Object.values(data.openRates).filter(rate => rate > 0).length;
+          console.log(`📈 ${nonZeroRates} notifications have open rates > 0%`);
+        } else {
+          console.error('❌ API returned success: false', data);
+        }
+      } else {
+        console.error('❌ API response not ok:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching open rates:', error);
+    }
+  };
+
+  const fetchSubscriberTrend = async () => {
+    try {
+      const last7Days = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = subDays(new Date(), i);
+        // const dateStr = format(date, 'yyyy-MM-dd'); // 현재 사용하지 않음
+        
+        const { count } = await supabase
+          .from('push_subscriptions')
+          .select('*', { count: 'exact', head: true })
+          .lte('created_at', endOfDay(date).toISOString());
+          
+        last7Days.push({
+          date: format(date, 'MM/dd', { locale: ko }),
+          subscribers: count || 0
+        });
+      }
+      
+      setSubscriberTrendData(last7Days);
+    } catch (error) {
+      console.error('Error fetching subscriber trend:', error);
+    }
+  };
+
+
+  const toggleNotificationSelection = (id: string) => {
+    setSelectedNotifications(prev => 
+      prev.includes(id) 
+        ? prev.filter(notifId => notifId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedNotifications.length === notifications.length) {
+      setSelectedNotifications([]);
+    } else {
+      setSelectedNotifications(notifications.map(n => n.id));
+    }
+  };
+
+  const handleDeleteNotifications = async () => {
+    if (selectedNotifications.length === 0) {
+      alert('삭제할 알림을 선택해주세요.');
+      return;
+    }
+
+    const confirmMessage = `선택한 ${selectedNotifications.length}개의 발송 기록을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`;
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/push/delete-notifications', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ids: selectedNotifications }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert(`✅ ${result.deletedCount}개의 발송 기록이 삭제되었습니다.`);
+        setSelectedNotifications([]);
+        await fetchNotificationHistory();
+      } else {
+        alert(`❌ 삭제 실패: ${result.error}`);
+      }
+    } catch (error: any) {
+      console.error('Delete notifications error:', error);
+      alert(`❌ 오류 발생: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const quickNotifications = [
@@ -738,6 +903,20 @@ const AdminNotificationsPage = () => {
           </div>
         </div>
 
+        {/* Subscriber Trend Chart */}
+        <div className="mb-6">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <FaChartLine className="text-green-500" />
+              구독자 추이 (최근 7일)
+            </h2>
+            <SubscriberChart data={subscriberTrendData} />
+            <p className="text-sm text-gray-500 mt-2">
+              * 매일 자정 기준 누적 구독자 수
+            </p>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Send Notification Form */}
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -950,50 +1129,118 @@ const AdminNotificationsPage = () => {
 
           {/* Notification History */}
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <FaEye className="text-gray-500" />
-              발송 기록
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <FaEye className="text-gray-500" />
+                발송 기록
+                {selectedNotifications.length > 0 && (
+                  <span className="text-sm font-normal text-gray-500">
+                    ({selectedNotifications.length}개 선택됨)
+                  </span>
+                )}
+              </h2>
+              {notifications.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={fetchOpenRates}
+                    disabled={loading}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50"
+                    title="오픈율을 다시 불러옵니다"
+                  >
+                    <FaSync size={12} />
+                    오픈율 갱신
+                  </button>
+                  <button
+                    onClick={handleDeleteNotifications}
+                    disabled={selectedNotifications.length === 0 || loading}
+                    className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      selectedNotifications.length > 0
+                        ? 'bg-red-500 text-white hover:bg-red-600'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    } disabled:opacity-50`}
+                  >
+                    <FaTrash size={12} />
+                    삭제
+                  </button>
+                </div>
+              )}
+            </div>
 
             {loading ? (
               <div className="text-center py-8">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             ) : notifications.length > 0 ? (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {notifications.map((notification) => (
-                  <div key={notification.id} className="border rounded-lg p-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900 text-sm">
-                          {notification.title}
-                        </h4>
-                        <p className="text-gray-600 text-xs mt-1 line-clamp-2">
-                          {notification.body}
-                        </p>
-                        <p className="text-gray-400 text-xs mt-2">
-                          {format(new Date(notification.created_at), 'MM/dd HH:mm', { locale: ko })}
-                        </p>
-                      </div>
-                      <div className="ml-4 text-right">
-                        <div className="flex items-center gap-1 text-xs">
-                          <FaCheckCircle className="text-green-500" />
-                          <span className="text-gray-600">{notification.success_count}</span>
-                        </div>
-                        {notification.error_count > 0 && (
-                          <div className="flex items-center gap-1 text-xs mt-1">
-                            <FaExclamationTriangle className="text-red-500" />
-                            <span className="text-gray-600">{notification.error_count}</span>
+              <>
+                {/* Select All Checkbox */}
+                <div className="border-b pb-2 mb-3">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedNotifications.length === notifications.length && notifications.length > 0}
+                      onChange={toggleSelectAll}
+                      className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                    />
+                    <span className="text-sm text-gray-600">전체 선택</span>
+                  </label>
+                </div>
+
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {notifications.map((notification) => (
+                    <div 
+                      key={notification.id} 
+                      className={`border rounded-lg p-3 transition-colors ${
+                        selectedNotifications.includes(notification.id) 
+                          ? 'bg-blue-50 border-blue-300' 
+                          : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedNotifications.includes(notification.id)}
+                          onChange={() => toggleNotificationSelection(notification.id)}
+                          className="mt-1 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 text-sm">
+                                {notification.title}
+                              </h4>
+                              <p className="text-gray-600 text-xs mt-1 line-clamp-2">
+                                {notification.body}
+                              </p>
+                              <p className="text-gray-400 text-xs mt-2">
+                                {formatKST(notification.created_at)}
+                              </p>
+                            </div>
+                            <div className="ml-4 text-right">
+                              <div className="flex items-center gap-1 text-xs">
+                                <FaCheckCircle className="text-green-500" />
+                                <span className="text-gray-600">{notification.success_count}</span>
+                              </div>
+                              {notification.error_count > 0 && (
+                                <div className="flex items-center gap-1 text-xs mt-1">
+                                  <FaExclamationTriangle className="text-red-500" />
+                                  <span className="text-gray-600">{notification.error_count}</span>
+                                </div>
+                              )}
+                              <div className="text-xs text-gray-500 mt-1">
+                                성공률 {getSuccessRate(notification)}%
+                              </div>
+                              <div className="flex items-center gap-1 text-xs text-blue-600 mt-1">
+                                <FaMouse size={10} />
+                                <span>오픈율 {getOpenRate(notification.id)}%</span>
+                              </div>
+                            </div>
                           </div>
-                        )}
-                        <div className="text-xs text-gray-500 mt-1">
-                          성공률 {getSuccessRate(notification)}%
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="text-center py-8 text-gray-500">
                 아직 발송된 알림이 없습니다.

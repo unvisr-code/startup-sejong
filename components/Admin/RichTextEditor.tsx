@@ -238,10 +238,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         style={editorStyle}
       />
       
-      <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
-        <span>
-          💡 Tip: 이미지는 드래그 앤 드롭하거나 도구 모음의 이미지 버튼을 사용하세요
-        </span>
+      <div className="flex justify-end items-center mt-2 text-xs text-gray-500">
         <span>
           글자 수: {value.replace(/<[^>]*>/g, '').length}자
         </span>
