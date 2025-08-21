@@ -1,5 +1,8 @@
 // Service Worker for 세종대 융합창업연계전공 PWA
-const CACHE_NAME = 'sejong-startup-v2-no-admin-cache';
+const CACHE_NAME = 'sejong-startup-v4-tracking-2024-08-21';
+const SW_VERSION = 'v4.0.0-tracking-fixed';
+
+console.log(`🚀 Service Worker ${SW_VERSION} initializing...`);
 const urlsToCache = [
   '/',
   '/announcements',
@@ -10,7 +13,7 @@ const urlsToCache = [
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
-  console.log('Service Worker installing...');
+  console.log(`📦 Service Worker ${SW_VERSION} installing...`);
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
@@ -24,8 +27,9 @@ self.addEventListener('install', (event) => {
       })
   );
   
-  // Force immediate activation
+  // Force immediate activation - critical for updates
   self.skipWaiting();
+  console.log(`⚡ Service Worker ${SW_VERSION} will activate immediately`);
 });
 
 // Fetch event - serve from cache when offline
@@ -225,7 +229,8 @@ self.addEventListener('notificationclick', (event) => {
       
       // Track the notification open only if we have the required data
       (notificationId && subscriptionId) ? 
-        fetch('/api/push/track-open', {
+        // Use the origin from the service worker's location
+        fetch(self.location.origin + '/api/push/track-open', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

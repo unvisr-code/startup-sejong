@@ -71,12 +71,49 @@ const AdminNotificationsPage = () => {
   });
 
   useEffect(() => {
+    // Load cached data first for instant display
+    loadCachedData();
+    
+    // Then fetch fresh data
     fetchSubscriptionCount();
     fetchNotificationHistory();
     fetchSystemStatus();
     fetchRecentContent();
     fetchSubscriberTrend();
   }, []);
+
+  const loadCachedData = () => {
+    try {
+      // Load cached notifications
+      const cachedNotifications = localStorage.getItem('admin_notifications_cache');
+      if (cachedNotifications) {
+        const parsed = JSON.parse(cachedNotifications);
+        if (parsed.data && parsed.timestamp) {
+          const age = Date.now() - parsed.timestamp;
+          // Use cache if less than 5 minutes old
+          if (age < 5 * 60 * 1000) {
+            setNotifications(parsed.data);
+            console.log('📦 Loaded cached notifications:', parsed.data.length);
+          }
+        }
+      }
+
+      // Load cached open rates
+      const cachedOpenRates = localStorage.getItem('admin_open_rates_cache');
+      if (cachedOpenRates) {
+        const parsed = JSON.parse(cachedOpenRates);
+        if (parsed.data && parsed.timestamp) {
+          const age = Date.now() - parsed.timestamp;
+          if (age < 5 * 60 * 1000) {
+            setOpenRates(parsed.data);
+            console.log('📦 Loaded cached open rates');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error loading cached data:', error);
+    }
+  };
 
   const fetchSystemStatus = async () => {
     try {
@@ -214,8 +251,12 @@ const AdminNotificationsPage = () => {
     }
   };
 
-  const fetchNotificationHistory = async () => {
-    setLoading(true);
+  const fetchNotificationHistory = async (forceRefresh = false) => {
+    // Show loading only if not using cache or force refresh
+    if (forceRefresh || !notifications.length) {
+      setLoading(true);
+    }
+    
     try {
       console.log('📋 Fetching notification history...');
       const { data, error } = await supabase
@@ -229,9 +270,18 @@ const AdminNotificationsPage = () => {
       console.log(`📋 Found ${data?.length || 0} notifications`);
       setNotifications(data || []);
       
+      // Save to cache
+      if (data && data.length > 0) {
+        localStorage.setItem('admin_notifications_cache', JSON.stringify({
+          data: data,
+          timestamp: Date.now()
+        }));
+        console.log('💾 Saved notifications to cache');
+      }
+      
       // Always fetch open rates after notifications are loaded
       console.log('🔄 Fetching open rates after notifications loaded...');
-      await fetchOpenRates();
+      await fetchOpenRates(forceRefresh);
       
     } catch (error) {
       console.error('❌ Error fetching notifications:', error);
@@ -409,16 +459,16 @@ const AdminNotificationsPage = () => {
     return `${year}.${month}.${day} ${hour}:${minute} KST`;
   };
 
-  const fetchOpenRates = async () => {
+  const fetchOpenRates = async (forceRefresh = false) => {
     try {
-      console.log('🔄 Fetching open rates...');
+      console.log(forceRefresh ? '🔄 Force refreshing open rates...' : '🔄 Fetching open rates...');
       const response = await fetch('/api/push/calculate-open-rates', {
-        cache: 'no-cache',
-        headers: {
+        cache: forceRefresh ? 'no-cache' : 'default',
+        headers: forceRefresh ? {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0'
-        }
+        } : {}
       });
       
       if (response.ok) {
@@ -428,6 +478,13 @@ const AdminNotificationsPage = () => {
         if (data.success) {
           setOpenRates(data.openRates);
           console.log('✅ Open rates updated in React state:', data.openRates);
+          
+          // Save to cache
+          localStorage.setItem('admin_open_rates_cache', JSON.stringify({
+            data: data.openRates,
+            timestamp: Date.now()
+          }));
+          console.log('💾 Saved open rates to cache');
           
           // 성공 메시지 표시
           const nonZeroRates = Object.values(data.openRates).filter(rate => rate > 0).length;
@@ -1142,12 +1199,17 @@ const AdminNotificationsPage = () => {
               {notifications.length > 0 && (
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={fetchOpenRates}
+                    onClick={() => {
+                      // Clear cache and force refresh
+                      localStorage.removeItem('admin_open_rates_cache');
+                      localStorage.removeItem('admin_notifications_cache');
+                      fetchNotificationHistory(true);
+                    }}
                     disabled={loading}
                     className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50"
-                    title="오픈율을 다시 불러옵니다"
+                    title="캐시를 삭제하고 최신 데이터를 불러옵니다"
                   >
-                    <FaSync size={12} />
+                    <FaSync size={12} className={loading ? 'animate-spin' : ''} />
                     오픈율 갱신
                   </button>
                   <button
