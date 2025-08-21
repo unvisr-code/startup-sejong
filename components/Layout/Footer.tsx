@@ -49,7 +49,7 @@ const Footer = () => {
               <div>
                 <h3 className="text-sm sm:text-base font-bold mb-2 sm:mb-3">연락처</h3>
                 <ul className="space-y-1 text-gray-400">
-                  <li className="text-xs sm:text-sm break-keep">세종대학교</li>
+                  <li className="text-xs sm:text-sm break-keep">세종대학교 린스타트업랩</li>
                   <li className="text-xs sm:text-sm">02-3408-3360</li>
                   <li className="text-xs sm:text-sm break-all">cscsejong@sejong.ac.kr</li>
                   <li className="flex space-x-3 mt-2">

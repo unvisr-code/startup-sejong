@@ -280,7 +280,7 @@ const CurriculumSection = () => {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
               <p className="font-bold text-base mb-2 text-center">📚 하단에서 과목들을 선택하세요!</p>
               <p className="font-medium mb-1">현재 선택 현황:</p>
-              <p>전공필수: {calculateCredits('core')}/{credits.core}학점 | 전공선택: {calculateCredits('elective')}/{credits.elective}학점 | 자유선택: 별도 {credits.free}학점 이수 필요</p>
+              <p>전공필수: {calculateCredits('core')}/{credits.core}학점 | 전공선택: {calculateCredits('elective')}/{credits.elective}학점</p>
               <p className="mt-1 text-xs">{getStatusMessage()}</p>
             </div>
           )}
@@ -411,7 +411,7 @@ const CurriculumSection = () => {
                       <h3 className="text-lg text-gray-600">{activeTab === 'major' ? '연계전공' : '연계부전공'} 이수체계도</h3>
                       <div className="mt-2 flex flex-wrap justify-center gap-2 sm:gap-4">
                         <div className="text-sm text-gray-500">
-                          <span className="font-medium">선택 학점:</span> {calculateCredits('core') + calculateCredits('elective')}학점 (자유선택 {credits.free}학점 별도)
+                          <span className="font-medium">선택 학점:</span> {calculateCredits('core') + calculateCredits('elective')}학점
                         </div>
                         {currentDate && (
                           <div className="text-sm text-gray-500">
@@ -474,7 +474,7 @@ const CurriculumSection = () => {
 
                   <div className="bg-gray-50 rounded-lg p-4">
                     <h4 className="text-base font-bold text-gray-800 mb-2">이수 현황 요약</h4>
-                    <div className="grid grid-cols-4 gap-1 sm:gap-2 text-center">
+                    <div className="grid grid-cols-3 gap-1 sm:gap-2 text-center">
                       <div className="bg-white rounded-md p-2 sm:p-3">
                         <div className="text-lg sm:text-xl font-bold text-blue-600">{calculateCredits('core')}</div>
                         <div className="text-[10px] sm:text-xs text-gray-600">전공필수</div>
@@ -484,12 +484,8 @@ const CurriculumSection = () => {
                         <div className="text-[10px] sm:text-xs text-gray-600">전공선택</div>
                       </div>
                       <div className="bg-white rounded-md p-2 sm:p-3">
-                        <div className="text-lg sm:text-xl font-bold text-green-600">{credits.free}</div>
-                        <div className="text-[10px] sm:text-xs text-gray-600">자유선택</div>
-                      </div>
-                      <div className="bg-white rounded-md p-2 sm:p-3">
                         <div className="text-lg sm:text-xl font-bold text-gray-800">
-                          {calculateCredits('core') + calculateCredits('elective') + credits.free}
+                          {calculateCredits('core') + calculateCredits('elective')}
                         </div>
                         <div className="text-[10px] sm:text-xs text-gray-600">총 학점</div>
                       </div>
@@ -594,7 +590,7 @@ const CurriculumSection = () => {
                   {/* 정확성 안내 */}
                   <div className="mt-4 p-3 bg-gray-100 rounded-lg">
                     <p className="text-xs text-gray-500 text-center">
-                      ※ 이수체계도가 정확하지 않을 수 있으니 직접 확인하세요
+                      ※ 타학과전선인정과목 수강가능합니다, 수강편람을 확인해주세요.
                     </p>
                   </div>
                   </div>
