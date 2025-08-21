@@ -16,7 +16,7 @@ const InstallPrompt: React.FC = () => {
   const [isInstalled, setIsInstalled] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const [showManualGuide, setShowManualGuide] = useState(false);
-  const [browserInfo, setBrowserInfo] = useState({ isIOS: false, isSafari: false, isAndroid: false, isChrome: false });
+  const [browserInfo, setBrowserInfo] = useState({ isIOS: false, isSafari: false, isAndroid: false, isChrome: false, isMobile: false, isPC: false });
 
   useEffect(() => {
     setIsClient(true);
@@ -24,11 +24,14 @@ const InstallPrompt: React.FC = () => {
 
     // Detect browser and platform
     const userAgent = navigator.userAgent.toLowerCase();
+    const isMobileDevice = /iphone|ipad|ipod|android|mobile/.test(userAgent);
     const browserData = {
       isIOS: /iphone|ipad|ipod/.test(userAgent),
       isSafari: /safari/.test(userAgent) && !/chrome/.test(userAgent),
       isAndroid: /android/.test(userAgent),
-      isChrome: /chrome/.test(userAgent) && !/edg/.test(userAgent)
+      isChrome: /chrome/.test(userAgent) && !/edg/.test(userAgent),
+      isMobile: isMobileDevice,
+      isPC: !isMobileDevice
     };
     setBrowserInfo(browserData);
     
@@ -52,7 +55,12 @@ const InstallPrompt: React.FC = () => {
 
     // For browsers that don't support beforeinstallprompt 
     // Show manual guide after some time
-    if (browserData.isIOS && browserData.isSafari) {
+    if (browserData.isPC) {
+      // Show mobile access guide for PC users
+      setTimeout(() => {
+        setShowManualGuide(true);
+      }, 5000); // Show after 5 seconds for PC users
+    } else if (browserData.isIOS && browserData.isSafari) {
       setTimeout(() => {
         const isStandalone = (window.navigator as any).standalone === true;
         if (!isStandalone) {
@@ -64,13 +72,6 @@ const InstallPrompt: React.FC = () => {
       setTimeout(() => {
         setShowManualGuide(true);
       }, 15000); // Show after 15 seconds for Android non-Chrome users
-    } else if (!browserData.isChrome && !browserData.isSafari) {
-      // For other browsers that might not support auto-install
-      setTimeout(() => {
-        if (!deferredPrompt) {
-          setShowManualGuide(true);
-        }
-      }, 20000); // Show after 20 seconds if no auto-prompt
     }
 
     // Listen for app installed
@@ -150,12 +151,14 @@ const InstallPrompt: React.FC = () => {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-gray-900 text-sm">
-                {showAutoPrompt ? '앱으로 설치하기' : 
+                {browserInfo.isPC ? '모바일 앱 설치 안내' :
+                 showAutoPrompt ? '앱으로 설치하기' : 
                  browserInfo.isIOS ? '아이폰에 앱 추가하기' : 
                  browserInfo.isAndroid ? '안드로이드에 앱 추가하기' : '앱으로 설치하기'}
               </h3>
               <p className="text-gray-600 text-xs mt-1">
-                {showAutoPrompt ? '홈 화면에 추가하여 푸시 알림을 받고 더 편리하게 이용하세요' :
+                {browserInfo.isPC ? '앱을 설치하려면 모바일 기기로 접속해주세요' :
+                 showAutoPrompt ? '홈 화면에 추가하여 푸시 알림을 받고 더 편리하게 이용하세요' :
                  browserInfo.isIOS ? '홈 화면에 추가하면 푸시 알림을 받을 수 있습니다' :
                  '앱을 설치하면 푸시 알림을 받을 수 있습니다'}
               </p>
@@ -168,7 +171,10 @@ const InstallPrompt: React.FC = () => {
             </button>
           </div>
           
-          {showAutoPrompt ? (
+          {browserInfo.isPC ? (
+            // PC에서는 안내 메시지만 표시 (버튼 없음)
+            null
+          ) : showAutoPrompt ? (
             <div className="flex gap-2 mt-3">
               <button
                 onClick={handleInstallClick}

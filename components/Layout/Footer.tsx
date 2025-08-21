@@ -3,6 +3,17 @@ import Link from 'next/link';
 import { FaInstagram, FaYoutube, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 
 const Footer = () => {
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const offsetTop = element.offsetTop - 80; // 헤더 높이 고려
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container-custom py-4 sm:py-6 md:py-8">
@@ -14,7 +25,7 @@ const Footer = () => {
                 <ul className="space-y-1">
                   <li>
                     <button 
-                      onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+                      onClick={() => scrollToSection('about')}
                       className="text-gray-400 hover:text-white transition-colors cursor-pointer text-left text-xs sm:text-sm"
                     >
                       전공소개
@@ -22,7 +33,7 @@ const Footer = () => {
                   </li>
                   <li>
                     <button 
-                      onClick={() => document.getElementById('curriculum')?.scrollIntoView({ behavior: 'smooth' })}
+                      onClick={() => scrollToSection('curriculum')}
                       className="text-gray-400 hover:text-white transition-colors cursor-pointer text-left text-xs sm:text-sm"
                     >
                       교육과정
@@ -30,7 +41,7 @@ const Footer = () => {
                   </li>
                   <li>
                     <button 
-                      onClick={() => document.getElementById('process')?.scrollIntoView({ behavior: 'smooth' })}
+                      onClick={() => scrollToSection('process')}
                       className="text-gray-400 hover:text-white transition-colors cursor-pointer text-left text-xs sm:text-sm"
                     >
                       지원절차
@@ -38,7 +49,7 @@ const Footer = () => {
                   </li>
                   <li>
                     <button 
-                      onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+                      onClick={() => scrollToSection('contact')}
                       className="text-gray-400 hover:text-white transition-colors cursor-pointer text-left text-xs sm:text-sm"
                     >
                       문의하기
