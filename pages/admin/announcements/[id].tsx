@@ -96,7 +96,6 @@ const EditAnnouncementPage = () => {
           content: editorContent, // 에디터 내용 사용
           category: data.category,
           is_pinned: data.is_pinned,
-          send_push: data.send_push,
           updated_at: new Date().toISOString()
         })
         .eq('id', id);
