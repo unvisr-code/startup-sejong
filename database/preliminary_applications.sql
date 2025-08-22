@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS preliminary_applications (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   
   -- Personal Information
+  name TEXT NOT NULL,
   phone_number TEXT NOT NULL,
   department TEXT NOT NULL,
   grade INTEGER CHECK (grade >= 1 AND grade <= 4) NOT NULL,
@@ -25,12 +26,13 @@ CREATE TABLE IF NOT EXISTS preliminary_applications (
 );
 
 -- Create indexes for faster queries
-CREATE INDEX idx_preliminary_applications_created_at ON preliminary_applications(created_at DESC);
-CREATE INDEX idx_preliminary_applications_phone ON preliminary_applications(phone_number);
-CREATE INDEX idx_preliminary_applications_department ON preliminary_applications(department);
+CREATE INDEX IF NOT EXISTS idx_preliminary_applications_created_at ON preliminary_applications(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_preliminary_applications_phone ON preliminary_applications(phone_number);
+CREATE INDEX IF NOT EXISTS idx_preliminary_applications_department ON preliminary_applications(department);
 
 -- Add comment for table documentation
 COMMENT ON TABLE preliminary_applications IS '융합창업연계전공 예비 신청자 정보';
+COMMENT ON COLUMN preliminary_applications.name IS '이름';
 COMMENT ON COLUMN preliminary_applications.phone_number IS '전화번호 (하이픈 포함)';
 COMMENT ON COLUMN preliminary_applications.department IS '학과명';
 COMMENT ON COLUMN preliminary_applications.grade IS '학년 (1-4)';
@@ -38,3 +40,23 @@ COMMENT ON COLUMN preliminary_applications.age IS '나이';
 COMMENT ON COLUMN preliminary_applications.gpa IS '학점 (4.5 만점 기준)';
 COMMENT ON COLUMN preliminary_applications.has_startup_item IS '창업 아이템 보유 여부';
 COMMENT ON COLUMN preliminary_applications.self_introduction IS '자기소개 (300자 이내)';
+
+-- For existing tables, ensure the name column exists
+ALTER TABLE IF EXISTS preliminary_applications
+  ADD COLUMN IF NOT EXISTS name TEXT;
+-- If added via ALTER, enforce NOT NULL by setting a default placeholder for existing rows then altering constraint
+UPDATE preliminary_applications SET name = COALESCE(name, '');
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'preliminary_applications' AND column_name = 'name'
+  ) THEN
+    BEGIN
+      ALTER TABLE preliminary_applications ALTER COLUMN name SET NOT NULL;
+    EXCEPTION WHEN others THEN
+      -- Ignore if cannot set NOT NULL due to existing nulls; admins can clean and rerun
+      NULL;
+    END;
+  END IF;
+END $$;

@@ -229,6 +229,9 @@ const CurriculumSection = () => {
               <span className="whitespace-nowrap">전공선택 {credits.elective}학점</span>
               <span className="whitespace-nowrap">= 총 {credits.total}학점</span>
             </p>
+            <p className="mt-1 text-[11px] sm:text-xs text-gray-500">
+              부족한 전공선택은 입학년도 수강편람에 나온 타학과 인정과목으로 이수하세요
+            </p>
           </div>
           
           <div className="bg-gray-50 p-1 rounded-lg inline-flex">

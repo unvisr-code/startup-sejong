@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '../../../lib/supabase';
 
 interface ApplicationData {
+  name: string;
   phone_number: string;
   department: string;
   grade: number;
@@ -24,9 +25,17 @@ export default async function handler(
     const data: ApplicationData = req.body;
 
     // Validate required fields
-    if (!data.phone_number || !data.department || !data.grade || !data.age) {
+    if (!data.name || !data.phone_number || !data.department || !data.grade || !data.age) {
       return res.status(400).json({ 
         error: '필수 항목을 모두 입력해주세요.' 
+      });
+    }
+
+    // Validate name
+    const name = (data.name || '').trim();
+    if (name.length < 1 || name.length > 50) {
+      return res.status(400).json({
+        error: '이름은 1~50자 사이로 입력해주세요.'
       });
     }
 
@@ -71,6 +80,7 @@ export default async function handler(
     const { error: insertError } = await supabase
       .from('preliminary_applications')
       .insert({
+        name,
         phone_number: formatted_phone_number,
         department: data.department,
         grade: data.grade,

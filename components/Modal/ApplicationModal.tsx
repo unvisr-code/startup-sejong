@@ -10,6 +10,7 @@ interface ApplicationModalProps {
 }
 
 interface FormData {
+  name: string;
   phone_number: string;
   department: string;
   grade: string;
@@ -24,6 +25,7 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
+    name: '',
     phone_number: '',
     department: '',
     grade: '',
@@ -92,6 +94,7 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
   const handleClose = () => {
     setIsSubmitted(false);
     setFormData({
+      name: '',
       phone_number: '',
       department: '',
       grade: '',
@@ -174,6 +177,23 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      이름 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      placeholder="홍길동"
+                      maxLength={50}
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+
                   {/* Phone Number */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
