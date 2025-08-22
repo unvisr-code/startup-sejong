@@ -45,25 +45,17 @@ const PreliminaryApplicationsPage = () => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        // Don't use mock data - show real error to user
+        setApplications([]);
+        return;
+      }
+      
       setApplications(data || []);
     } catch (error) {
       console.error('Error fetching applications:', error);
-      // Mock data for development
-      setApplications([
-        {
-          id: '1',
-          phone_number: '010-1234-5678',
-          department: '컴퓨터공학과',
-          grade: 3,
-          age: 22,
-          gpa: '4.0',
-          has_startup_item: true,
-          self_introduction: '창업에 관심이 많습니다.',
-          created_at: new Date().toISOString(),
-          ip_address: '127.0.0.1'
-        }
-      ]);
+      setApplications([]);
     } finally {
       setLoading(false);
     }
@@ -142,15 +134,12 @@ const PreliminaryApplicationsPage = () => {
   const getStats = () => {
     const total = filteredApplications.length;
     const withStartupItem = filteredApplications.filter(app => app.has_startup_item).length;
-    const avgAge = filteredApplications.length > 0 
-      ? Math.round(filteredApplications.reduce((sum, app) => sum + app.age, 0) / filteredApplications.length)
-      : 0;
     const gradeDistribution = [1, 2, 3, 4].map(grade => ({
       grade,
       count: filteredApplications.filter(app => app.grade === grade).length
     }));
 
-    return { total, withStartupItem, avgAge, gradeDistribution };
+    return { total, withStartupItem, gradeDistribution };
   };
 
   const stats = getStats();
@@ -163,7 +152,7 @@ const PreliminaryApplicationsPage = () => {
 
       <AdminLayout title="예비 신청 관리">
         {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-white p-4 rounded-lg shadow">
             <p className="text-gray-600 text-sm">총 신청자</p>
             <p className="text-2xl font-bold text-primary">{stats.total}명</p>
@@ -174,10 +163,6 @@ const PreliminaryApplicationsPage = () => {
             <p className="text-xs text-gray-500">
               ({stats.total > 0 ? Math.round((stats.withStartupItem / stats.total) * 100) : 0}%)
             </p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <p className="text-gray-600 text-sm">평균 나이</p>
-            <p className="text-2xl font-bold text-blue-600">{stats.avgAge}세</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow">
             <p className="text-gray-600 text-sm">학년 분포</p>
