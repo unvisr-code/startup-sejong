@@ -28,7 +28,7 @@
         { "name": "실전창업동아리3", "grade": 4, "semester": 1, "credits": 3, "desc": "프로덕트 고도화와 투자 IR 준비" },
         { "name": "사업계획서", "grade": 4, "semester": 1, "credits": 3, "desc": "시장·재무·운영을 갖춘 실행 가능한 BP 작성" },
         { "name": "온라인커머스실전창업", "grade": 3, "semester": 1, "credits": 3, "desc": "스마트스토어 운영 및 및 라이브커머스 진행" },
-        { "name": "창업마케팅", "grade": 3, "semester": 1, "credits": 3, "desc": "타깃·퍼널·그로스 전략으로 초기 성장을 설계" }
+        { "name": "창업마케팅", "grade": 3, "semester": 1, "credits": 3, "desc": "타깃·퍼널·그로스 전략으로 초기 성장을 설계" },
         { "name": "창업회계", "grade": 3, "semester": 2, "credits": 3, "desc": "원가·손익·세무 기초와 스타트업 핵심지표 이해" }
       ]
     }
