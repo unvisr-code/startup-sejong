@@ -2,7 +2,7 @@
 -- Run this SQL in your Supabase SQL Editor after running schema.sql
 
 -- =====================================================
--- PRELIMINARY APPLICATIONS TABLE
+-- PRELIMINARY APPLICATIONS TABLE.
 -- =====================================================
 CREATE TABLE IF NOT EXISTS preliminary_applications (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
