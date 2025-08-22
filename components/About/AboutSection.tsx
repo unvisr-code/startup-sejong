@@ -99,12 +99,19 @@ const AboutSection = () => {
           className="mt-8 sm:mt-10 md:mt-12 bg-blue-50 rounded-2xl p-6 sm:p-8"
         >
           <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center">융합창업연계전공 혜택</h3>
-          <div className="flex justify-center">
-            <div className="flex items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-10 max-w-4xl mx-auto">
+            <div className="flex items-start justify-center">
               <FaCheckCircle className="text-green-500 text-xl mt-1 mr-3 flex-shrink-0" />
               <div>
                 <h4 className="font-bold mb-1">주전공 필수이수학점 완화</h4>
                 <p className="text-gray-600 text-sm sm:text-base">72학점 → 39학점으로 완화되어 1+1 학위 취득 가능</p>
+              </div>
+            </div>
+            <div className="flex items-start justify-center">
+              <FaCheckCircle className="text-green-500 text-xl mt-1 mr-3 flex-shrink-0" />
+              <div>
+                <h4 className="font-bold mb-1">린스타트업랩 · 네트워킹 공간</h4>
+                <p className="text-gray-600 text-sm sm:text-base">린스타트업랩실 자유롭게 사용 가능, 창업 선후배와 자유롭게 네트워킹 공간 이용 가능</p>
               </div>
             </div>
           </div>
