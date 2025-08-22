@@ -16,7 +16,7 @@
         { "name": "디자인씽킹", "grade": 2, "semester": 2, "credits": 3, "desc": "문제정의→아이데이션→프로토타이핑으로 해결안을 도출" },
         { "name": "린스타트업", "grade": 3, "semester": 1, "credits": 3, "desc": "MVP·가설검증·고객인터뷰로 빠르게 학습·개선" },
         { "name": "비즈니스모델", "grade": 2, "semester": 2, "credits": 3, "desc": "BM/린캔버스로 가치제안과 수익구조를 설계·검증" },
-        { "name": "창업기업의성장과재무", "grade": 2, "semester": 1, "credits": 3, "desc": "성장단계별 재무·자금조달·밸류에이션 기초" },
+        { "name": "창업재무", "grade": 2, "semester": 1, "credits": 3, "desc": "성장단계별 재무·자금조달·밸류에이션 기초" },
         { "name": "창업캡스톤", "grade": 4, "semester": 2, "credits": 3, "desc": "팀 프로젝트로 시장검증과 IR 피칭까지 수행" },
         { "name": "창업마케팅", "grade": 2, "semester": 1, "credits": 3, "desc": "타깃·퍼널·그로스 전략으로 초기 성장을 설계" },
         { "name": "창업회계", "grade": 3, "semester": 2, "credits": 3, "desc": "원가·손익·세무 기초와 스타트업 핵심지표 이해" }
@@ -29,7 +29,8 @@
         { "name": "실전창업동아리2", "grade": 3, "semester": 2, "credits": 3, "desc": "MVP 개발과 시장검증으로 제품-시장 적합도 탐색" },
         { "name": "실전창업동아리3", "grade": 4, "semester": 1, "credits": 3, "desc": "프로덕트 고도화와 투자 IR 준비" },
         { "name": "소셜벤처", "grade": 3, "semester": 2, "credits": 3, "desc": "사회문제 해결형 비즈니스의 임팩트 모델 설계" },
-        { "name": "사업계획서", "grade": 4, "semester": 1, "credits": 3, "desc": "시장·재무·운영을 갖춘 실행 가능한 BP 작성" }
+        { "name": "사업계획서", "grade": 4, "semester": 1, "credits": 3, "desc": "시장·재무·운영을 갖춘 실행 가능한 BP 작성" },
+        { "name": "온라인커머스실전창업", "grade": 4, "semester": 1, "credits": 3, "desc": "시장·재무·운영을 갖춘 실행 가능한 BP 작성" }
       ]
     }
   }
