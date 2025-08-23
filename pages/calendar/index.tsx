@@ -74,7 +74,7 @@ const CalendarPage = () => {
     } catch (error) {
       console.error('Error fetching events:', error);
       // 개발용 더미 데이터 - DB 연결 실패 시 사용
-      const mockData = [
+      const mockData: AcademicEvent[] = [
         {
           id: '1',
           title: '2025학년도 1학기 개강',

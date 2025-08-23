@@ -54,7 +54,7 @@ const AnnouncementDetailPage = () => {
       setAttachments(attachmentData);
       
       // 이미지 파일들의 미리보기 URL 로드
-      const imageAttachments = attachmentData.filter(att => isImageFile(att.mime_type));
+      const imageAttachments = attachmentData.filter((att: AnnouncementAttachment) => isImageFile(att.mime_type));
       const loadStates: { [key: string]: ImageLoadState } = {};
       
       for (const attachment of imageAttachments) {
@@ -63,7 +63,7 @@ const AnnouncementDetailPage = () => {
       setImageLoadStates(loadStates);
       
       // 이미지 URL들을 병렬로 로드
-      imageAttachments.forEach(async (attachment) => {
+      imageAttachments.forEach(async (attachment: AnnouncementAttachment) => {
         try {
           const url = await getImagePreviewUrl(attachment.file_path);
           setImageLoadStates(prev => ({

@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import 'react-quill-new/dist/quill.snow.css';
 
 // React Quill New를 dynamic import로 불러오기 (React 19 지원)
 const ReactQuill = dynamic(
-  async () => {
-    const { default: RQ } = await import('react-quill-new');
-    // CSS를 dynamic import 내에서 처리
-    await import('react-quill-new/dist/quill.snow.css');
-    return RQ;
-  },
+  () => import('react-quill-new'),
   { 
     ssr: false,
     loading: () => <div className="h-64 bg-gray-50 rounded-lg animate-pulse" />

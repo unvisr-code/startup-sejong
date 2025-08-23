@@ -487,7 +487,7 @@ const AdminNotificationsPage = () => {
           console.log('💾 Saved open rates to cache');
           
           // 성공 메시지 표시
-          const nonZeroRates = Object.values(data.openRates).filter(rate => rate > 0).length;
+          const nonZeroRates = Object.values(data.openRates as Record<string, number>).filter((rate) => rate > 0).length;
           console.log(`📈 ${nonZeroRates} notifications have open rates > 0%`);
         } else {
           console.error('❌ API returned success: false', data);

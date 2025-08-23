@@ -178,7 +178,7 @@ export const subscribeToPush = async (): Promise<PushSubscription | null> => {
       try {
         subscription = await registration.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource
         });
       } catch (subscribeError) {
         console.error('Push manager subscribe failed:', subscribeError);
