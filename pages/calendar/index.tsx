@@ -509,7 +509,7 @@ const CalendarPage = () => {
                 </p>
               )}
               {selectedEvent.description && (
-                <p className="text-gray-700 mb-4">{selectedEvent.description}</p>
+                <p className="text-gray-700 mb-4 whitespace-pre-wrap">{selectedEvent.description}</p>
               )}
               <div className="flex gap-2">
                 <button

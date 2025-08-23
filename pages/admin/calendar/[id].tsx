@@ -197,9 +197,9 @@ const EditCalendarPage = () => {
               </label>
               <textarea
                 {...register('description')}
-                rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="일정에 대한 추가 설명을 입력하세요 (선택사항)"
+                rows={8}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary whitespace-pre-wrap"
+                placeholder="일정에 대한 추가 설명을 입력하세요 (Enter키로 줄바꿈 가능)"
               />
             </div>
 
@@ -337,7 +337,7 @@ const EditCalendarPage = () => {
                       <p className="text-sm text-gray-500 mt-1">📍 {watch('location')}</p>
                     )}
                     {watch('description') && (
-                      <p className="text-sm text-gray-700 mt-2">{watch('description')}</p>
+                      <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">{watch('description')}</p>
                     )}
                   </div>
                 </div>

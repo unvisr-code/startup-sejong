@@ -214,7 +214,7 @@ const AdminCalendarPage = () => {
                                 {event.title}
                               </div>
                               {event.description && (
-                                <div className="text-sm text-gray-500 truncate max-w-xs">
+                                <div className="text-sm text-gray-500 truncate max-w-xs whitespace-pre-wrap">
                                   {event.description}
                                 </div>
                               )}
@@ -260,7 +260,7 @@ const AdminCalendarPage = () => {
                       <div className="flex-1">
                         <h3 className="font-medium text-gray-900">{event.title}</h3>
                         {event.description && (
-                          <p className="text-sm text-gray-500 mt-1">{event.description}</p>
+                          <p className="text-sm text-gray-500 mt-1 whitespace-pre-wrap">{event.description}</p>
                         )}
                       </div>
                       <div className="ml-2">
