@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import AdminLayout from '../../../components/Admin/AdminLayout';
 import { useForm } from 'react-hook-form';
-import { FaSave, FaTimes, FaCalendarAlt, FaStar } from 'react-icons/fa';
-import { supabase } from '../../../lib/supabase';
+import { FaSave, FaTimes, FaCalendarAlt, FaStar, FaBullhorn } from 'react-icons/fa';
+import { supabase, Announcement } from '../../../lib/supabase';
 
 interface CalendarForm {
   title: string;
@@ -14,21 +14,25 @@ interface CalendarForm {
   description: string;
   location: string;
   is_important: boolean;
+  announcement_id: string;
   send_push: boolean;
 }
 
 const NewCalendarEventPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<CalendarForm>({
     defaultValues: {
       event_type: 'other',
       is_important: false,
+      announcement_id: '',
       send_push: false
     }
   });
 
   const startDate = watch('start_date');
+  const selectedAnnouncementId = watch('announcement_id');
 
   // Auto-set end date if not set
   React.useEffect(() => {
@@ -36,6 +40,29 @@ const NewCalendarEventPage = () => {
       setValue('end_date', startDate);
     }
   }, [startDate, setValue, watch]);
+
+  // Fetch announcements for linking
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
+
+  const fetchAnnouncements = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('announcements')
+        .select('id, title, category')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (!error && data) {
+        setAnnouncements(data);
+      }
+    } catch (error) {
+      console.error('Error fetching announcements:', error);
+    }
+  };
+
+  const selectedAnnouncement = announcements.find(a => a.id === selectedAnnouncementId);
 
   const onSubmit = async (data: CalendarForm) => {
     setLoading(true);
@@ -51,6 +78,7 @@ const NewCalendarEventPage = () => {
           description: data.description,
           location: data.location,
           is_important: data.is_important,
+          announcement_id: data.announcement_id || null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }])
@@ -225,6 +253,35 @@ const NewCalendarEventPage = () => {
                 </div>
               </div>
 
+              {/* Announcement Link */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  관련 공지사항 연결 (선택사항)
+                </label>
+                <select
+                  {...register('announcement_id')}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="">공지사항을 선택하세요</option>
+                  {announcements.map(announcement => (
+                    <option key={announcement.id} value={announcement.id}>
+                      [{announcement.category === 'important' ? '중요' : 
+                        announcement.category === 'academic' ? '학사' :
+                        announcement.category === 'event' ? '행사' : '일반'}] {announcement.title}
+                    </option>
+                  ))}
+                </select>
+                {selectedAnnouncement && (
+                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-sm text-blue-700">
+                      <FaBullhorn className="text-blue-500" />
+                      <span className="font-medium">연결된 공지사항:</span>
+                      <span>{selectedAnnouncement.title}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Push Notification */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -297,6 +354,14 @@ const NewCalendarEventPage = () => {
                       )}
                       {watch('description') && (
                         <p className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">{watch('description')}</p>
+                      )}
+                      {selectedAnnouncement && (
+                        <div className="mt-2 pt-2 border-t border-gray-200">
+                          <div className="flex items-center gap-1 text-xs text-blue-600">
+                            <FaBullhorn size={10} />
+                            <span>공지사항 연결됨</span>
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>

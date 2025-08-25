@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Header from '../../components/Layout/Header';
 import Footer from '../../components/Layout/Footer';
 import { motion } from 'framer-motion';
-import { FaCalendarAlt, FaChevronLeft, FaChevronRight, FaDownload, FaCalendarPlus, FaStar } from 'react-icons/fa';
+import { FaCalendarAlt, FaChevronLeft, FaChevronRight, FaDownload, FaCalendarPlus, FaStar, FaBullhorn, FaExternalLinkAlt } from 'react-icons/fa';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { supabase, AcademicEvent } from '../../lib/supabase';
@@ -44,7 +44,14 @@ const CalendarPage = () => {
     try {
       const { data, error } = await supabase
         .from('academic_calendar')
-        .select('*')
+        .select(`
+          *,
+          announcement:announcements!academic_calendar_announcement_id_fkey (
+            id,
+            title,
+            category
+          )
+        `)
         .order('start_date', { ascending: true });
 
       if (error) {
@@ -335,69 +342,129 @@ const CalendarPage = () => {
                         );
                       })}
                       
-                      {/* 연속된 일정 표시 */}
-                      <div className="absolute inset-0 pointer-events-none" style={{ marginTop: '28px' }}>
-                        {events
-                          .filter(event => {
-                            const eventStart = new Date(event.start_date);
-                            const eventEnd = new Date(event.end_date);
-                            return !(eventEnd < monthStart || eventStart > monthEnd);
-                          })
-                          .map((event, eventIndex) => {
-                            const eventStart = new Date(event.start_date);
-                            const eventEnd = new Date(event.end_date);
-                            
-                            // 현재 달에서 표시할 범위 계산
-                            const displayStart = eventStart < monthStart ? monthStart : eventStart;
-                            const displayEnd = eventEnd > monthEnd ? monthEnd : eventEnd;
-                            
-                            // 주별로 나누어 표시
-                            const bars = [];
-                            let currentDate = new Date(displayStart);
-                            
-                            while (currentDate <= displayEnd) {
-                              const weekEnd = new Date(currentDate);
-                              weekEnd.setDate(weekEnd.getDate() + (6 - weekEnd.getDay()));
+                      {/* 연속된 일정 표시 - 개선된 렌더링 */}
+                      <div className="absolute inset-0 pointer-events-none">
+                        {(() => {
+                          // 각 주별로 이벤트 그룹화
+                          const eventsByWeek: { [key: number]: any[] } = {};
+                          
+                          events
+                            .filter(event => {
+                              const eventStart = new Date(event.start_date);
+                              const eventEnd = new Date(event.end_date);
+                              return !(eventEnd < monthStart || eventStart > monthEnd);
+                            })
+                            .forEach(event => {
+                              const eventStart = new Date(event.start_date);
+                              const eventEnd = new Date(event.end_date);
                               
-                              const barEnd = weekEnd > displayEnd ? displayEnd : weekEnd;
-                              const startCol = currentDate.getDay();
-                              const endCol = barEnd.getDay();
-                              const startDateNum = currentDate.getDate();
-                              const weekRow = Math.floor((startDateNum + monthStart.getDay() - 1) / 7);
+                              // 현재 달에서 표시할 범위 계산
+                              const displayStart = eventStart < monthStart ? monthStart : eventStart;
+                              const displayEnd = eventEnd > monthEnd ? monthEnd : eventEnd;
                               
-                              // 바의 길이 계산
-                              const barLength = endCol - startCol + 1;
+                              // 주별로 나누어 처리
+                              let currentDate = new Date(displayStart);
                               
-                              bars.push(
-                                <div
-                                  key={`${event.id}-week-${weekRow}`}
-                                  className={`absolute h-6 ${getEventTypeColor(event.event_type)} text-white text-xs px-1 rounded flex items-center pointer-events-auto cursor-pointer hover:opacity-90 transition-opacity`}
-                                  style={{
-                                    left: `calc((100% / 7) * ${startCol} + 4px)`,
-                                    width: `calc((100% / 7) * ${barLength} - 8px)`,
-                                    top: `calc((100px + 4px) * ${weekRow} + ${eventIndex * 28}px + 4px)`,
-                                    zIndex: 10
-                                  }}
-                                  onClick={() => setSelectedEvent(event)}
-                                >
-                                  <span className="truncate flex items-center gap-1">
-                                    {currentDate.getDate() === displayStart.getDate() && (
-                                      <>
-                                        {event.is_important && <FaStar className="text-yellow-300 flex-shrink-0" size={10} />}
-                                        <span className={event.is_important ? 'font-bold' : ''}>{event.title}</span>
-                                      </>
-                                    )}
-                                  </span>
-                                </div>
-                              );
-                              
-                              // 다음 주로 이동
-                              currentDate = new Date(barEnd);
-                              currentDate.setDate(currentDate.getDate() + 1);
-                            }
+                              while (currentDate <= displayEnd) {
+                                const weekEnd = new Date(currentDate);
+                                weekEnd.setDate(weekEnd.getDate() + (6 - weekEnd.getDay()));
+                                
+                                const barEnd = weekEnd > displayEnd ? displayEnd : weekEnd;
+                                const startDateNum = currentDate.getDate();
+                                const weekRow = Math.floor((startDateNum + monthStart.getDay() - 1) / 7);
+                                
+                                if (!eventsByWeek[weekRow]) {
+                                  eventsByWeek[weekRow] = [];
+                                }
+                                
+                                eventsByWeek[weekRow].push({
+                                  event,
+                                  startDate: new Date(currentDate),
+                                  endDate: new Date(barEnd),
+                                  isFirstSegment: currentDate.getTime() === displayStart.getTime(),
+                                  isMonthStart: currentDate.getTime() === monthStart.getTime()
+                                });
+                                
+                                // 다음 주로 이동
+                                currentDate = new Date(barEnd);
+                                currentDate.setDate(currentDate.getDate() + 1);
+                              }
+                            });
+                          
+                          // 렌더링
+                          return Object.entries(eventsByWeek).map(([weekRow, weekEvents]) => {
+                            // 각 주의 이벤트들을 row로 정렬
+                            const rows: any[][] = [];
                             
-                            return bars;
-                          })}
+                            weekEvents.forEach(eventData => {
+                              let placed = false;
+                              const startCol = eventData.startDate.getDay();
+                              const endCol = eventData.endDate.getDay();
+                              
+                              // 기존 row들 중에서 배치 가능한 곳 찾기
+                              for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+                                const row = rows[rowIndex];
+                                let canPlace = true;
+                                
+                                for (const existingEvent of row) {
+                                  const existingStart = existingEvent.startDate.getDay();
+                                  const existingEnd = existingEvent.endDate.getDay();
+                                  
+                                  if (!(endCol < existingStart || startCol > existingEnd)) {
+                                    canPlace = false;
+                                    break;
+                                  }
+                                }
+                                
+                                if (canPlace) {
+                                  row.push(eventData);
+                                  placed = true;
+                                  break;
+                                }
+                              }
+                              
+                              if (!placed) {
+                                rows.push([eventData]);
+                              }
+                            });
+                            
+                            // 각 이벤트 렌더링
+                            return rows.map((row, rowIndex) => 
+                              row.map(eventData => {
+                                const startCol = eventData.startDate.getDay();
+                                const endCol = eventData.endDate.getDay();
+                                const barLength = endCol - startCol + 1;
+                                
+                                return (
+                                  <div
+                                    key={`${eventData.event.id}-week-${weekRow}-row-${rowIndex}`}
+                                    className={`absolute h-5 ${getEventTypeColor(eventData.event.event_type)} text-white text-xs px-1 rounded flex items-center pointer-events-auto cursor-pointer hover:opacity-90 transition-opacity overflow-hidden`}
+                                    style={{
+                                      left: `calc((100% / 7) * ${startCol} + 2px)`,
+                                      width: `calc((100% / 7) * ${barLength} - 4px)`,
+                                      top: `calc((100px + 4px) * ${weekRow} + 30px + ${rowIndex * 22}px)`,
+                                      zIndex: 10
+                                    }}
+                                    onClick={() => setSelectedEvent(eventData.event)}
+                                    title={eventData.event.title}
+                                  >
+                                    <span className="truncate flex items-center gap-1 w-full">
+                                      {(eventData.isFirstSegment || eventData.isMonthStart) && (
+                                        <>
+                                          {eventData.event.is_important && <FaStar className="text-yellow-300 flex-shrink-0" size={10} />}
+                                          <span className={eventData.event.is_important ? 'font-bold' : ''}>
+                                            {eventData.isMonthStart && !eventData.isFirstSegment ? '← ' : ''}
+                                            {eventData.event.title}
+                                          </span>
+                                        </>
+                                      )}
+                                    </span>
+                                  </div>
+                                );
+                              })
+                            );
+                          });
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -453,6 +520,7 @@ const CalendarPage = () => {
                                 <h4 className={`text-sm ${event.is_important ? 'font-bold' : 'font-semibold'} flex items-center gap-1`}>
                                   {event.is_important && <FaStar className="text-yellow-500" size={12} />}
                                   {event.title}
+                                  {event.announcement && <FaBullhorn className="text-blue-500 ml-1" size={10} />}
                                 </h4>
                                 <p className="text-xs text-gray-500 mt-1">
                                   {format(new Date(event.start_date), 'MM/dd', { locale: ko })}
@@ -484,7 +552,7 @@ const CalendarPage = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-lg p-6 max-w-md w-full"
+              className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3 mb-4">
@@ -511,6 +579,38 @@ const CalendarPage = () => {
               {selectedEvent.description && (
                 <p className="text-gray-700 mb-4 whitespace-pre-wrap">{selectedEvent.description}</p>
               )}
+              
+              {/* 공지사항 연결 표시 */}
+              {selectedEvent.announcement && (
+                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <FaBullhorn className="text-blue-500 mt-1 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-blue-900 mb-1">
+                        관련 공지사항
+                      </p>
+                      <p className="text-sm text-blue-700 mb-2">
+                        {selectedEvent.announcement.title}
+                      </p>
+                      <a
+                        href={`/announcements/${selectedEvent.announcement.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // 모달 닫기
+                          setSelectedEvent(null);
+                        }}
+                      >
+                        공지사항 보기
+                        <FaExternalLinkAlt size={10} />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               <div className="flex gap-2">
                 <button
                   onClick={() => downloadSingleEventICS(selectedEvent)}

@@ -68,6 +68,8 @@ export interface AcademicEvent {
   description?: string;
   location?: string;
   is_important: boolean;
+  announcement_id?: string;
+  announcement?: Announcement;
   created_at: string;
   updated_at: string;
 }
