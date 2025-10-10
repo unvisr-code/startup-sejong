@@ -368,7 +368,7 @@ const AdminNotificationsPage = () => {
         },
         body: JSON.stringify({
           ...form,
-          adminEmail: 'admin@sejong.ac.kr' // TODO: Get from auth context
+          adminEmail: 'admin@sejong.ac.kr'
         }),
       });
 

@@ -9,6 +9,7 @@ import { FaDownload, FaSync, FaCheckCircle, FaTimesCircle, FaSearch } from 'reac
 interface Application {
   id: string;
   name?: string;
+  email?: string;
   phone_number: string;
   department: string;
   grade: number;
@@ -66,8 +67,9 @@ const PreliminaryApplicationsPage = () => {
 
     // Search filter
     if (searchTerm) {
-      filtered = filtered.filter(app => 
+      filtered = filtered.filter(app =>
         (app.name || '').includes(searchTerm) ||
+        (app.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         app.phone_number.includes(searchTerm) ||
         app.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
         app.self_introduction.toLowerCase().includes(searchTerm.toLowerCase())
@@ -99,12 +101,13 @@ const PreliminaryApplicationsPage = () => {
   };
 
   const exportToCSV = () => {
-    const headers = ['신청일시', '이름', '전화번호', '학과', '학년', '나이', '학점', '창업아이템', '자기소개'];
+    const headers = ['신청일시', '이름', '이메일', '전화번호', '학과', '학년', '나이', '학점', '창업아이템', '자기소개'];
     const csvContent = [
       headers.join(','),
       ...filteredApplications.map(app => [
         format(new Date(app.created_at), 'yyyy-MM-dd HH:mm', { locale: ko }),
         app.name || '',
+        app.email || '',
         app.phone_number,
         app.department,
         `${app.grade}학년`,
@@ -187,7 +190,7 @@ const PreliminaryApplicationsPage = () => {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="이름, 전화번호, 학과, 내용"
+                  placeholder="이름, 이메일, 전화번호, 학과"
                   className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <FaSearch className="absolute left-2.5 top-3 text-gray-400" size={14} />
@@ -268,6 +271,9 @@ const PreliminaryApplicationsPage = () => {
                     이름
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    이메일
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     전화번호
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -293,13 +299,13 @@ const PreliminaryApplicationsPage = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={10} className="px-6 py-12 text-center text-gray-500">
                       <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                     </td>
                   </tr>
                 ) : filteredApplications.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={10} className="px-6 py-12 text-center text-gray-500">
                       신청 내역이 없습니다.
                     </td>
                   </tr>
@@ -311,6 +317,9 @@ const PreliminaryApplicationsPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {app.name || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {app.email || '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {app.phone_number}

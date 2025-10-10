@@ -11,6 +11,7 @@ interface ApplicationModalProps {
 
 interface FormData {
   name: string;
+  email: string;
   phone_number: string;
   department: string;
   grade: string;
@@ -26,6 +27,7 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
     name: '',
+    email: '',
     phone_number: '',
     department: '',
     grade: '',
@@ -95,6 +97,7 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
     setIsSubmitted(false);
     setFormData({
       name: '',
+      email: '',
       phone_number: '',
       department: '',
       grade: '',
@@ -189,6 +192,22 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
                       onChange={handleInputChange}
                       placeholder="홍길동"
                       maxLength={50}
+                      required
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      이메일 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="example@sejong.ac.kr"
                       required
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />

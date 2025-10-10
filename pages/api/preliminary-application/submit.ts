@@ -3,6 +3,7 @@ import { supabase } from '../../../lib/supabase';
 
 interface ApplicationData {
   name: string;
+  email: string;
   phone_number: string;
   department: string;
   grade: number;
@@ -25,9 +26,9 @@ export default async function handler(
     const data: ApplicationData = req.body;
 
     // Validate required fields
-    if (!data.name || !data.phone_number || !data.department || !data.grade || !data.age) {
-      return res.status(400).json({ 
-        error: '필수 항목을 모두 입력해주세요.' 
+    if (!data.name || !data.email || !data.phone_number || !data.department || !data.grade || !data.age) {
+      return res.status(400).json({
+        error: '필수 항목을 모두 입력해주세요.'
       });
     }
 
@@ -36,6 +37,15 @@ export default async function handler(
     if (name.length < 1 || name.length > 50) {
       return res.status(400).json({
         error: '이름은 1~50자 사이로 입력해주세요.'
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    const email = (data.email || '').trim();
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        error: '올바른 이메일 형식이 아닙니다.'
       });
     }
 
@@ -81,6 +91,7 @@ export default async function handler(
       .from('preliminary_applications')
       .insert({
         name,
+        email,
         phone_number: formatted_phone_number,
         department: data.department,
         grade: data.grade,
