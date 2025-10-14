@@ -4,7 +4,7 @@ export const SITE_CONFIG = {
   name: '세종대학교 융합창업연계전공',
   shortName: '세종창업',
   description: '기획부터 사업화까지, 아이디어를 성장시키는 창업 전공. 세종대학교 융합창업연계전공에서 준비된 청년창업인으로 성장하세요.',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://csstartup-sejong.vercel.app',
+  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://startup-sejong.vercel.app',
   ogImage: '/og.png',
   twitterHandle: '@sejong_startup',
   keywords: [

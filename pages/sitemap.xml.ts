@@ -33,7 +33,7 @@ ${urls
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://csstartup-sejong.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://startup-sejong.vercel.app';
   const currentDate = new Date().toISOString();
 
   try {
