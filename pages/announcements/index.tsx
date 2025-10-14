@@ -3,15 +3,21 @@ import Head from 'next/head';
 import Header from '../../components/Layout/Header';
 import Footer from '../../components/Layout/Footer';
 import AnnouncementCard from '../../components/Announcements/AnnouncementCard';
+import Breadcrumb from '../../components/SEO/Breadcrumb';
+import JsonLd from '../../components/SEO/JsonLd';
 import { motion } from 'framer-motion';
 import { FaSearch, FaBullhorn } from 'react-icons/fa';
 import { supabase, Announcement } from '../../lib/supabase';
+import { generateBreadcrumbSchema, SITE_CONFIG } from '../../lib/seo';
 
 const AnnouncementsPage = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  const breadcrumbItems = [{ name: '공지사항', url: '/announcements' }];
+  const breadcrumbSchema = generateBreadcrumbSchema([...breadcrumbItems.map(item => ({ name: '홈', url: '/' })), ...breadcrumbItems]);
 
   useEffect(() => {
     fetchAnnouncements();
@@ -83,9 +89,26 @@ const AnnouncementsPage = () => {
     <>
       <Head>
         <title>공지사항 - 세종대 융합창업연계전공</title>
-        <meta name="description" content="세종대학교 융합창업연계전공 공지사항" />
+        <meta name="description" content="세종대학교 융합창업연계전공의 최신 소식과 공지사항을 확인하세요. 학사 일정, 행사, 중요 안내사항 등을 제공합니다." />
+        <meta name="keywords" content="세종대학교 공지사항, 융합창업 공지, 창업전공 안내, 학사공지, 행사안내" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="공지사항 - 세종대 융합창업연계전공" />
+        <meta property="og:description" content="세종대학교 융합창업연계전공의 최신 소식과 공지사항을 확인하세요." />
+        <meta property="og:url" content={`${SITE_CONFIG.url}/announcements`} />
+        <meta property="og:image" content={`${SITE_CONFIG.url}${SITE_CONFIG.ogImage}`} />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="공지사항 - 세종대 융합창업연계전공" />
+        <meta name="twitter:description" content="세종대학교 융합창업연계전공의 최신 소식과 공지사항을 확인하세요." />
+
+        {/* Canonical */}
+        <link rel="canonical" href={`${SITE_CONFIG.url}/announcements`} />
       </Head>
 
+      <JsonLd data={breadcrumbSchema} />
       <Header />
       
       <main className="min-h-screen">

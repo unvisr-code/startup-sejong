@@ -257,7 +257,17 @@ const CalendarPage = () => {
     <>
       <Head>
         <title>학사일정 - 세종대 융합창업연계전공</title>
-        <meta name="description" content="세종대학교 융합창업연계전공 학사일정" />
+        <meta name="description" content="세종대학교 융합창업연계전공 학사일정을 확인하세요. 수강신청, 시험 기간, 학기 일정 등을 한눈에 볼 수 있습니다." />
+        <meta name="keywords" content="세종대학교 학사일정, 융합창업 일정, 수강신청, 시험기간, 학사캘린더" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="학사일정 - 세종대 융합창업연계전공" />
+        <meta property="og:description" content="세종대학교 융합창업연계전공 학사일정을 확인하세요." />
+        <meta property="og:url" content="https://csstartup-sejong.vercel.app/calendar" />
+
+        {/* Canonical */}
+        <link rel="canonical" href="https://csstartup-sejong.vercel.app/calendar" />
       </Head>
 
       <Header />

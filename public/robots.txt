@@ -1,0 +1,38 @@
+# robots.txt for 세종대 융합창업연계전공
+
+# Allow all crawlers
+User-agent: *
+
+# Allow public pages
+Allow: /
+Allow: /announcements
+Allow: /announcements/*
+Allow: /calendar
+Allow: /curriculum/*
+
+# Disallow admin pages
+Disallow: /admin
+Disallow: /admin/*
+
+# Disallow API routes
+Disallow: /api
+Disallow: /api/*
+
+# Allow images and assets
+Allow: /icons/*
+Allow: /logo.png
+Allow: /og.png
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.svg$
+Allow: /*.webp$
+Allow: /*.css$
+Allow: /*.js$
+
+# Sitemap location
+Sitemap: https://csstartup-sejong.vercel.app/sitemap.xml
+
+# Crawl delay (optional, for courtesy)
+Crawl-delay: 1

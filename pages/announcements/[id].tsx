@@ -4,6 +4,8 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Header from '../../components/Layout/Header';
 import Footer from '../../components/Layout/Footer';
+import Breadcrumb from '../../components/SEO/Breadcrumb';
+import JsonLd from '../../components/SEO/JsonLd';
 import { motion } from 'framer-motion';
 import { FaArrowLeft, FaCalendar, FaTag, FaDownload, FaPaperclip, FaEye, FaCloudDownloadAlt } from 'react-icons/fa';
 import { format } from 'date-fns';
@@ -12,6 +14,7 @@ import { supabase, Announcement, AnnouncementAttachment } from '../../lib/supaba
 import { getAnnouncementAttachments, downloadFile, formatFileSize, getFileIcon, isImageFile, getImagePreviewUrl, ImageLoadState } from '../../lib/fileUpload';
 import ImageModal from '../../components/Common/ImageModal';
 import Image from 'next/image';
+import { generateArticleSchema, generateExcerpt, SITE_CONFIG } from '../../lib/seo';
 
 const AnnouncementDetailPage = () => {
   const router = useRouter();
@@ -239,13 +242,49 @@ const AnnouncementDetailPage = () => {
     );
   }
 
+  const description = generateExcerpt(announcement.content, 160);
+  const breadcrumbItems = [
+    { name: '공지사항', url: '/announcements' },
+    { name: announcement.title, url: `/announcements/${announcement.id}` },
+  ];
+
+  const articleSchema = generateArticleSchema({
+    title: announcement.title,
+    description,
+    publishedTime: announcement.created_at,
+    modifiedTime: announcement.updated_at,
+    author: SITE_CONFIG.name,
+    url: `/announcements/${announcement.id}`,
+  });
+
   return (
     <>
       <Head>
         <title>{announcement.title} - 세종대 융합창업연계전공</title>
-        <meta name="description" content={announcement.content.substring(0, 160)} />
+        <meta name="description" content={description} />
+        <meta name="keywords" content={`세종대학교, 융합창업, 공지사항, ${announcement.category === 'important' ? '중요공지' : announcement.category === 'event' ? '행사' : '학사'}`} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={announcement.title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={`${SITE_CONFIG.url}/announcements/${announcement.id}`} />
+        <meta property="og:image" content={`${SITE_CONFIG.url}${SITE_CONFIG.ogImage}`} />
+        <meta property="article:published_time" content={announcement.created_at} />
+        <meta property="article:modified_time" content={announcement.updated_at} />
+        <meta property="article:author" content={SITE_CONFIG.name} />
+        <meta property="article:section" content="공지사항" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={announcement.title} />
+        <meta name="twitter:description" content={description} />
+
+        {/* Canonical */}
+        <link rel="canonical" href={`${SITE_CONFIG.url}/announcements/${announcement.id}`} />
       </Head>
 
+      <JsonLd data={articleSchema} />
       <Header />
       
       <main className="min-h-screen">
