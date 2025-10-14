@@ -8,6 +8,11 @@ interface SitemapUrl {
   priority?: number;
 }
 
+interface Announcement {
+  id: string;
+  updated_at: string | null;
+}
+
 function generateSiteMap(urls: SitemapUrl[]): string {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -61,7 +66,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       .order('updated_at', { ascending: false });
 
     const announcementUrls: SitemapUrl[] = announcements
-      ? announcements.map((announcement) => ({
+      ? announcements.map((announcement: Announcement) => ({
           loc: `${baseUrl}/announcements/${announcement.id}`,
           lastmod: announcement.updated_at || currentDate,
           changefreq: 'weekly' as const,
