@@ -4,7 +4,7 @@ import AdminLayout from '../../components/Admin/AdminLayout';
 import { supabase } from '../../lib/supabase';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { FaDownload, FaSync, FaCheckCircle, FaTimesCircle, FaSearch } from 'react-icons/fa';
+import { FaDownload, FaSync, FaCheckCircle, FaTimesCircle, FaSearch, FaTrash, FaCheckSquare } from 'react-icons/fa';
 
 interface Application {
   id: string;
@@ -29,6 +29,8 @@ const PreliminaryApplicationsPage = () => {
   const [filterDepartment, setFilterDepartment] = useState('');
   const [filterGrade, setFilterGrade] = useState('');
   const [filterStartupItem, setFilterStartupItem] = useState('all');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
     fetchApplications();
@@ -36,6 +38,9 @@ const PreliminaryApplicationsPage = () => {
 
   useEffect(() => {
     filterApplications();
+    // Reset selections when filter changes
+    setSelectedIds(new Set());
+    setSelectAll(false);
   }, [searchTerm, filterDepartment, filterGrade, filterStartupItem, applications]);
 
   const fetchApplications = async () => {
@@ -78,21 +83,21 @@ const PreliminaryApplicationsPage = () => {
 
     // Department filter
     if (filterDepartment) {
-      filtered = filtered.filter(app => 
+      filtered = filtered.filter(app =>
         app.department.toLowerCase().includes(filterDepartment.toLowerCase())
       );
     }
 
     // Grade filter
     if (filterGrade) {
-      filtered = filtered.filter(app => 
+      filtered = filtered.filter(app =>
         app.grade === parseInt(filterGrade)
       );
     }
 
     // Startup item filter
     if (filterStartupItem !== 'all') {
-      filtered = filtered.filter(app => 
+      filtered = filtered.filter(app =>
         app.has_startup_item === (filterStartupItem === 'yes')
       );
     }
@@ -100,11 +105,83 @@ const PreliminaryApplicationsPage = () => {
     setFilteredApplications(filtered);
   };
 
-  const exportToCSV = () => {
+  // Selection handlers
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedIds(new Set());
+      setSelectAll(false);
+    } else {
+      const allIds = new Set(filteredApplications.map(app => app.id));
+      setSelectedIds(allIds);
+      setSelectAll(true);
+    }
+  };
+
+  const handleSelectOne = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+      setSelectAll(false);
+    } else {
+      newSelected.add(id);
+      if (newSelected.size === filteredApplications.length) {
+        setSelectAll(true);
+      }
+    }
+    setSelectedIds(newSelected);
+  };
+
+  // Delete selected applications
+  const handleDeleteSelected = async () => {
+    if (selectedIds.size === 0) {
+      alert('삭제할 항목을 선택해주세요.');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `선택한 ${selectedIds.size}개의 신청 내역을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const idsToDelete = Array.from(selectedIds);
+      const { error } = await supabase
+        .from('preliminary_applications')
+        .delete()
+        .in('id', idsToDelete);
+
+      if (error) {
+        console.error('Delete error:', error);
+        alert('삭제 중 오류가 발생했습니다.');
+        return;
+      }
+
+      alert(`${selectedIds.size}개 항목이 삭제되었습니다.`);
+      setSelectedIds(new Set());
+      setSelectAll(false);
+      await fetchApplications();
+    } catch (error) {
+      console.error('Error deleting applications:', error);
+      alert('삭제 중 오류가 발생했습니다.');
+    }
+  };
+
+  // Download selected or all applications as CSV
+  const exportToCSV = (selectedOnly: boolean = false) => {
+    const dataToExport = selectedOnly && selectedIds.size > 0
+      ? filteredApplications.filter(app => selectedIds.has(app.id))
+      : filteredApplications;
+
+    if (dataToExport.length === 0) {
+      alert('다운로드할 데이터가 없습니다.');
+      return;
+    }
+
     const headers = ['신청일시', '이름', '이메일', '전화번호', '학과', '학년', '나이', '학점', '창업아이템', '자기소개'];
     const csvContent = [
       headers.join(','),
-      ...filteredApplications.map(app => [
+      ...dataToExport.map(app => [
         format(new Date(app.created_at), 'yyyy-MM-dd HH:mm', { locale: ko }),
         app.name || '',
         app.email || '',
@@ -122,7 +199,10 @@ const PreliminaryApplicationsPage = () => {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `예비신청_${format(new Date(), 'yyyyMMdd_HHmm')}.csv`);
+    const filename = selectedOnly
+      ? `예비신청_선택${selectedIds.size}건_${format(new Date(), 'yyyyMMdd_HHmm')}.csv`
+      : `예비신청_전체_${format(new Date(), 'yyyyMMdd_HHmm')}.csv`;
+    link.setAttribute('download', filename);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -248,15 +328,43 @@ const PreliminaryApplicationsPage = () => {
                 새로고침
               </button>
               <button
-                onClick={exportToCSV}
+                onClick={() => exportToCSV(false)}
                 className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 <FaDownload size={14} />
-                CSV 다운로드
+                전체 다운로드
               </button>
             </div>
           </div>
         </div>
+
+        {/* Selection Action Bar */}
+        {selectedIds.size > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <FaCheckSquare className="text-blue-600" size={20} />
+              <span className="font-medium text-blue-900">
+                {selectedIds.size}개 항목 선택됨
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => exportToCSV(true)}
+                className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center gap-2"
+              >
+                <FaDownload size={14} />
+                선택 다운로드
+              </button>
+              <button
+                onClick={handleDeleteSelected}
+                className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center gap-2"
+              >
+                <FaTrash size={14} />
+                선택 삭제
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Applications Table */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -264,6 +372,15 @@ const PreliminaryApplicationsPage = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <input
+                      type="checkbox"
+                      checked={selectAll}
+                      onChange={handleSelectAll}
+                      className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer"
+                      disabled={filteredApplications.length === 0}
+                    />
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     신청일시
                   </th>
@@ -299,19 +416,27 @@ const PreliminaryApplicationsPage = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={10} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={11} className="px-6 py-12 text-center text-gray-500">
                       <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                     </td>
                   </tr>
                 ) : filteredApplications.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={11} className="px-6 py-12 text-center text-gray-500">
                       신청 내역이 없습니다.
                     </td>
                   </tr>
                 ) : (
                   filteredApplications.map((app) => (
-                    <tr key={app.id} className="hover:bg-gray-50">
+                    <tr key={app.id} className={`hover:bg-gray-50 ${selectedIds.has(app.id) ? 'bg-blue-50' : ''}`}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(app.id)}
+                          onChange={() => handleSelectOne(app.id)}
+                          className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer"
+                        />
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {format(new Date(app.created_at), 'MM/dd HH:mm', { locale: ko })}
                       </td>
