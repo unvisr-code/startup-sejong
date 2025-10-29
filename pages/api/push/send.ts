@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import webpush from 'web-push';
 import { supabase } from '../../../lib/supabase';
 import { supabaseAdmin } from '../../../lib/supabaseAdmin';
+import { requireAuthApi } from '../../../lib/auth';
 
 // Validate VAPID configuration
 const validateVapidConfig = () => {
@@ -69,6 +70,12 @@ export default async function handler(
 ) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // 🔒 Authentication check - Admin only
+  const authResult = await requireAuthApi(req, res);
+  if (!authResult) {
+    return; // requireAuthApi already sent the error response
   }
 
   try {

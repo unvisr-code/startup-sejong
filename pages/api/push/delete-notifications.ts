@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '../../../lib/supabase';
+import { requireAuthApi } from '../../../lib/auth';
 
 export default async function handler(
   req: NextApiRequest,
@@ -7,10 +8,16 @@ export default async function handler(
 ) {
   // Only allow DELETE method
   if (req.method !== 'DELETE') {
-    return res.status(405).json({ 
-      success: false, 
-      error: 'Method not allowed' 
+    return res.status(405).json({
+      success: false,
+      error: 'Method not allowed'
     });
+  }
+
+  // 🔒 Authentication check - Admin only
+  const authResult = await requireAuthApi(req, res);
+  if (!authResult) {
+    return; // requireAuthApi already sent the error response
   }
 
   try {

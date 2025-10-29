@@ -25,7 +25,7 @@ export default async function handler(
     }
 
     // Check if any have click tracking data
-    const clickTracked = deliveryLogs?.filter(log => 
+    const clickTracked = deliveryLogs?.filter((log: any) =>
       log.error_message && log.error_message.startsWith('OPENED_AT:')
     ) || [];
 

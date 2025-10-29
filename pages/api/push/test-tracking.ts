@@ -75,7 +75,7 @@ export default async function handler(
       originalLog: deliveryLog,
       trackResult: trackResult,
       updatedLog: updatedLog,
-      trackingWorked: updatedLog && updatedLog.some(log => log.status === 'opened')
+      trackingWorked: updatedLog && updatedLog.some((log: any) => log.status === 'opened')
     });
 
   } catch (error: any) {
