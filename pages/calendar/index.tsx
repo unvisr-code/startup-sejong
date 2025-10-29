@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Header from '../../components/Layout/Header';
 import Footer from '../../components/Layout/Footer';
+import JsonLd from '../../components/SEO/JsonLd';
 import { motion } from 'framer-motion';
 import { FaCalendarAlt, FaChevronLeft, FaChevronRight, FaDownload, FaCalendarPlus, FaStar, FaBullhorn, FaExternalLinkAlt } from 'react-icons/fa';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
@@ -9,6 +10,7 @@ import { ko } from 'date-fns/locale';
 import { supabase, AcademicEvent } from '../../lib/supabase';
 import { downloadMonthlyICS, downloadSingleEventICS } from '../../lib/icsGenerator';
 import { useRouter } from 'next/router';
+import { generateEventSchema, SITE_CONFIG } from '../../lib/seo';
 
 const CalendarPage = () => {
   const router = useRouter();
@@ -264,14 +266,38 @@ const CalendarPage = () => {
         <meta property="og:type" content="website" />
         <meta property="og:title" content="학사일정 - 세종대 융합창업연계전공" />
         <meta property="og:description" content="세종대학교 융합창업연계전공 학사일정을 확인하세요." />
-        <meta property="og:url" content="https://csstartup-sejong.vercel.app/calendar" />
+        <meta property="og:url" content={`${SITE_CONFIG.url}/calendar`} />
+        <meta property="og:image" content={`${SITE_CONFIG.url}${SITE_CONFIG.ogImage}`} />
 
         {/* Canonical */}
-        <link rel="canonical" href="https://csstartup-sejong.vercel.app/calendar" />
+        <link rel="canonical" href={`${SITE_CONFIG.url}/calendar`} />
       </Head>
 
+      {/* Event Schema for current month events */}
+      {!loading && events.length > 0 && (
+        <JsonLd
+          data={events
+            .filter(event => {
+              const eventStart = new Date(event.start_date);
+              const eventEnd = new Date(event.end_date);
+              const monthStart = startOfMonth(currentDate);
+              const monthEnd = endOfMonth(currentDate);
+              return (eventStart <= monthEnd && eventEnd >= monthStart);
+            })
+            .map(event => generateEventSchema({
+              title: event.title,
+              description: event.description || event.title,
+              startDate: event.start_date,
+              endDate: event.end_date,
+              location: event.location,
+              url: `/calendar#event-${event.id}`
+            }))
+          }
+        />
+      )}
+
       <Header />
-      
+
       <main className="min-h-screen">
         {/* Hero Section */}
         <section className="bg-gradient-primary pt-36 pb-16">

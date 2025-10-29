@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes, FaExclamationCircle, FaComment, FaCheckCircle, FaSpinner } from 'react-icons/fa';
 
@@ -110,6 +110,19 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
     onClose();
   };
 
+  // 배경 스크롤 방지
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -118,32 +131,34 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black bg-opacity-50"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={handleClose}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="relative bg-white rounded-xl shadow-2xl p-5 md:p-6 max-w-xl w-full max-h-[90vh] overflow-y-auto"
           >
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
+              className="absolute top-3 right-3 p-2 text-gray-400 hover:text-white hover:bg-gradient-primary rounded-lg transition-all duration-300 transform hover:scale-110 z-10"
             >
-              <FaTimes size={24} />
+              <FaTimes size={20} />
             </button>
 
             {isSubmitted ? (
               // Success state - show KakaoChat prompt
-              <div className="text-center py-8">
+              <div className="text-center py-6">
+                <div className="h-1 w-16 bg-gradient-primary rounded-full mx-auto mb-6"></div>
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
                   <FaCheckCircle className="text-green-500 text-3xl" />
                 </div>
 
-                <h2 className="text-2xl font-bold mb-3">예비 신청이 완료되었습니다!</h2>
+                <h2 className="text-xl font-bold mb-3">예비 신청이 완료되었습니다!</h2>
                 
-                <p className="text-gray-600 mb-6 leading-relaxed">
+                <p className="text-gray-600 text-sm mb-5 leading-relaxed">
                   융합창업연계전공 예비 신청이 성공적으로 접수되었습니다.
                   <br />
                   <br />
@@ -152,10 +167,10 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
                   카카오톡 채널을 추가하시면 <strong className="text-primary">신청 기간 알림</strong>을 받으실 수 있습니다!
                 </p>
 
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   <button
                     onClick={openKakaoChat}
-                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2"
+                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2.5 px-5 rounded-lg transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center space-x-2"
                   >
                     <FaComment />
                     <span>카카오톡 채널 추가하기</span>
@@ -163,7 +178,7 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
 
                   <button
                     onClick={handleClose}
-                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-lg transition-all duration-300"
+                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-5 rounded-lg transition-all duration-300"
                   >
                     닫기
                   </button>
@@ -172,17 +187,18 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
             ) : (
               // Form state
               <div>
-                <div className="text-center mb-6">
-                  <h2 className="text-2xl font-bold mb-2">융합창업연계전공 예비 신청</h2>
-                  <p className="text-gray-600 text-sm">
+                <div className="text-center mb-5">
+                  <div className="h-1 w-16 bg-gradient-primary rounded-full mx-auto mb-4"></div>
+                  <h2 className="text-xl font-bold mb-2">융합창업연계전공 예비 신청</h2>
+                  <p className="text-gray-600 text-xs">
                     현재는 정식 신청 기간이 아니지만, 예비 신청을 통해 관련 정보를 받아보실 수 있습니다.
                   </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-3">
                   {/* Name */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
                       이름 <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -193,13 +209,13 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
                       placeholder="홍길동"
                       maxLength={50}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
                   {/* Email */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
                       이메일 <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -209,13 +225,13 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
                       onChange={handleInputChange}
                       placeholder="example@sejong.ac.kr"
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
                   {/* Phone Number */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
                       전화번호 <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -225,14 +241,14 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
                       onChange={handleInputChange}
                       placeholder="010-1234-5678"
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
                   {/* Department and Grade */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
                         학과 <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -242,11 +258,11 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
                         onChange={handleInputChange}
                         placeholder="예: 컴퓨터공학과"
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
                         학년 <span className="text-red-500">*</span>
                       </label>
                       <select
@@ -254,7 +270,7 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
                         value={formData.grade}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       >
                         <option value="">선택</option>
                         <option value="1">1학년</option>
@@ -266,9 +282,9 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
                   </div>
 
                   {/* Age and GPA */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
                         나이 <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -280,18 +296,18 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
                         min="18"
                         max="100"
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
                         학점 (선택)
                       </label>
                       <select
                         name="gpa"
                         value={formData.gpa}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                       >
                         <option value="미입력">선택안함</option>
                         <option value="4.5">4.5</option>
@@ -318,7 +334,7 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
                         onChange={handleInputChange}
                         className="w-4 h-4 text-primary focus:ring-primary border-gray-300 rounded"
                       />
-                      <span className="text-sm font-medium text-gray-700">
+                      <span className="text-xs font-medium text-gray-700">
                         창업 아이템을 보유하고 있습니다
                       </span>
                     </label>
@@ -326,7 +342,7 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
 
                   {/* Self Introduction */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
                       간단한 자기소개 (선택, 300자 이내)
                     </label>
                     <textarea
@@ -335,40 +351,40 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({ isOpen, onClose }) 
                       onChange={handleInputChange}
                       placeholder="창업에 관심을 갖게 된 계기나 목표 등을 자유롭게 작성해주세요"
                       maxLength={300}
-                      rows={4}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                      rows={3}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     />
-                    <p className="text-xs text-gray-500 mt-1 text-right">
+                    <p className="text-xs text-gray-500 mt-0.5 text-right">
                       {formData.self_introduction.length}/300자
                     </p>
                   </div>
 
                   {/* Error Message */}
                   {error && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-red-600 text-sm">{error}</p>
+                    <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-red-600 text-xs">{error}</p>
                     </div>
                   )}
 
                   {/* Submit Button */}
-                  <div className="pt-4">
+                  <div className="pt-2">
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-gradient-primary hover:opacity-90 text-white font-bold py-2.5 px-5 rounded-lg transition-all duration-300 transform hover:scale-[1.02] flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                     >
                       {isLoading ? (
                         <>
                           <FaSpinner className="animate-spin" />
-                          <span>처리 중...</span>
+                          <span className="text-sm">처리 중...</span>
                         </>
                       ) : (
-                        <span>예비 신청하기</span>
+                        <span className="text-sm">예비 신청하기</span>
                       )}
                     </button>
                   </div>
 
-                  <p className="text-xs text-gray-500 text-center">
+                  <p className="text-[10px] text-gray-500 text-center">
                     * 정식 신청 기간: 매학기 5월, 11월
                   </p>
                 </form>

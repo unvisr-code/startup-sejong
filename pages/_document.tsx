@@ -7,11 +7,22 @@ export default function Document() {
         <meta charSet="utf-8" />
         <meta name="description" content="기획부터 사업화까지, 아이디어를 성장시키는 창업 전공" />
         <meta name="keywords" content="세종대학교, 융합창업, 창업교육, 스타트업, 창업전공" />
+
+        {/* Naver Webmaster Tools - Replace with your actual verification code */}
+        {process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION && (
+          <meta name="naver-site-verification" content={process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION} />
+        )}
+
+        {/* Open Graph */}
         <meta property="og:title" content="세종대 융합창업연계전공" />
         <meta property="og:description" content="기획부터 사업화까지, 아이디어를 성장시키는 창업 전공" />
         <meta property="og:image" content="/og.png" />
+
         <link rel="icon" href="/logo.png" />
-        
+
+        {/* RSS Feed for Naver and other search engines */}
+        <link rel="alternate" type="application/rss+xml" title="세종대 융합창업연계전공 RSS Feed" href="/rss.xml" />
+
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#3b82f6" />

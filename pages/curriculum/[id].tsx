@@ -3,6 +3,8 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { FaHome, FaCheckCircle, FaBook } from 'react-icons/fa';
 import Link from 'next/link';
+import JsonLd from '../../components/SEO/JsonLd';
+import { SITE_CONFIG } from '../../lib/seo';
 import curriculumData from '../../curriculum.json';
 
 interface Course {
@@ -133,12 +135,72 @@ const CurriculumSharePage = () => {
     return messages.join(' | ');
   };
 
+  const pageTitle = `세종대 융합창업 ${data.type === 'major' ? '연계전공' : '연계부전공'} 이수체계도`;
+  const pageDescription = `세종대학교 융합창업연계전공 ${data.type === 'major' ? '연계전공' : '연계부전공'} 이수체계도입니다. 전공필수 ${totalCore}학점, 전공선택 ${totalElective}학점으로 총 ${totalCore + totalElective}학점을 선택하였습니다.`;
+
+  // Course Schema 생성
+  const courseSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name: `세종대학교 융합창업연계전공 ${data.type === 'major' ? '연계전공' : '연계부전공'}`,
+    description: pageDescription,
+    provider: {
+      '@type': 'EducationalOrganization',
+      name: '세종대학교',
+      url: SITE_CONFIG.url
+    },
+    educationalCredentialAwarded: data.type === 'major' ? '연계전공' : '연계부전공',
+    numberOfCredits: {
+      '@type': 'EducationalOccupationalCredential',
+      credentialCategory: '학점',
+      name: `총 ${credits.core + credits.elective}학점`
+    },
+    coursePrerequisites: '세종대학교 재학생',
+    hasCourseInstance: [
+      ...selectedCore.map(course => ({
+        '@type': 'CourseInstance',
+        name: course.name,
+        description: course.desc,
+        courseMode: 'onsite',
+        courseWorkload: `${course.credits}학점`
+      })),
+      ...selectedElective.map(course => ({
+        '@type': 'CourseInstance',
+        name: course.name,
+        description: course.desc,
+        courseMode: 'onsite',
+        courseWorkload: `${course.credits}학점`
+      }))
+    ]
+  };
+
   return (
     <>
       <Head>
-        <title>세종대 융합창업 {data.type === 'major' ? '연계전공' : '연계부전공'} 이수체계도</title>
-        <meta name="description" content={`세종대학교 융합창업학과 ${data.type === 'major' ? '연계전공' : '연계부전공'} 이수체계도`} />
+        <title>{pageTitle} - 세종대 융합창업연계전공</title>
+        <meta name="description" content={pageDescription} />
+        <meta name="keywords" content={`세종대학교, 융합창업, ${data.type === 'major' ? '연계전공' : '연계부전공'}, 이수체계도, 커리큘럼, 학점이수`} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={`${SITE_CONFIG.url}/curriculum/${id}`} />
+        <meta property="og:image" content={`${SITE_CONFIG.url}${SITE_CONFIG.ogImage}`} />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+
+        {/* Canonical */}
+        <link rel="canonical" href={`${SITE_CONFIG.url}/curriculum/${id}`} />
+
+        {/* Robots - Allow indexing for curriculum pages */}
+        <meta name="robots" content="index, follow" />
       </Head>
+
+      <JsonLd data={courseSchema} />
 
       <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
         <div className="container-custom">

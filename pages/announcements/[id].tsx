@@ -382,8 +382,9 @@ const AnnouncementDetailPage = () => {
                                 {imageLoadStates[attachment.id]?.url && !imageLoadStates[attachment.id]?.loading && !imageLoadStates[attachment.id]?.error && (
                                   <img
                                     src={imageLoadStates[attachment.id].url!}
-                                    alt={attachment.file_name}
+                                    alt={`${announcement.title} - ${attachment.file_name} 첨부 이미지`}
                                     className="w-full h-full object-cover"
+                                    loading="lazy"
                                     onError={() => {
                                       setImageLoadStates(prev => ({
                                         ...prev,

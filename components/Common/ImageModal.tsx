@@ -169,7 +169,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
           {imageUrl && !loading && !error && (
             <Image
               src={imageUrl}
-              alt={currentImage.file_name}
+              alt={`${currentImage.file_name} - 첨부 이미지 ${currentIndex + 1}/${images.length}`}
               width={isZoomed ? 1200 : 800}
               height={isZoomed ? 900 : 600}
               className={`object-contain rounded-lg transition-all duration-300 ${
@@ -181,6 +181,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
               }}
               onError={() => setError(true)}
               unoptimized={true}
+              priority={currentIndex === 0}
             />
           )}
         </motion.div>
