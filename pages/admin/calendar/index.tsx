@@ -72,10 +72,10 @@ const AdminCalendarPage = () => {
       if (error) throw error;
       
       setEvents(events.filter(e => e.id !== id));
-      alert('일정이 삭제되었습니다.');
+      showSuccess('일정이 삭제되었습니다.', 2000);
     } catch (error) {
       console.error('Error deleting event:', error);
-      alert('삭제 중 오류가 발생했습니다.');
+      showError('삭제 중 오류가 발생했습니다.');
     }
   };
 

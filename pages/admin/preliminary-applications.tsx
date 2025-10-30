@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { FaDownload, FaSync, FaCheckCircle, FaTimesCircle, FaSearch, FaTrash, FaCheckSquare } from 'react-icons/fa';
+import { showSuccess, showError, showWarning } from '../../lib/toast';
 
 interface Application {
   id: string;
@@ -134,7 +135,7 @@ const PreliminaryApplicationsPage = () => {
   // Delete selected applications
   const handleDeleteSelected = async () => {
     if (selectedIds.size === 0) {
-      alert('삭제할 항목을 선택해주세요.');
+      showWarning('삭제할 항목을 선택해주세요.');
       return;
     }
 
@@ -153,17 +154,17 @@ const PreliminaryApplicationsPage = () => {
 
       if (error) {
         console.error('Delete error:', error);
-        alert('삭제 중 오류가 발생했습니다.');
+        showError('삭제 중 오류가 발생했습니다.');
         return;
       }
 
-      alert(`${selectedIds.size}개 항목이 삭제되었습니다.`);
+      showSuccess(`${selectedIds.size}개 항목이 삭제되었습니다.`, 2000);
       setSelectedIds(new Set());
       setSelectAll(false);
       await fetchApplications();
     } catch (error) {
       console.error('Error deleting applications:', error);
-      alert('삭제 중 오류가 발생했습니다.');
+      showError('삭제 중 오류가 발생했습니다.');
     }
   };
 
@@ -174,7 +175,7 @@ const PreliminaryApplicationsPage = () => {
       : filteredApplications;
 
     if (dataToExport.length === 0) {
-      alert('다운로드할 데이터가 없습니다.');
+      showWarning('다운로드할 데이터가 없습니다.');
       return;
     }
 

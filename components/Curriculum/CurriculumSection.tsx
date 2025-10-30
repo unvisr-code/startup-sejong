@@ -4,6 +4,7 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBook, FaStar, FaCheck, FaTimes, FaPlay, FaCopy } from 'react-icons/fa';
 import curriculumData from '../../curriculum.json';
+import { showError } from '../../lib/toast';
 
 interface Course {
   name: string;
@@ -128,7 +129,7 @@ const CurriculumSection = () => {
       }, 3000);
     }).catch(err => {
       console.error('링크 복사 실패:', err);
-      alert('링크 복사에 실패했습니다.');
+      showError('링크 복사에 실패했습니다.');
     });
   };
 

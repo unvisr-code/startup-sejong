@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FaBell, FaBellSlash, FaExclamationTriangle } from 'react-icons/fa';
-import { 
-  subscribeToPush, 
-  unsubscribeFromPush, 
-  getSubscriptionStatus, 
+import {
+  subscribeToPush,
+  unsubscribeFromPush,
+  getSubscriptionStatus,
   requestNotificationPermission,
   showLocalNotification,
   isVapidConfigured,
@@ -11,6 +11,7 @@ import {
   getBrowserInfo,
   getPlatformError
 } from '../../lib/pushNotifications';
+import { showError, showWarning, showInfo } from '../../lib/toast';
 
 const PushNotificationButton: React.FC = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -71,9 +72,9 @@ const PushNotificationButton: React.FC = () => {
       
       // Show user-friendly alert for critical errors
       if (errorMessage.includes('VAPID')) {
-        alert('시스템 설정 오류입니다. 관리자에게 문의해주세요.');
+        showError('시스템 설정 오류입니다. 관리자에게 문의해주세요.');
       } else {
-        alert(errorMessage);
+        showError(errorMessage);
       }
     } finally {
       setLoading(false);
@@ -93,11 +94,11 @@ const PushNotificationButton: React.FC = () => {
           '더 이상 푸시 알림을 받지 않습니다.'
         );
       } else {
-        alert('알림 구독 해제에 실패했습니다.');
+        showError('알림 구독 해제에 실패했습니다.');
       }
     } catch (error) {
       console.error('Unsubscribe error:', error);
-      alert('알림 구독 해제 중 오류가 발생했습니다.');
+      showError('알림 구독 해제 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
@@ -110,7 +111,7 @@ const PushNotificationButton: React.FC = () => {
     if (permission === 'granted') {
       handleSubscribe();
     } else {
-      alert('알림을 받으려면 브라우저에서 알림 권한을 허용해주세요.');
+      showWarning('알림을 받으려면 브라우저에서 알림 권한을 허용해주세요.');
     }
   };
 
@@ -138,7 +139,7 @@ const PushNotificationButton: React.FC = () => {
       
       return (
         <button
-          onClick={() => alert(message)}
+          onClick={() => showInfo(message, 6000)}
           className="flex items-center gap-2 px-3 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm hover:bg-yellow-200 transition-colors"
           title="알림 안내"
         >
@@ -153,7 +154,7 @@ const PushNotificationButton: React.FC = () => {
   if (!('Notification' in window) || !('serviceWorker' in navigator)) {
     return (
       <button
-        onClick={() => alert('이 브라우저는 알림을 지원하지 않습니다.\n\nChrome 또는 Firefox 브라우저를 사용해주세요.')}
+        onClick={() => showWarning('이 브라우저는 알림을 지원하지 않습니다. Chrome 또는 Firefox 브라우저를 사용해주세요.')}
         className="flex items-center gap-2 px-3 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm hover:bg-yellow-200 transition-colors"
         title="알림 미지원"
       >
@@ -167,7 +168,7 @@ const PushNotificationButton: React.FC = () => {
   if (error?.includes('브라우저')) {
     return (
       <button
-        onClick={() => alert(error)}
+        onClick={() => showError(error)}
         className="flex items-center gap-2 px-3 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm hover:bg-yellow-200 transition-colors"
         title={error}
       >

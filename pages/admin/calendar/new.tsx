@@ -119,22 +119,22 @@ const NewCalendarEventPage = () => {
 
           const pushResult = await pushResponse.json();
           if (pushResponse.ok) {
-            alert(`일정이 추가되었습니다.\n\n푸시 알림이 ${pushResult.sent}명에게 발송되었습니다.`);
+            showSuccess(`일정이 추가되었습니다.\n\n푸시 알림이 ${pushResult.sent}명에게 발송되었습니다.`);
           } else {
-            alert(`일정은 추가되었으나 푸시 알림 발송에 실패했습니다.\n${pushResult.error || '오류가 발생했습니다.'}`);
+            showWarning(`일정은 추가되었으나 푸시 알림 발송에 실패했습니다.\n${pushResult.error || '오류가 발생했습니다.'}`);
           }
         } catch (error) {
           console.error('Push notification error:', error);
-          alert('일정은 추가되었으나 푸시 알림 발송에 실패했습니다.');
+          showWarning('일정은 추가되었으나 푸시 알림 발송에 실패했습니다.');
         }
       } else {
-        alert('일정이 추가되었습니다.');
+        showSuccess('일정이 추가되었습니다.');
       }
       
       router.push('/admin/calendar');
     } catch (error) {
       console.error('Error creating calendar event:', error);
-      alert('일정 추가 중 오류가 발생했습니다.');
+      showError('일정 추가 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }

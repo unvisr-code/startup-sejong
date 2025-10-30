@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { showSuccess, showError, showWarning, showSupabaseError } from '../../../lib/toast';
 import { useUnsavedChanges } from '../../../hooks/useUnsavedChanges';
+import { sanitizeAdminPreview } from '../../../lib/sanitize';
 
 interface AnnouncementForm {
   title: string;

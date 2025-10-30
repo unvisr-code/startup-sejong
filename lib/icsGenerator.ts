@@ -1,5 +1,6 @@
 import { createEvent, DateArray, EventAttributes } from 'ics';
 import { AcademicEvent } from './supabase';
+import { showError } from './toast';
 
 // 날짜를 ICS 형식으로 변환하는 함수
 const dateToICSArray = (dateString: string): DateArray => {
@@ -115,7 +116,7 @@ export const downloadICSFile = (icsContent: string, filename: string) => {
     window.URL.revokeObjectURL(url);
   } catch (error) {
     console.error('ICS 파일 다운로드 중 오류 발생:', error);
-    alert('파일 다운로드 중 오류가 발생했습니다.');
+    showError('파일 다운로드 중 오류가 발생했습니다.');
   }
 };
 
@@ -130,7 +131,7 @@ export const downloadMonthlyICS = (events: AcademicEvent[], monthDate: Date) => 
   if (icsContent) {
     downloadICSFile(icsContent, `세종대_융합창업_${monthName}_학사일정`);
   } else {
-    alert('ICS 파일 생성에 실패했습니다.');
+    showError('ICS 파일 생성에 실패했습니다.');
   }
 };
 
@@ -140,6 +141,6 @@ export const downloadSingleEventICS = (event: AcademicEvent) => {
   if (icsContent) {
     downloadICSFile(icsContent, `${event.title}_일정`);
   } else {
-    alert('ICS 파일 생성에 실패했습니다.');
+    showError('ICS 파일 생성에 실패했습니다.');
   }
 };

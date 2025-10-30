@@ -15,6 +15,8 @@ import { getAnnouncementAttachments, downloadFile, formatFileSize, getFileIcon, 
 import ImageModal from '../../components/Common/ImageModal';
 import Image from 'next/image';
 import { generateArticleSchema, generateExcerpt, SITE_CONFIG } from '../../lib/seo';
+import { sanitizeHtml } from '../../lib/sanitize';
+import { showError, showWarning } from '../../lib/toast';
 
 const AnnouncementDetailPage = () => {
   const router = useRouter();
@@ -119,7 +121,7 @@ const AnnouncementDetailPage = () => {
     try {
       // Fallback 파일 확인
       if (attachment.file_path.startsWith('fallback/') || attachment.file_name.includes('(미리보기)')) {
-        alert('이 파일은 미리보기로만 저장되어 다운로드할 수 없습니다.\n\n관리자에게 실제 파일을 요청하거나 Supabase Storage 설정을 확인해주세요.');
+        showWarning('이 파일은 미리보기로만 저장되어 다운로드할 수 없습니다. 관리자에게 실제 파일을 요청하거나 Supabase Storage 설정을 확인해주세요.');
         return;
       }
       
@@ -144,7 +146,7 @@ const AnnouncementDetailPage = () => {
         downloadButton.innerHTML = originalContent;
         
         if (!success) {
-          alert('파일 다운로드에 실패했습니다.\n\nStorage 설정을 확인하거나 관리자에게 문의해주세요.');
+          showError('파일 다운로드에 실패했습니다. Storage 설정을 확인하거나 관리자에게 문의해주세요.');
         }
       } else {
         // 다운로드 수 증가
@@ -156,12 +158,12 @@ const AnnouncementDetailPage = () => {
         // 버튼이 없으면 그냥 다운로드 시도
         const success = await downloadFile(attachment.file_path, attachment.file_name);
         if (!success) {
-          alert('파일 다운로드에 실패했습니다.\n\nStorage 설정을 확인하거나 관리자에게 문의해주세요.');
+          showError('파일 다운로드에 실패했습니다. Storage 설정을 확인하거나 관리자에게 문의해주세요.');
         }
       }
     } catch (error) {
       console.error('Download error:', error);
-      alert('파일 다운로드 중 오류가 발생했습니다.');
+      showError('파일 다운로드 중 오류가 발생했습니다.');
     }
   };
 
@@ -341,7 +343,7 @@ const AnnouncementDetailPage = () => {
                 {/* Announcement Content */}
                 <div 
                   className="prose prose-lg max-w-none mb-8 ql-content"
-                  dangerouslySetInnerHTML={{ __html: announcement.content }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(announcement.content) }}
                 />
 
                 {/* Attachments */}

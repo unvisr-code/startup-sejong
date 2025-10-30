@@ -11,6 +11,7 @@ import { uploadMultipleFiles } from '../../../lib/fileUpload';
 import { formatNotificationBody } from '../../../lib/utils';
 import { showSuccess, showError, showWarning, showSupabaseError } from '../../../lib/toast';
 import { useUnsavedChanges } from '../../../hooks/useUnsavedChanges';
+import { sanitizeAdminPreview } from '../../../lib/sanitize';
 
 interface AnnouncementForm {
   title: string;
@@ -245,7 +246,7 @@ const NewAnnouncementPage = () => {
               {showPreview ? (
                 // 미리보기 모드
                 <div className="min-h-[400px] p-4 border border-gray-300 rounded-lg bg-gray-50">
-                  <div className="prose max-w-none ql-content" dangerouslySetInnerHTML={{ __html: editorContent || '<p class="text-gray-400">내용을 입력해주세요</p>' }} />
+                  <div className="prose max-w-none ql-content" dangerouslySetInnerHTML={{ __html: sanitizeAdminPreview(editorContent || '<p class="text-gray-400">내용을 입력해주세요</p>') }} />
                 </div>
               ) : (
                 // 에디터 모드
@@ -302,9 +303,9 @@ const NewAnnouncementPage = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   미리보기
                 </label>
-                <div 
+                <div
                   className="p-4 border border-gray-200 rounded-lg bg-gray-50 prose max-w-none"
-                  dangerouslySetInnerHTML={{ __html: content }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeAdminPreview(content) }}
                 />
               </div>
             )}

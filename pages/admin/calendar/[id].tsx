@@ -78,7 +78,7 @@ const EditCalendarPage = () => {
       }
     } catch (error) {
       console.error('Error fetching event:', error);
-      alert('일정을 불러오는 중 오류가 발생했습니다.');
+      showError('일정을 불러오는 중 오류가 발생했습니다.');
       router.push('/admin/calendar');
     } finally {
       setFetching(false);
@@ -136,22 +136,22 @@ const EditCalendarPage = () => {
 
           const pushResult = await pushResponse.json();
           if (pushResponse.ok) {
-            alert(`학사일정이 수정되었습니다.\n\n푸시 알림이 ${pushResult.sent}명에게 발송되었습니다.`);
+            showSuccess(`학사일정이 수정되었습니다.\n\n푸시 알림이 ${pushResult.sent}명에게 발송되었습니다.`);
           } else {
-            alert(`학사일정은 수정되었으나 푸시 알림 발송에 실패했습니다.\n${pushResult.error || '오류가 발생했습니다.'}`);
+            showWarning(`학사일정은 수정되었으나 푸시 알림 발송에 실패했습니다.\n${pushResult.error || '오류가 발생했습니다.'}`);
           }
         } catch (error) {
           console.error('Push notification error:', error);
-          alert('학사일정은 수정되었으나 푸시 알림 발송에 실패했습니다.');
+          showWarning('학사일정은 수정되었으나 푸시 알림 발송에 실패했습니다.');
         }
       } else {
-        alert('학사일정이 성공적으로 수정되었습니다.');
+        showSuccess('학사일정이 성공적으로 수정되었습니다.');
       }
 
       router.push('/admin/calendar');
     } catch (error) {
       console.error('Error updating event:', error);
-      alert('학사일정 수정 중 오류가 발생했습니다.');
+      showError('학사일정 수정 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }

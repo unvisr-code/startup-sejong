@@ -3,6 +3,7 @@ import { FaTimes, FaUser, FaClock, FaDesktop, FaTrash, FaSearch, FaCheckCircle, 
 import { supabaseAdmin } from '../../lib/supabaseAdmin';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { showSuccess, showError } from '../../lib/toast';
 // import { utcToZonedTime } from 'date-fns-tz';
 
 interface Subscriber {
@@ -61,7 +62,7 @@ const SubscribersModal: React.FC<SubscribersModalProps> = ({
       setSubscribers(data || []);
     } catch (error) {
       console.error('Error fetching subscribers:', error);
-      alert('구독자 목록을 불러오는데 실패했습니다.');
+      showError('구독자 목록을 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -82,10 +83,10 @@ const SubscribersModal: React.FC<SubscribersModalProps> = ({
       if (onSubscriptionDeleted) {
         onSubscriptionDeleted();
       }
-      alert('구독이 삭제되었습니다.');
+      showSuccess('구독이 삭제되었습니다.', 2000);
     } catch (error) {
       console.error('Error deleting subscription:', error);
-      alert('구독 삭제에 실패했습니다.');
+      showError('구독 삭제에 실패했습니다.');
     }
   };
 
@@ -105,7 +106,7 @@ const SubscribersModal: React.FC<SubscribersModalProps> = ({
       );
     } catch (error) {
       console.error('Error toggling subscription status:', error);
-      alert('상태 변경에 실패했습니다.');
+      showError('상태 변경에 실패했습니다.');
     }
   };
 

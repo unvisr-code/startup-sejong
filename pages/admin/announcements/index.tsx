@@ -63,10 +63,10 @@ const AdminAnnouncementsPage = () => {
       if (error) throw error;
       
       setAnnouncements(announcements.filter(a => a.id !== id));
-      alert('공지사항이 삭제되었습니다.');
+      showSuccess('공지사항이 삭제되었습니다.', 2000);
     } catch (error) {
       console.error('Error deleting announcement:', error);
-      alert('삭제 중 오류가 발생했습니다.');
+      showError('삭제 중 오류가 발생했습니다.');
     }
   };
 
@@ -86,7 +86,7 @@ const AdminAnnouncementsPage = () => {
       ));
     } catch (error) {
       console.error('Error toggling pin:', error);
-      alert('고정 상태 변경 중 오류가 발생했습니다.');
+      showError('고정 상태 변경 중 오류가 발생했습니다.');
     }
   };
 

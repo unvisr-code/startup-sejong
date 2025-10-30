@@ -8,6 +8,7 @@ import { ko } from 'date-fns/locale';
 import SubscribersModal from '../../components/Admin/SubscribersModal';
 import { formatNotificationBody } from '../../lib/utils';
 import dynamic from 'next/dynamic';
+import { showSuccess, showError, showWarning, showInfo } from '../../lib/toast';
 
 // Chart 컴포넌트를 dynamic import로 불러오기 (SSR 문제 해결)
 const SubscriberChart = dynamic(() => import('../../components/Admin/SubscriberChart'), { 
@@ -141,7 +142,7 @@ const AdminNotificationsPage = () => {
       const result = await response.json();
 
       if (result.success) {
-        alert(`✅ 테이블 설정 완료!\n\n생성된 테이블: ${result.tablesCreated.join(', ')}\n\n${result.message}`);
+        showSuccess(`테이블 설정 완료!\n\n생성된 테이블: ${result.tablesCreated.join(', ')}\n\n${result.message}`);
         
         // Refresh system status and subscription count
         await fetchSystemStatus();
@@ -155,11 +156,11 @@ const AdminNotificationsPage = () => {
         
         errorMessage += '\n\n수동 설정 필요:\n1. Supabase 대시보드에서 SQL Editor 열기\n2. database/push_notifications.sql 파일 내용 복사\n3. SQL Editor에서 실행';
         
-        alert(errorMessage);
+        showError(errorMessage);
       }
     } catch (error: any) {
       console.error('Setup tables error:', error);
-      alert(`❌ 테이블 설정 중 오류 발생\n\n${error.message}\n\n수동으로 database/push_notifications.sql을 Supabase SQL Editor에서 실행해주세요.`);
+      showError(`테이블 설정 중 오류 발생\n\n${error.message}\n\n수동으로 database/push_notifications.sql을 Supabase SQL Editor에서 실행해주세요.`);
     } finally {
       setLoading(false);
     }
@@ -190,14 +191,14 @@ const AdminNotificationsPage = () => {
       const result = await response.json();
       
       if (result.success) {
-        alert(`✅ ${result.message}\n남은 활성 구독: ${result.remainingActiveSubscriptions}개`);
+        showSuccess(`${result.message}\n남은 활성 구독: ${result.remainingActiveSubscriptions}개`);
         await fetchSubscriptionCount();
       } else {
-        alert(`❌ 실패: ${result.error}`);
+        showError(`실패: ${result.error}`);
       }
     } catch (error: any) {
       console.error('Clear subscriptions error:', error);
-      alert(`❌ 오류 발생: ${error.message}`);
+      showError(`오류 발생: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -234,7 +235,7 @@ const AdminNotificationsPage = () => {
    - 이메일은 유효한 이메일 주소여야 합니다
 `;
 
-    alert(guide);
+    showInfo(guide, 8000);
   };
 
   const fetchSubscriptionCount = async () => {
@@ -350,12 +351,12 @@ const AdminNotificationsPage = () => {
     e.preventDefault();
     
     if (!form.title.trim() || !form.body.trim()) {
-      alert('제목과 내용을 모두 입력해주세요.');
+      showWarning('제목과 내용을 모두 입력해주세요.');
       return;
     }
 
     if (subscriptionCount === 0) {
-      alert('구독자가 없습니다. 먼저 사용자들이 알림을 구독해야 합니다.');
+      showWarning('구독자가 없습니다. 먼저 사용자들이 알림을 구독해야 합니다.');
       return;
     }
 
@@ -375,7 +376,7 @@ const AdminNotificationsPage = () => {
       const result = await response.json();
 
       if (response.ok) {
-        alert(`알림이 전송되었습니다!\n성공: ${result.sent}건, 실패: ${result.errors}건`);
+        showSuccess(`알림이 전송되었습니다!\n성공: ${result.sent}건, 실패: ${result.errors}건`);
         
         // Reset form
         setForm({
@@ -404,7 +405,7 @@ const AdminNotificationsPage = () => {
           errorMessage = result.error || '알림 전송에 실패했습니다.';
         }
         
-        alert(errorMessage);
+        showError(errorMessage);
       }
     } catch (error: any) {
       console.error('Send notification error:', error);
@@ -416,7 +417,7 @@ const AdminNotificationsPage = () => {
         errorMessage = `오류: ${error.message}`;
       }
       
-      alert(errorMessage);
+      showError(errorMessage);
     } finally {
       setSending(false);
     }
@@ -543,7 +544,7 @@ const AdminNotificationsPage = () => {
 
   const handleDeleteNotifications = async () => {
     if (selectedNotifications.length === 0) {
-      alert('삭제할 알림을 선택해주세요.');
+      showWarning('삭제할 알림을 선택해주세요.');
       return;
     }
 
@@ -565,15 +566,15 @@ const AdminNotificationsPage = () => {
       const result = await response.json();
 
       if (result.success) {
-        alert(`✅ ${result.deletedCount}개의 발송 기록이 삭제되었습니다.`);
+        showSuccess(`${result.deletedCount}개의 발송 기록이 삭제되었습니다.`);
         setSelectedNotifications([]);
         await fetchNotificationHistory();
       } else {
-        alert(`❌ 삭제 실패: ${result.error}`);
+        showError(`삭제 실패: ${result.error}`);
       }
     } catch (error: any) {
       console.error('Delete notifications error:', error);
-      alert(`❌ 오류 발생: ${error.message}`);
+      showError(`오류 발생: ${error.message}`);
     } finally {
       setLoading(false);
     }
