@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import 'react-quill-new/dist/quill.snow.css';
+import { showError } from '../../lib/toast';
 
 // React Quill New를 dynamic import로 불러오기 (React 19 지원)
 const ReactQuill = dynamic(
   () => import('react-quill-new'),
-  { 
+  {
     ssr: false,
     loading: () => <div className="h-64 bg-gray-50 rounded-lg animate-pulse" />
   }
 );
+
+// Quill Image Resize Module을 dynamic import로 불러오기
+let ImageResize: any = null;
+if (typeof window !== 'undefined') {
+  ImageResize = require('quill-image-resize-module-react').default;
+}
 
 interface RichTextEditorProps {
   value: string;
@@ -26,9 +33,19 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 }) => {
   const [isClient, setIsClient] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [quillReady, setQuillReady] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+
+    // Quill 모듈 등록
+    if (typeof window !== 'undefined' && ImageResize) {
+      const Quill = require('react-quill-new').Quill;
+      if (Quill && !Quill.imports['modules/imageResize']) {
+        Quill.register('modules/imageResize', ImageResize);
+      }
+      setQuillReady(true);
+    }
   }, []);
 
   // Quill 모듈 설정 - react-quill-new에서 지원되는 기능만 사용
@@ -36,28 +53,35 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     toolbar: [
       // 제목 스타일
       [{ 'header': [1, 2, 3, false] }],
-      
+
       // 텍스트 스타일
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'color': [] }, { 'background': [] }],
-      
+
       // 목록 - check는 지원되지 않을 수 있으므로 제거
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       [{ 'indent': '-1'}, { 'indent': '+1' }],
-      
+
       // 정렬
       [{ 'align': [] }],
-      
+
       // 링크와 미디어
       ['link', 'image'],
-      
+
       // 기타
       ['blockquote', 'code-block'],
       ['clean'] // 서식 지우기
     ],
     clipboard: {
       matchVisual: false // 붙여넣기 시 원본 스타일 유지
-    }
+    },
+    // 이미지 리사이즈 모듈 추가
+    ...(ImageResize && quillReady ? {
+      imageResize: {
+        parchment: typeof window !== 'undefined' ? require('react-quill-new').Quill.import('parchment') : null,
+        modules: ['Resize', 'DisplaySize', 'Toolbar']
+      }
+    } : {})
   };
 
   // Quill 포맷 설정 - 지원되는 포맷만 포함
@@ -95,6 +119,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       </div>
     );
   }
+
+  // 에러 발생 시 toast 알림 (최초 1회만)
+  useEffect(() => {
+    if (isError) {
+      showError('에디터를 불러오는 중 문제가 발생했습니다. 텍스트 입력 모드로 전환됩니다.');
+    }
+  }, [isError]);
 
   // React Quill 렌더링을 try-catch로 감싸기
   try {
@@ -188,6 +219,34 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           height: auto;
           display: block;
           margin: 1em 0;
+          cursor: pointer;
+        }
+
+        /* 이미지 리사이즈 핸들 스타일 */
+        .rich-text-editor .ql-editor img.img-resize {
+          position: relative;
+        }
+
+        .rich-text-editor .ql-editor .img-resize-handle {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          background-color: #2563eb;
+          border: 1px solid white;
+          border-radius: 2px;
+          cursor: nwse-resize;
+        }
+
+        .rich-text-editor .ql-editor .img-resize-display-size {
+          position: absolute;
+          bottom: -30px;
+          right: 0;
+          background-color: rgba(0, 0, 0, 0.7);
+          color: white;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          pointer-events: none;
         }
         
         /* 툴바 아이콘 hover 효과 */

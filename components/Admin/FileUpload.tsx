@@ -1,13 +1,14 @@
 import React, { useState, useRef } from 'react';
-import { FaUpload, FaTrash, FaTimes, FaFile } from 'react-icons/fa';
-import { 
-  validateFileType, 
-  validateFileSize, 
-  formatFileSize, 
+import { FaUpload, FaTrash, FaTimes, FaFile, FaCheckCircle } from 'react-icons/fa';
+import {
+  validateFileType,
+  validateFileSize,
+  formatFileSize,
   getFileIcon,
   ALLOWED_FILE_TYPES,
-  MAX_FILE_SIZE 
+  MAX_FILE_SIZE
 } from '../../lib/fileUpload';
+import { showSuccess, showError, showWarning } from '../../lib/toast';
 
 interface FileItem {
   file: File;
@@ -38,25 +39,33 @@ const FileUpload: React.FC<FileUploadProps> = ({
     fileArray.forEach((file) => {
       // 파일 개수 제한 확인
       if (files.length + validFiles.length >= maxFiles) {
-        newErrors.push(`최대 ${maxFiles}개의 파일만 업로드할 수 있습니다.`);
+        const errorMsg = `최대 ${maxFiles}개의 파일만 업로드할 수 있습니다.`;
+        newErrors.push(errorMsg);
+        showWarning(errorMsg);
         return;
       }
 
       // 중복 파일 확인
       if (files.some(f => f.file.name === file.name && f.file.size === file.size)) {
-        newErrors.push(`${file.name}: 이미 추가된 파일입니다.`);
+        const errorMsg = `${file.name}: 이미 추가된 파일입니다.`;
+        newErrors.push(errorMsg);
+        showWarning(errorMsg);
         return;
       }
 
       // 파일 타입 검증
       if (!validateFileType(file)) {
-        newErrors.push(`${file.name}: 지원하지 않는 파일 형식입니다.`);
+        const errorMsg = `${file.name}: 지원하지 않는 파일 형식입니다.`;
+        newErrors.push(errorMsg);
+        showError(errorMsg);
         return;
       }
 
       // 파일 크기 검증
       if (!validateFileSize(file)) {
-        newErrors.push(`${file.name}: 파일 크기가 ${formatFileSize(MAX_FILE_SIZE)}를 초과합니다.`);
+        const errorMsg = `${file.name}: 파일 크기가 ${formatFileSize(MAX_FILE_SIZE)}를 초과합니다.`;
+        newErrors.push(errorMsg);
+        showError(errorMsg);
         return;
       }
 
@@ -70,15 +79,27 @@ const FileUpload: React.FC<FileUploadProps> = ({
       const updatedFiles = [...files, ...validFiles];
       setFiles(updatedFiles);
       onFilesChange(updatedFiles.map(f => f.file));
+
+      // 성공 알림
+      if (validFiles.length === 1) {
+        showSuccess(`${validFiles[0].file.name} 파일이 추가되었습니다.`);
+      } else {
+        showSuccess(`${validFiles.length}개의 파일이 추가되었습니다.`);
+      }
     }
 
     setErrors(newErrors);
   };
 
   const removeFile = (id: string) => {
+    const fileToRemove = files.find(f => f.id === id);
     const updatedFiles = files.filter(f => f.id !== id);
     setFiles(updatedFiles);
     onFilesChange(updatedFiles.map(f => f.file));
+
+    if (fileToRemove) {
+      showSuccess(`${fileToRemove.file.name} 파일이 삭제되었습니다.`, 2000);
+    }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,7 +125,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    
+
     if (!disabled && e.dataTransfer.files) {
       addFiles(e.dataTransfer.files);
     }
@@ -117,9 +138,14 @@ const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   const clearAllFiles = () => {
+    const count = files.length;
     setFiles([]);
     onFilesChange([]);
     setErrors([]);
+
+    if (count > 0) {
+      showSuccess(`${count}개의 파일이 모두 삭제되었습니다.`, 2000);
+    }
   };
 
   return (
@@ -193,26 +219,30 @@ const FileUpload: React.FC<FileUploadProps> = ({
             {files.map((fileItem) => (
               <div
                 key={fileItem.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+                className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200 transition-all"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <span className="text-2xl">
-                    {getFileIcon(fileItem.file.type)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">
+                      {getFileIcon(fileItem.file.type)}
+                    </span>
+                    <FaCheckCircle className="text-green-600" size={16} />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-900 truncate">
                       {fileItem.file.name}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-600">
                       {formatFileSize(fileItem.file.size)}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => removeFile(fileItem.id)}
-                  className="text-red-600 hover:text-red-800 p-1"
+                  className="text-red-600 hover:text-red-800 p-1 transition-colors"
                   type="button"
                   disabled={disabled}
+                  title="파일 삭제"
                 >
                   <FaTrash size={14} />
                 </button>

@@ -5,11 +5,13 @@ import AdminLayout from '../../../components/Admin/AdminLayout';
 import FileUpload from '../../../components/Admin/FileUpload';
 import RichTextEditor from '../../../components/Admin/RichTextEditor';
 import { useForm } from 'react-hook-form';
-import { FaSave, FaTimes, FaEye, FaTrash, FaDownload, FaPaperclip } from 'react-icons/fa';
+import { FaSave, FaTimes, FaEye, FaTrash, FaDownload, FaPaperclip, FaSpinner } from 'react-icons/fa';
 import { supabase, Announcement, AnnouncementAttachment } from '../../../lib/supabase';
 import { uploadMultipleFiles, getAnnouncementAttachments, deleteFile, getFileDownloadUrl, formatFileSize, getFileIcon } from '../../../lib/fileUpload';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { showSuccess, showError, showWarning, showSupabaseError } from '../../../lib/toast';
+import { useUnsavedChanges } from '../../../hooks/useUnsavedChanges';
 
 interface AnnouncementForm {
   title: string;
@@ -29,8 +31,26 @@ const EditAnnouncementPage = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [existingAttachments, setExistingAttachments] = useState<AnnouncementAttachment[]>([]);
   const [editorContent, setEditorContent] = useState('');
-  
+
   const { register, handleSubmit, formState: { errors }, watch, reset } = useForm<AnnouncementForm>();
+
+  // 미저장 변경사항 감지
+  const { isDirty, setIsDirty, saveNow, clearSaved } = useUnsavedChanges<AnnouncementForm>({
+    formType: 'announcement',
+    formId: id as string || 'edit',
+    enableAutoSave: true,
+    enableWarning: true,
+    interval: 30000,
+  });
+
+  // 폼 데이터 변경 감지
+  const formData = watch();
+  useEffect(() => {
+    if (formData.title || editorContent) {
+      setIsDirty(true);
+      saveNow({ ...formData, content: editorContent } as AnnouncementForm);
+    }
+  }, [formData.title, editorContent]);
 
   useEffect(() => {
     if (id) {
@@ -81,7 +101,7 @@ const EditAnnouncementPage = () => {
   const onSubmit = async (data: AnnouncementForm) => {
     // 에디터 내용 검증
     if (!editorContent || editorContent === '<p><br></p>') {
-      alert('내용을 입력해주세요.');
+      showWarning('내용을 입력해주세요.');
       return;
     }
     
@@ -112,25 +132,30 @@ const EditAnnouncementPage = () => {
 
         if (!uploadResult.success) {
           console.error('File upload errors:', uploadResult.errors);
-          alert(`공지사항은 수정되었지만 파일 업로드 중 오류가 발생했습니다:\n${uploadResult.errors.join('\n')}`);
+          showError(`파일 업로드 중 오류: ${uploadResult.errors.join(', ')}`);
         } else {
           // 첨부파일 목록 새로 고침
           const attachmentData = await getAnnouncementAttachments(id as string);
           setExistingAttachments(attachmentData);
           
           if (uploadResult.usedFallback) {
-            alert('공지사항이 수정되었습니다.\n\n⚠️ 참고: Supabase Storage가 설정되지 않아 파일은 미리보기로만 저장되었습니다.\n실제 파일 다운로드 기능을 사용하려면 Storage 설정이 필요합니다.');
+            showWarning('Supabase Storage가 설정되지 않아 파일은 미리보기로만 저장되었습니다.');
+            showSuccess('공지사항이 수정되었습니다.');
+            clearSaved();
+            setIsDirty(false);
             router.push('/admin/announcements');
             return;
           }
         }
       }
       
-      alert('공지사항이 수정되었습니다.');
+      showSuccess('공지사항이 수정되었습니다.');
+      clearSaved();
+      setIsDirty(false);
       router.push('/admin/announcements');
     } catch (error) {
       console.error('Error updating announcement:', error);
-      alert('공지사항 수정 중 오류가 발생했습니다.');
+      showSupabaseError(error, '공지사항 수정 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
       setUploadProgress(0);
@@ -144,13 +169,13 @@ const EditAnnouncementPage = () => {
       const result = await deleteFile(attachmentId);
       if (result.success) {
         setExistingAttachments(existingAttachments.filter(a => a.id !== attachmentId));
-        alert('파일이 삭제되었습니다.');
+        showSuccess('파일이 삭제되었습니다.', 2000);
       } else {
-        alert(result.error || '파일 삭제에 실패했습니다.');
+        showError(result.error || '파일 삭제에 실패했습니다.');
       }
     } catch (error) {
       console.error('Error deleting file:', error);
-      alert('파일 삭제 중 오류가 발생했습니다.');
+      showError('파일 삭제 중 오류가 발생했습니다.');
     }
   };
 
@@ -165,11 +190,11 @@ const EditAnnouncementPage = () => {
         link.click();
         document.body.removeChild(link);
       } else {
-        alert('파일 다운로드 링크를 생성할 수 없습니다.');
+        showError('파일 다운로드 링크를 생성할 수 없습니다.');
       }
     } catch (error) {
       console.error('Download error:', error);
-      alert('파일 다운로드 중 오류가 발생했습니다.');
+      showError('파일 다운로드 중 오류가 발생했습니다.');
     }
   };
 
@@ -394,8 +419,17 @@ const EditAnnouncementPage = () => {
                       disabled={loading}
                       className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <FaSave />
-                      {loading ? '저장 중...' : '저장'}
+                      {loading ? (
+                        <>
+                          <FaSpinner className="animate-spin" />
+                          저장 중...
+                        </>
+                      ) : (
+                        <>
+                          <FaSave />
+                          저장
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

@@ -3,6 +3,7 @@ import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { registerServiceWorker } from '../lib/pushNotifications';
 import InstallPrompt from '../components/PWA/InstallPrompt';
+import { Toaster } from 'react-hot-toast';
 
 function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -16,6 +17,18 @@ function MyApp({ Component, pageProps }: AppProps) {
     <>
       <Component {...pageProps} />
       <InstallPrompt />
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        gutter={8}
+        toastOptions={{
+          duration: 4000,
+          style: {
+            fontSize: '14px',
+            fontWeight: 500,
+          },
+        }}
+      />
     </>
   );
 }

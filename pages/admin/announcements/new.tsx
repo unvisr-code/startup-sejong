@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import AdminLayout from '../../../components/Admin/AdminLayout';
 import FileUpload from '../../../components/Admin/FileUpload';
 import RichTextEditor from '../../../components/Admin/RichTextEditor';
 import { useForm } from 'react-hook-form';
-import { FaSave, FaTimes, FaEye } from 'react-icons/fa';
+import { FaSave, FaTimes, FaEye, FaSpinner } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 import { uploadMultipleFiles } from '../../../lib/fileUpload';
 import { formatNotificationBody } from '../../../lib/utils';
+import { showSuccess, showError, showWarning, showSupabaseError } from '../../../lib/toast';
+import { useUnsavedChanges } from '../../../hooks/useUnsavedChanges';
 
 interface AnnouncementForm {
   title: string;
@@ -33,16 +35,34 @@ const NewAnnouncementPage = () => {
     }
   });
 
+  // 미저장 변경사항 감지
+  const { isDirty, setIsDirty, saveNow, clearSaved } = useUnsavedChanges<AnnouncementForm>({
+    formType: 'announcement',
+    formId: 'new',
+    enableAutoSave: true,
+    enableWarning: true,
+    interval: 30000, // 30초마다 자동저장
+  });
+
+  // 폼 데이터 변경 감지
+  const formData = watch();
+  useEffect(() => {
+    if (formData.title || editorContent) {
+      setIsDirty(true);
+      saveNow({ ...formData, content: editorContent } as AnnouncementForm);
+    }
+  }, [formData.title, editorContent]);
+
   const onSubmit = async (data: AnnouncementForm) => {
     // 에디터 내용 검증
     if (!editorContent || editorContent === '<p><br></p>') {
-      alert('내용을 입력해주세요.');
+      showWarning('내용을 입력해주세요.');
       return;
     }
-    
+
     setLoading(true);
     setUploadProgress(0);
-    
+
     try {
       // 공지사항 먼저 생성 (에디터 내용 사용)
       const { data: announcement, error: announcementError } = await supabase
@@ -57,7 +77,10 @@ const NewAnnouncementPage = () => {
         .select()
         .single();
 
-      if (announcementError) throw announcementError;
+      if (announcementError) {
+        showSupabaseError(announcementError, '공지사항 작성 중 오류가 발생했습니다.');
+        throw announcementError;
+      }
 
       // 파일이 있으면 업로드
       if (selectedFiles.length > 0) {
@@ -69,9 +92,12 @@ const NewAnnouncementPage = () => {
 
         if (!uploadResult.success) {
           console.error('File upload errors:', uploadResult.errors);
-          alert(`공지사항은 생성되었지만 파일 업로드 중 오류가 발생했습니다:\n${uploadResult.errors.join('\n')}`);
+          showError(`공지사항은 생성되었지만 파일 업로드 중 오류가 발생했습니다: ${uploadResult.errors.join(', ')}`);
         } else if (uploadResult.usedFallback) {
-          alert('공지사항이 성공적으로 작성되었습니다.\n\n⚠️ 참고: Supabase Storage가 설정되지 않아 파일은 미리보기로만 저장되었습니다.\n실제 파일 다운로드 기능을 사용하려면 Storage 설정이 필요합니다.');
+          showWarning('Supabase Storage가 설정되지 않아 파일은 미리보기로만 저장되었습니다.');
+          showSuccess('공지사항이 성공적으로 작성되었습니다.');
+          clearSaved(); // 자동저장 데이터 삭제
+          setIsDirty(false);
           router.push('/admin/announcements');
           return;
         }
@@ -96,22 +122,25 @@ const NewAnnouncementPage = () => {
 
           const pushResult = await pushResponse.json();
           if (pushResponse.ok) {
-            alert(`공지사항이 성공적으로 작성되었습니다.\n\n푸시 알림이 ${pushResult.sent}명에게 발송되었습니다.`);
+            showSuccess(`공지사항이 성공적으로 작성되었습니다! 푸시 알림이 ${pushResult.sent}명에게 발송되었습니다.`);
           } else {
-            alert(`공지사항은 작성되었으나 푸시 알림 발송에 실패했습니다.\n${pushResult.error || '오류가 발생했습니다.'}`);
+            showWarning(`공지사항은 작성되었으나 푸시 알림 발송에 실패했습니다: ${pushResult.error || '오류 발생'}`);
           }
         } catch (error) {
           console.error('Push notification error:', error);
-          alert('공지사항은 작성되었으나 푸시 알림 발송에 실패했습니다.');
+          showWarning('공지사항은 작성되었으나 푸시 알림 발송에 실패했습니다.');
         }
       } else {
-        alert('공지사항이 성공적으로 작성되었습니다.');
+        showSuccess('공지사항이 성공적으로 작성되었습니다.');
       }
-      
+
+      // 자동저장 데이터 삭제 및 상태 초기화
+      clearSaved();
+      setIsDirty(false);
       router.push('/admin/announcements');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating announcement:', error);
-      alert('공지사항 작성 중 오류가 발생했습니다.');
+      showSupabaseError(error, '공지사항 작성 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
       setUploadProgress(0);
@@ -295,8 +324,17 @@ const NewAnnouncementPage = () => {
                 disabled={loading}
                 className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <FaSave />
-                {loading ? '저장 중...' : '저장'}
+                {loading ? (
+                  <>
+                    <FaSpinner className="animate-spin" />
+                    저장 중...
+                  </>
+                ) : (
+                  <>
+                    <FaSave />
+                    저장
+                  </>
+                )}
               </button>
             </div>
           </form>
