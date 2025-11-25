@@ -92,7 +92,6 @@ const IframePopup: React.FC = () => {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
             className="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden"
-            style={{ height: '90vh', maxHeight: '900px' }}
           >
             {/* 닫기 버튼 */}
             <button
@@ -103,8 +102,11 @@ const IframePopup: React.FC = () => {
               <FaTimes size={20} />
             </button>
 
-            {/* iframe 컨테이너 */}
-            <div className="w-full h-full overflow-hidden">
+            {/* iframe 컨테이너 - 콘텐츠 비율에 맞게 조절 */}
+            <div
+              className="w-full overflow-hidden"
+              style={{ aspectRatio: '3 / 4', maxHeight: '85vh' }}
+            >
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
