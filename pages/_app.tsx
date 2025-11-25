@@ -3,6 +3,7 @@ import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { registerServiceWorker } from '../lib/pushNotifications';
 import InstallPrompt from '../components/PWA/InstallPrompt';
+import IframePopup from '../components/Popup/IframePopup';
 import { Toaster } from 'react-hot-toast';
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -16,6 +17,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Component {...pageProps} />
+      <IframePopup />
       <InstallPrompt />
       <Toaster
         position="top-right"
